@@ -1,4 +1,3 @@
----
 
 ## 🛣️ API Endpoints
 
@@ -8,13 +7,18 @@
 *   `POST /auth/refresh` - Rotate expired Access Tokens using HttpOnly cookies.
 
 ### Tasks
-*   `GET /task/count` - Get task numbers based on role scope.
-*   `POST /task` - Create a new task (validated by role).
-*   `PUT /task/:id` - Update task status or assignment.
-*   `DELETE /task/:id` - Update task status or assignment.
+
+*    `/task/create`	- POST	Creates a new task. Assignable to users within the same department.
+*    `/task`    	- GET	Fetches tasks with support for status, search, page, and limit query params.
+*    `/task/:id`	- GET	Retrieves full details for a single task.
+*    `/task/:id`- PATCH	Updates task details (Title/Desc) or updates task status (pending, in-progress, completed).
+*    `/task/:id`   -	DELETE	Removes a task from the system (Admin/Dept Head only).
+*    `/task/count`	- GET	Returns task statistics (Pending vs Completed) scoped to the user's role permissions.
 
 ### Users
 *   `GET /user/users` - Fetch team members (Filtered by department for Dept Heads).
+*   `/user/employees` - GET	Fetches a simplified list of employees for task assignment dropdowns.
+*   `/dept`           - GET	Public: Returns the list of valid Department Enums for the registration form.
 
 ---
 
@@ -62,21 +66,6 @@ A secure, full-stack Task Management System featuring **Role-Based Access Contro
 *   **Express-Validator** for robust request validation.
 *   **JWT** for secure identity management.
 *   **BCRYPT** for password hashing.
-
-
----
-
-## 🛡️ RBAC Permission Matrix
-
-| Feature | Org Admin | Dept Head | Member |
-| :--- | :---: | :---: | :---: |
-| View All Tasks | ✅ | ❌ | ❌ |
-| View Dept Tasks | ✅ | ✅ | ❌ |
-| Create/Edit Tasks | ✅ | ✅ (In Dept) | ✅ (Self) |
-| Manage Users | ✅ | ❌ | ❌ |
-| View Dashboard | ✅ (Global) | ✅ (Dept) | ✅ (Self) |
-
----
 
 ## ⚙️ Installation & Setup
 
