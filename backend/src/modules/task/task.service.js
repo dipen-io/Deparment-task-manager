@@ -4,11 +4,9 @@ const User = require("../user/user.model");
 const { ROLES } = require("../../constant/roles");
 
 const create = async (taskData) => {
-  console.log("BEFRE: ", taskData);
   if (!taskData.assignedTo || taskData.assignedTo === "") {
     delete taskData.assignedTo;
   }
-  console.log("AFTER: ", taskData);
   const task = await Task.create(taskData);
   return task;
 };
