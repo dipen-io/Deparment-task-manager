@@ -4,6 +4,11 @@ const User = require("../user/user.model");
 const { ROLES } = require("../../constant/roles");
 
 const create = async (taskData) => {
+  console.log("BEFRE: ", taskData);
+  if (!taskData.assignedTo || taskData.assignedTo === "") {
+    delete taskData.assignedTo;
+  }
+  console.log("AFTER: ", taskData);
   const task = await Task.create(taskData);
   return task;
 };
@@ -13,7 +18,7 @@ const remove = async (taskId, user) => {
   if (!task) {
     throw new AppError("Task not found", 404);
   }
-  const isAdmin = user.role === "Admin";
+  const isAdmin = user.role !== ROLES.DEPT_HEAD;
   const isCreator = task.createdBy.toString() === user._id.toString();
 
   if (!isAdmin && !isCreator) {
@@ -25,8 +30,13 @@ const remove = async (taskId, user) => {
   return;
 };
 
-const getAll = async (query) => {
+const getAll = async (role, id, query) => {
   const filter = {};
+
+  if (role === ROLES.DEPT_HEAD) {
+    // he can see only the
+    filter.createdBy = id;
+  }
 
   // If the admin searches for a specific status (?status=completed)
   if (query.status) {
@@ -72,11 +82,12 @@ const getOne = async (taskId, user) => {
     .populate("assignedTo", "name email")
     .populate("createdBy", "name");
 
+  console.log("TASK: ", task);
   if (!task) {
     throw new AppError("Task not found", 404);
   }
 
-  const isAdmin = user.role == "Admin";
+  const isAdmin = user.role !== ROLES.MEMBER;
   const isAssignee = task.assignedTo?._id.toString() === user._id.toString();
 
   // 3. If they aren't an Admin AND they aren't the assignee, block them!
@@ -101,7 +112,7 @@ const updateOne = async (taskId, updateData, user, assignedTo) => {
     throw new AppError("Task not found", 404);
   }
 
-  const isAdmin = user.role === "Admin";
+  const isAdmin = user.role !== ROLES.MEMBER;
   const isAssignee = task.assignedTo?.toString() === user._id.toString();
 
   if (!isAdmin && !isAssignee) {

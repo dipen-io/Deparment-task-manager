@@ -40,12 +40,20 @@ const deleteTask = asyncHandler(async (req, res) => {
 
 // get all task by admin
 const getAllTasks = asyncHandler(async (req, res) => {
+  const id = req.user._id;
+  const role = req.user.role;
   // Pass req.query so the service can read ?status=... or ?page=...
-  const result = await getAll(req.query);
+  const result = await getAll(role, id, req.query);
 
   res
     .status(200)
-    .json(new ApiResponse(200, "Tasks retrieved successfully", result));
+    .json(
+      new ApiResponse(
+        200,
+        `Tasks retrieved successfully by ${req.user.role}`,
+        result,
+      ),
+    );
 });
 
 const getSingleTask = asyncHandler(async (req, res) => {
@@ -123,8 +131,7 @@ const getDeptSelft = asyncHandler(async (req, res) => {
 // get task count by all
 const getTaskCount = asyncHandler(async (req, res) => {
   try {
-    console.log("HIIIII");
-    const { role, department: userDept, id: userId } = req.user;
+    const { role, department: userDept, _id: userId } = req.user;
     const { department: targetDept } = req.query;
     let query = {};
     if (role === "org_admin") {
@@ -133,16 +140,15 @@ const getTaskCount = asyncHandler(async (req, res) => {
       query = {};
     } else if (role === "dept_head") {
       // Dept Head: Restricted to their own department only
-      query.department = userDept;
+      // just return all created: id
+      query.createdBy = userId;
     } else {
       // Member: Only see count of tasks assigned to them
       query.assignedTo = userId;
     }
 
-    console.log("Success");
     console.log("Constructed Query:", query);
     const count = await Task.countDocuments(query);
-    console.log("HIIIII", count);
 
     res
       .status(200)

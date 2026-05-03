@@ -1,8 +1,12 @@
 const User = require("./user.model");
+const { ROLES } = require("../../constant/roles");
 
-const getAllEmployees = async (query) => {
+const getAllEmployees = async (role, department, query) => {
   const filter = { role: "member" };
 
+  if (role === ROLES.DEPT_HEAD) {
+    filter.department = department;
+  }
   if (query.search) {
     filter.$or = [
       { name: { $regex: query.search, $options: "i" } },

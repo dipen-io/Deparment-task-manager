@@ -3,7 +3,9 @@ const ApiResponse = require("../../utils/ApiResponse");
 const { getAllEmployees, getUsersService } = require("./user.service");
 
 const listEmployees = asyncHandler(async (req, res) => {
-  const employees = await getAllEmployees(req.query);
+  const department = req.user.department;
+  const role = req.user.role;
+  const employees = await getAllEmployees(role, department, req.query);
 
   res
     .status(200)
