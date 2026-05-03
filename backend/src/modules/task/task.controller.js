@@ -1,5 +1,6 @@
 const asyncHandler = require("../../utils/asyncHandler");
 const ApiResponse = require("../../utils/ApiResponse");
+const Task = require("../task/task.model");
 const { ROLES } = require("../../constant/roles");
 const {
   getTaskByEmployee,
@@ -94,6 +95,7 @@ const assignTask = asyncHandler(async (req, res) => {
 });
 
 const getTaskByEmp = asyncHandler(async (req, res) => {
+  console.log("HItting this one");
   const id = req.user._id;
   const tasks = await getTaskByEmployee(id);
   const payload = {
@@ -118,8 +120,37 @@ const getDeptSelft = asyncHandler(async (req, res) => {
   res.status(200).json(new ApiResponse(200, "My All Task", tasks));
 });
 
-// view all users by admin / dept wise by dept_head
-//TODO;
+// get task count by all
+const getTaskCount = asyncHandler(async (req, res) => {
+  try {
+    console.log("HIIIII");
+    const { role, department: userDept, id: userId } = req.user;
+    const { department: targetDept } = req.query;
+    let query = {};
+    if (role === "org_admin") {
+      console.log("HIIIII INSIDE");
+      // if (targetDept) query.department = targetDept;
+      query = {};
+    } else if (role === "dept_head") {
+      // Dept Head: Restricted to their own department only
+      query.department = userDept;
+    } else {
+      // Member: Only see count of tasks assigned to them
+      query.assignedTo = userId;
+    }
+
+    console.log("Success");
+    console.log("Constructed Query:", query);
+    const count = await Task.countDocuments(query);
+    console.log("HIIIII", count);
+
+    res
+      .status(200)
+      .json(new ApiResponse(200, `Get Task COunt by ${role}`, count));
+  } catch (error) {
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 
 module.exports = {
   createTask,
@@ -130,4 +161,5 @@ module.exports = {
   assignTask,
   getTaskByEmp,
   getDeptSelft,
+  getTaskCount,
 };

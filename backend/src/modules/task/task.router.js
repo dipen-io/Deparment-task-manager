@@ -9,6 +9,7 @@ const {
   getAllTasks,
   getSingleTask,
   getDeptSelft,
+  getTaskCount,
 } = require("./task.controller");
 const {
   assignTaskValidator,
@@ -28,7 +29,20 @@ router.post(
   createTask,
 );
 
-router.get("/my-tasks", protect, authorize(ROLES.EMPLOYEE), getTaskByEmp);
+router.get(
+  "/my-tasks",
+  protect,
+  authorize(ROLES.ADMIN, ROLES.DEPT_HEAD, ROLES.MEMBER),
+  getTaskByEmp,
+);
+
+router.get(
+  "/count",
+  protect,
+  authorize(ROLES.ADMIN, ROLES.DEPT_HEAD, ROLES.MEMBER),
+  getTaskCount,
+);
+
 router.get(
   "/myself-task",
   protect,
