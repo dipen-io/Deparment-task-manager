@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../modules/user/user.model");
 const AppError = require("../utils/AppError");
 const asyncHandler = require("../utils/asyncHandler");
+const { ROLES } = require("../constant/roles");
 
 const protect = asyncHandler(async (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -22,7 +23,7 @@ const protect = asyncHandler(async (req, res, next) => {
   if (!user) throw new AppError("User no longer exists", 401);
 
   req.user = user;
-  console.log("req.user => ", req.user);
+  // console.log("req.user => ", req.user);
   next();
 });
 
@@ -38,4 +39,4 @@ const authorize = (...allowedRoles) => {
   };
 };
 
-module.exports = { protect, authorize };
+module.exports = { authorize, protect };
