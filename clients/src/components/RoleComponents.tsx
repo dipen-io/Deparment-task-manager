@@ -1,17 +1,21 @@
-import { useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 import {
   getPermission,
   createPermission,
   removePermission,
+  editPermission,
 } from "../api/roleApi";
 import toast from "react-hot-toast";
-import { X } from "lucide-react";
+import { PencilIcon, X } from "lucide-react";
 
 export function RoleComponents() {
   const [permission, setPermission] = useState([]);
   const [loading, setLoading] = useState(true);
   const [permLoading, setPermLoading] = useState(false);
   const [permissionForm, setPermissionForm] = useState({ name: "", desc: "" });
+  const [editingId, setEditingId] = useState(null);
+
+  const nameInputRef = useRef(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -44,9 +48,19 @@ export function RoleComponents() {
     }
     e.preventDefault();
     setPermLoading(true);
+
+    // edit
+
+    // add new
     try {
-      const { data } = await createPermission(permissionForm);
-      toast.success(data.message);
+      if (editingId) {
+        const { data } = await editPermission(editingId, permissionForm);
+        toast.success(data?.message || "Permission updated successfully!");
+        setEditingId(null);
+      } else {
+        const { data } = await createPermission(permissionForm);
+        toast.success(data.message);
+      }
       fetchPerm();
     } catch (err) {
       const backendMessage =
@@ -66,6 +80,25 @@ export function RoleComponents() {
     } catch (err) {
       console.error("Error: ", err.response);
     }
+  };
+
+  // 3. Setup input populations and programmatically force cursor focus
+  const startEditMode = (perm) => {
+    setEditingId(perm._id);
+    setPermissionForm({
+      name: perm.name,
+      desc: perm.desc || "",
+    });
+
+    // Timeout guarantees input rendering cycles complete before executing focus call
+    setTimeout(() => {
+      nameInputRef.current?.focus();
+    }, 10);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setPermissionForm({ name: "", desc: "" });
   };
 
   return (
@@ -99,6 +132,7 @@ export function RoleComponents() {
               </label>
               <input
                 type="text"
+                ref={nameInputRef}
                 name="name"
                 value={permissionForm.name}
                 onChange={handleChange}
@@ -106,21 +140,38 @@ export function RoleComponents() {
                 placeholder="e.g., CREATE_TASK"
                 className="w-full mb-2 text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 outline-none focus:border-indigo-500 transition-colors"
               />
-              <input
-                type="text"
-                name="desc"
+              <textarea
+                name="desc" // No type="text" attribute needed for textareas
                 value={permissionForm.desc}
                 onChange={handleChange}
                 placeholder="Enter desc.."
-                className="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 outline-none focus:border-indigo-500 transition-colors"
+                rows={3} // Pro tip: specifies the initial visible height lines
+                className="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 outline-none focus:border-indigo-500 transition-colors resize-none" // Added resize-none
               />
             </div>
             <button
               className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium text-sm py-2.5 px-4 rounded-lg shadow transition-colors duration-150"
+              disabled={permLoading}
               onClick={handleSubmitPermission}
             >
-              {permLoading ? "creating..." : "Generate Role Permission"}
+              {/*{permLoading ? "creating..." : "Generate Role Permission"}*/}
+              {permLoading
+                ? editingId
+                  ? "Saving..."
+                  : "Creating..."
+                : editingId
+                  ? "Update Permission Config"
+                  : "Generate Role Permission"}
             </button>
+            {editingId && (
+              <button
+                type="button"
+                onClick={handleCancelEdit}
+                className="w-full bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-medium text-sm py-2 px-4 rounded-lg shadow-sm transition-colors"
+              >
+                Cancel Edit
+              </button>
+            )}
           </div>
         </section>
 
@@ -201,11 +252,27 @@ export function RoleComponents() {
                         )}
                       </p>
                     </div>
-                    <div
-                      className="text-red-900 hover:text-white hover:bg-red-500 h-8 p-1 hover:rounded"
-                      onClick={() => handleRemove(perm._id)}
-                    >
-                      <p>{<X />} </p>
+                    <div className="space-x-2 flex">
+                      <div
+                        className="text-red-900 hover:text-white hover:bg-red-500 h-8 p-1 hover:rounded"
+                        onClick={() => handleRemove(perm._id)}
+                      >
+                        <p>{<X />} </p>
+                      </div>
+                      <div>
+                        <button
+                          // 5. Trigger form load and component input cursor tracking mechanics
+                          onClick={() => startEditMode(perm)}
+                          className={`p-1.5 rounded transition-colors ${
+                            editingId === perm._id
+                              ? "text-amber-600 bg-amber-50"
+                              : "text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
+                          }`}
+                          title="Edit Permission"
+                        >
+                          <PencilIcon className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </li>

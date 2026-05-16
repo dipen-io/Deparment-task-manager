@@ -14,6 +14,7 @@ import { SingleTask } from "./components/SingleTask";
 import { EmployeeTask } from "./components/EmployeeTasks";
 import { ProfilePage } from "./pages/ProfilePage";
 import { DeptHeadDashboard } from "./components/DeptHeadDashboard";
+import { RoleComponents } from "./components/RoleComponents";
 
 export const router = createBrowserRouter([
   {
@@ -44,6 +45,14 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <SingleTask />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/admin/role",
+    element: (
+      <ProtectedRoute>
+        <RoleComponents />
       </ProtectedRoute>
     ),
   },

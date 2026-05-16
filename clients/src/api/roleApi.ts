@@ -14,3 +14,8 @@ export const removePermission = async (id: string) => {
   const response = await api.delete(`/permission/${id}`);
   return response;
 };
+
+export const editPermission = async (id: string, data) => {
+  const response = await api.patch(`/permission/${id}`, data);
+  return response;
+};
