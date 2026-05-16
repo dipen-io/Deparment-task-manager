@@ -73,7 +73,32 @@ const createPerm = async ({ name, desc }) => {
   }
 };
 
-const updatePerm = async () => {};
+const updatePerm = async (id, { name, desc }) => {
+    const updateFields = {};
+    if (name) updateFields.name = name.trim().toUpperCase();
+    if (desc !== undefined) updateFields.desc = desc.trim();
+    try {
+        const updatePerm = await Permission.findByIdAndUpdate(
+            id,
+            { $set: updateFields },
+            { returnDocument: 'after', runValidators: true }
+        )
+
+        if (!updatePerm) {
+            // throw new AppError("Invalid Permission ID", 404);
+            throw new AppError("No permission found with that ID", 404);
+        }
+
+        return updatePerm;
+
+    } catch(error) {
+        if (error.code === 11000) {
+            throw new AppError("This permission name is already taken.", 409);
+        }
+        throw error;
+    }
+};
+
 const deletePerm = async (id) => {
   // verify if
   const validPermId = await Permission.findById(id);

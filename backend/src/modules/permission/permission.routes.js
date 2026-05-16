@@ -14,7 +14,7 @@ const router = require("express").Router();
 
 router.get("/", getPermission);
 router.post("/", addPermissionValidator, validate, createPermission);
-router.patch("/:id", editPermission);
+router.patch("/:id", updatePermissionValidator, validate, editPermission);
 router.delete("/:id", deletePermission);
 
 module.exports = router;

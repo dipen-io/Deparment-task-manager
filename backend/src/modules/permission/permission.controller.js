@@ -31,7 +31,15 @@ const createPermission = asyncHandler(async (req, res) => {
     .json(new ApiResponse(201, "Permission Created Successfully", permission));
 });
 
-const editPermission = asyncHandler(async (req, res) => {});
+const editPermission = asyncHandler(async (req, res) => {
+  const id = req.params.id;
+  const updatedData = await updatePerm(id, req.body);
+
+  res
+    .status(200)
+    .json(new ApiResponse(201, "Permission updated Successfully", updatedData));
+});
+
 
 module.exports = {
   createPermission,

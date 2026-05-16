@@ -6,7 +6,7 @@ const addPermissionValidator = [
 ];
 
 const updatePermissionValidator = [
-  body("name").trim().isString().notEmpty().withMessage("Name is requried"),
+  body("name").trim().isString().optional().withMessage("Name is requried"),
   body("desc").trim().isString().optional(),
 ];
 
