@@ -53,7 +53,6 @@ const getPerm = async (req) => {
 const createPerm = async ({ name, desc }) => {
   try {
     const normaliseName = name.trim().toUpperCase();
-    // await Permission.syncIndexes();
     const permission = await Permission.create({
       name: normaliseName,
       desc: desc?.trim() || "",
@@ -75,6 +74,14 @@ const createPerm = async ({ name, desc }) => {
 };
 
 const updatePerm = async () => {};
-const deletePerm = async () => {};
+const deletePerm = async (id) => {
+  // verify if
+  const validPermId = await Permission.findById(id);
+  if (!validPermId) {
+    throw new AppError("Invalid Permission ID", 404);
+  }
+  await Permission.findByIdAndDelete(id);
+  return;
+};
 
 module.exports = { getPerm, createPerm, updatePerm, deletePerm };

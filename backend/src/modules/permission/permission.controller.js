@@ -11,15 +11,19 @@ const {
 
 // CREATE PERMISSION
 const getPermission = asyncHandler(async (req, res) => {
-  console.log("HELLO");
   const permissions = await getPerm(req);
-  console.log("HELLO");
   res
     .status(200)
     .json(new ApiResponse(200, "Permission Recived Successfully", permissions));
 });
 
-const deletePermission = asyncHandler(async (req, res) => {});
+// DELETE PERMISSION
+const deletePermission = asyncHandler(async (req, res) => {
+  const permissionId = req.params.id;
+  await deletePerm(permissionId);
+  res.status(200).json(new ApiResponse(200, "Permission Deleted Successfully"));
+});
+
 const createPermission = asyncHandler(async (req, res) => {
   const permission = await createPerm(req.body);
   res
