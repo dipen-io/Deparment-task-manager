@@ -4,7 +4,7 @@ const permissionSchema = new Schema(
   {
     name: {
       type: String,
-      require: true,
+      required: true,
       unique: true, // CREATE_TASK, DELETE_TASK
       trim: true,
     },
@@ -13,7 +13,7 @@ const permissionSchema = new Schema(
       trim: true,
     },
   },
-  { timeseries: true },
+  { timestamps: true },
 );
 
 module.exports = model("Permission", permissionSchema);
