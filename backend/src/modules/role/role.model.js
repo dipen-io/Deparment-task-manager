@@ -16,13 +16,19 @@ const roleSchema = new Schema(
     name: {
       type: String,
       required: true,
-      unique: true,
+      unique: true, // "Manager", "Deleloper"
       trim: true,
     },
+    // permission: [
+    //   {
+    //     type: String,
+    //     enum: PERMISSION,
+    //   },
+    // ],
     permission: [
       {
-        type: String,
-        enum: PERMISSION,
+        type: Schema.Types.ObjectId,
+        ref: "Permission",
       },
     ],
   },
