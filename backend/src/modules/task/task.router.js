@@ -1,5 +1,10 @@
 const router = require("express").Router();
-const { protect, authorize } = require("../../middleware/auth");
+const { checkPermission } = require("../../middleware/checkPermission");
+const {
+  protect,
+  authorize,
+  CheckPermission,
+} = require("../../middleware/auth");
 const {
   getTaskByEmp,
   updateTask,
@@ -24,11 +29,14 @@ router.post(
   "/create",
   protect,
   authorize(ROLES.ADMIN, ROLES.DEPT_HEAD),
+  checkPermission("CREATE_TASK"),
   createTaskValidator,
   validate,
   createTask,
 );
 
+// client fetching this for showing task by empl
+// EMPLOYEE
 router.get(
   "/my-tasks",
   protect,
@@ -56,6 +64,7 @@ router.get("/", protect, authorize(ROLES.ADMIN, ROLES.DEPT_HEAD), getAllTasks);
 router.get("/:id", protect, taskIdValidator, validate, getSingleTask);
 
 // UPDATE Task (Smart Route for both Admins & Employees)
+// EMPLOYEE use this route for updating task status
 router.patch(
   "/:id",
   protect,

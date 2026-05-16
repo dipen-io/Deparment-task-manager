@@ -76,7 +76,6 @@ const updateTask = asyncHandler(async (req, res) => {
   // task status update by employee
   const taskId = req.params.id;
   const updatePayload = req.body;
-  console.log("body", req.body);
   const assignedTo = req.body.assigneeId;
   const user = req.user;
 
@@ -90,9 +89,7 @@ const updateTask = asyncHandler(async (req, res) => {
 
 const assignTask = asyncHandler(async (req, res) => {
   const taskId = req.params.id;
-  console.log("taskId", taskId);
   const { assignedTo } = req.body;
-  console.log("assignedTo", assignedTo);
 
   // Pass them to the service
   const task = await assignOne(taskId, assignedTo);
@@ -103,7 +100,6 @@ const assignTask = asyncHandler(async (req, res) => {
 });
 
 const getTaskByEmp = asyncHandler(async (req, res) => {
-  console.log("HItting this one");
   const id = req.user._id;
   const tasks = await getTaskByEmployee(id);
   const payload = {
@@ -135,7 +131,6 @@ const getTaskCount = asyncHandler(async (req, res) => {
     const { department: targetDept } = req.query;
     let query = {};
     if (role === "org_admin") {
-      console.log("HIIIII INSIDE");
       // if (targetDept) query.department = targetDept;
       query = {};
     } else if (role === "dept_head") {
@@ -147,7 +142,6 @@ const getTaskCount = asyncHandler(async (req, res) => {
       query.assignedTo = userId;
     }
 
-    console.log("Constructed Query:", query);
     const count = await Task.countDocuments(query);
 
     res

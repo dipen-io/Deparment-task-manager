@@ -3,6 +3,7 @@ const taskRoutes = require("../modules/task/task.router");
 const userRoutes = require("../modules/user/user.route");
 const dept = require("./config.routes");
 const permission = require("../modules/permission/permission.routes");
+const roleRoutes = require("../modules/role/role.router");
 
 const routes = (app) => {
   app.use("/api/v1/auth", authRoutes);
@@ -10,6 +11,7 @@ const routes = (app) => {
   app.use("/api/v1/user", userRoutes);
   app.use("/api/v1/dept", dept);
   app.use("/api/v1/permission", permission);
+  app.use("/api/v1/role", roleRoutes);
 };
 
 module.exports = routes;

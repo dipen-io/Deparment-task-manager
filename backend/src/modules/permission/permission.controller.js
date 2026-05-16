@@ -25,7 +25,8 @@ const deletePermission = asyncHandler(async (req, res) => {
 });
 
 const createPermission = asyncHandler(async (req, res) => {
-  const permission = await createPerm(req.body);
+    const userId = req.user._id
+    const permission = await createPerm(userId, req.body);
   res
     .status(200)
     .json(new ApiResponse(201, "Permission Created Successfully", permission));

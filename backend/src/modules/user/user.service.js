@@ -28,7 +28,7 @@ const getUsersService = async (currentUser) => {
   if (currentUser.role === "org_admin") {
     // Org Admin: View all users
     query = {
-      _id: { $ne: currentUser._id },
+      _id: { $ne: currentUser._id }, //excluding self
       // role: { $in: ["dept_head", "member"] },
     };
   } else if (currentUser.role === "dept_head") {

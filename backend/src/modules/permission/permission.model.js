@@ -10,8 +10,13 @@ const permissionSchema = new Schema(
     },
     desc: {
       type: String, // allow creating new tasks
-      trim: true,
+      trim: true, 
     },
+    createdBy: {
+        type:Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    }
   },
   { timestamps: true },
 );

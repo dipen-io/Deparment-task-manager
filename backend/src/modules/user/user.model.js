@@ -31,6 +31,14 @@ const userSchema = new mongoose.Schema(
       enum: ["org_admin", "dept_head", "member"],
       default: "member",
     },
+
+    // for testing anther type of object
+    //
+    roles: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Role",
+      required: true,
+    },
     department: {
       type: String,
       enum: ["engineering", "design", "marketing", "hr"], // ✅ add yours

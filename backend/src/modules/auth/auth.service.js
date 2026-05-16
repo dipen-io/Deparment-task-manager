@@ -48,6 +48,7 @@ const registerUser = async ({ name, email, password, role, department }) => {
   );
   user.refreshToken = await bcrypt.hash(refreshToken, 10);
   await user.save({ validateBeforeSave: false });
+  // cookie is not set here
 
   return {
     user: {
@@ -67,7 +68,6 @@ const loginUser = async (res, { email, password }) => {
   if (!user) throw new AppError("Invalid email or password", 401);
 
   const isMatch = await user.comparePassword(password);
-  console.log("match", isMatch);
   if (!isMatch) throw new AppError("Invalid email or password", 401);
 
   const { accessToken, refreshToken } = await generateToken(

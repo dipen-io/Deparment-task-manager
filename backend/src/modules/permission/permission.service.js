@@ -50,14 +50,16 @@ const getPerm = async (req) => {
 };
 
 // CREATE PERMISSION
-const createPerm = async ({ name, desc }) => {
+const createPerm = async (userId, { name, desc }) => {
   try {
     const normaliseName = name.trim().toUpperCase();
     const permission = await Permission.create({
       name: normaliseName,
       desc: desc?.trim() || "",
+      createdBy: userId
     });
     return permission;
+
   } catch (error) {
     if (error.code === 11000) {
       throw new AppError(
