@@ -35,4 +35,4 @@ const roleSchema = new Schema(
   { timestamps: true },
 );
 
-export const Role = mongoose.model("Role", roleSchema);
+module.exports = mongoose.model("Role", roleSchema);
