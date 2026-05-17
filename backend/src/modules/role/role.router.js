@@ -1,8 +1,10 @@
 const router = require("express").Router();
-const { getRole, createRole } = require("./role.controller");
+const validate = require("../../middleware/input-validate");
+const { getRole, createRole, updateRole } = require("./role.controller");
+const {roleValidator} = require("./role.validate");
 
 router.get("/", getRole);
-router.post("/", createRole);
-
+router.post("/", roleValidator,validate ,createRole);
+router.patch("/:id", updateRole);
 
 module.exports = router; 
