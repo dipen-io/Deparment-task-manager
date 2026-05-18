@@ -15,6 +15,5 @@ export function Home() {
   if (user?.role === "dept_head") {
     return <Navigate to="/dept-head/dashboard" replace />;
   }
-  console.log("skipped");
   return <Navigate to="/member/dashboard" replace />;
 }

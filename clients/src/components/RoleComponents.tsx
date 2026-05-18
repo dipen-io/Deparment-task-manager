@@ -4,9 +4,10 @@ import {
   createPermission,
   removePermission,
   editPermission,
-} from "../api/roleApi";
+} from "../api/permissionApi";
 import toast from "react-hot-toast";
 import { PencilIcon, X } from "lucide-react";
+import { createRole, getRole } from "../api/roleApi";
 
 export function RoleComponents() {
   const [permission, setPermission] = useState([]);
@@ -14,12 +15,23 @@ export function RoleComponents() {
   const [permLoading, setPermLoading] = useState(false);
   const [permissionForm, setPermissionForm] = useState({ name: "", desc: "" });
   const [editingId, setEditingId] = useState(null);
+  const [roles, setRoles] = useState([]);
+
+  const [role, setRole] = useState({ roleName: "", permissionId: null });
 
   const nameInputRef = useRef(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setPermissionForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleChangeRole = (e) => {
+    const { name, value } = e.target;
+    setRole((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -38,8 +50,23 @@ export function RoleComponents() {
     }
   };
 
+  const fetchRole = async () => {
+    try {
+      setLoading(true);
+      const { data } = await getRole();
+      // Fallback to empty array if nested data structure evaluates to undefined
+      console.log("ROLE DATa", data);
+      setRoles(data?.data || []);
+    } catch (error) {
+      console.error("Failed to fetch permissions:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchPerm();
+    fetchRole();
   }, []);
 
   const handleSubmitPermission = async (e) => {
@@ -49,9 +76,6 @@ export function RoleComponents() {
     e.preventDefault();
     setPermLoading(true);
 
-    // edit
-
-    // add new
     try {
       if (editingId) {
         const { data } = await editPermission(editingId, permissionForm);
@@ -101,6 +125,17 @@ export function RoleComponents() {
     setPermissionForm({ name: "", desc: "" });
   };
 
+  const handleAddRole = async (e) => {
+    e.preventDefault();
+    try {
+      const { data } = await createRole(role);
+      toast.success(data.message);
+      setRole({ roleName: "", permissionId: null });
+    } catch (err) {
+      console.error(err.response.data);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 antialiased">
       {/* Top Header Bar */}
@@ -116,6 +151,8 @@ export function RoleComponents() {
       {/* Main Workspace Grid */}
       <main className="max-w-7xl mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column: Create Management Action Panel */}
+
+        {/* PERMISSION CREATTION */}
         <section className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm h-fit">
           <h2 className="text-lg font-semibold text-slate-900 mb-1">
             Create New Permission
@@ -175,6 +212,7 @@ export function RoleComponents() {
           </div>
         </section>
 
+        {/* ROLE CREATTION */}
         <section className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm h-fit">
           <h2 className="text-lg font-semibold text-slate-900 mb-1">
             Create New Role
@@ -191,11 +229,31 @@ export function RoleComponents() {
               </label>
               <input
                 type="text"
+                name="roleName"
+                value={role.roleName}
+                onChange={handleChangeRole}
                 placeholder="e.g., Support Lead"
                 className="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 outline-none focus:border-indigo-500 transition-colors"
               />
+              {/* Render here list of permision as a dropdown*/}
+              <select
+                className=" mt-2 w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-[#14b8a6]"
+                name="permissionId"
+                value={role.permissionId}
+                onChange={handleChangeRole}
+              >
+                <option value="">SELECT PERMISION</option>
+                {permission?.map((p) => (
+                  <option key={p._id} value={p._id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
             </div>
-            <button className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium text-sm py-2.5 px-4 rounded-lg shadow transition-colors duration-150">
+            <button
+              className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium text-sm py-2.5 px-4 rounded-lg shadow transition-colors duration-150"
+              onClick={handleAddRole}
+            >
               Generate Role Group
             </button>
           </div>
@@ -228,56 +286,113 @@ export function RoleComponents() {
               permission.
             </div>
           ) : (
-            <ul className="divide-y divide-slate-100 max-h-[70vh] overflow-y-auto">
-              {permission.map((perm) => (
-                <li
-                  key={perm._id}
-                  className="p-5 hover:bg-slate-50/70 transition-colors flex items-start gap-4"
-                >
-                  {/* Visual Status Indicator Node */}
-                  <div className="h-2 w-2 rounded-full bg-emerald-500 mt-2 shrink-0 shadow-sm shadow-emerald-500/40" />
+            <div>
+              <ul className="divide-y divide-slate-100 max-h-[70vh] overflow-y-auto">
+                {permission.map((perm) => (
+                  <li
+                    key={perm._id}
+                    className="p-5 hover:bg-slate-50/70 transition-colors flex items-start gap-4"
+                  >
+                    {/* Visual Status Indicator Node */}
+                    <div className="h-2 w-2 rounded-full bg-emerald-500 mt-2 shrink-0 shadow-sm shadow-emerald-500/40" />
 
-                  <div className="space-y-1 w-full flex justify-between">
-                    <div>
-                      {/* Permission Code Key Badge Style */}
-                      <span className="inline-block font-mono text-xs font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200 tracking-wide uppercase">
-                        {perm.name}
-                      </span>
-                      {/* Description Text */}
-                      <p className="text-sm text-slate-600 leading-relaxed pt-0.5">
-                        {perm.desc || (
-                          <span className="italic text-slate-400">
-                            No descriptive brief provided.
-                          </span>
-                        )}
-                      </p>
-                    </div>
-                    <div className="space-x-2 flex">
-                      <div
-                        className="text-red-900 hover:text-white hover:bg-red-500 h-8 p-1 hover:rounded"
-                        onClick={() => handleRemove(perm._id)}
-                      >
-                        <p>{<X />} </p>
-                      </div>
+                    <div className="space-y-1 w-full flex justify-between">
                       <div>
-                        <button
-                          // 5. Trigger form load and component input cursor tracking mechanics
-                          onClick={() => startEditMode(perm)}
-                          className={`p-1.5 rounded transition-colors ${
-                            editingId === perm._id
-                              ? "text-amber-600 bg-amber-50"
-                              : "text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
-                          }`}
-                          title="Edit Permission"
+                        {/* Permission Code Key Badge Style */}
+                        <span className="inline-block font-mono text-xs font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200 tracking-wide uppercase">
+                          {perm.name}
+                        </span>
+                        {/* Description Text */}
+                        <p className="text-sm text-slate-600 leading-relaxed pt-0.5">
+                          {perm.desc || (
+                            <span className="italic text-slate-400">
+                              No descriptive brief provided.
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                      <div className="space-x-2 flex">
+                        <div
+                          className="text-red-900 hover:text-white hover:bg-red-500 h-8 p-1 hover:rounded"
+                          onClick={() => handleRemove(perm._id)}
                         >
-                          <PencilIcon className="w-4 h-4" />
-                        </button>
+                          <p>{<X />} </p>
+                        </div>
+                        <div>
+                          <button
+                            // 5. Trigger form load and component input cursor tracking mechanics
+                            onClick={() => startEditMode(perm)}
+                            className={`p-1.5 rounded transition-colors ${
+                              editingId === perm._id
+                                ? "text-amber-600 bg-amber-50"
+                                : "text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
+                            }`}
+                            title="Edit Permission"
+                          >
+                            <PencilIcon className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
+                  </li>
+                ))}
+              </ul>
+              <div>
+                <h2>Avalialable Roles </h2>
+                {/*{roles?.map((role) => (
+                  <li key={role._id}>{role.name}</li>
+                ))}*/}
+
+                <ul className="divide-y divide-slate-100 max-h-[70vh] overflow-y-auto">
+                  {roles?.map((perm) => (
+                    <li
+                      key={perm._id}
+                      className="p-5 hover:bg-slate-50/70 transition-colors flex items-start gap-4"
+                    >
+                      {/* Visual Status Indicator Node */}
+                      <div className="h-2 w-2 rounded-full bg-emerald-500 mt-2 shrink-0 shadow-sm shadow-emerald-500/40" />
+
+                      <div className="space-y-1 w-full flex justify-between">
+                        <div>
+                          {/* Permission Code Key Badge Style */}
+                          <span className="inline-block font-mono text-xs font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200 tracking-wide uppercase">
+                            {perm.name}
+                          </span>
+                          {/* Description Text */}
+                          <p className="text-sm text-slate-600 leading-relaxed pt-0.5">
+                            {perm?.permission?.map((p) => (
+                              <p>{p.name}</p>
+                            ))}
+                          </p>
+                        </div>
+                        <div className="space-x-2 flex">
+                          <div
+                            className="text-red-900 hover:text-white hover:bg-red-500 h-8 p-1 hover:rounded"
+                            onClick={() => handleRemoveRole(perm._id)}
+                          >
+                            <p>{<X />} </p>
+                          </div>
+                          <div>
+                            <button
+                              // 5. Trigger form load and component input cursor tracking mechanics
+                              onClick={() => startRoleEditMode(perm)}
+                              className={`p-1.5 rounded transition-colors ${
+                                editingId === perm._id
+                                  ? "text-amber-600 bg-amber-50"
+                                  : "text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
+                              }`}
+                              title="Edit Permission"
+                            >
+                              <PencilIcon className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
           )}
         </section>
       </main>
