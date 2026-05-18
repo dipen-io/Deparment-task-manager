@@ -1,4 +1,5 @@
 const Role = require("./role.model");
+const AppError = require("../../utils/AppError");
 
 const createRoles = async ({roleName, permissionId}) => {
     const roles = await Role.create({
@@ -69,58 +70,16 @@ const updateRoles = async(roleId, { roleName, permissionId }) => {
         } 
         throw error;
     }
-
-    const updateQuery = { $set: {}, $addToSet: {} };
-
-
-    const validRole = await Role.findById(roleId);
-
-    let exist = []
-    let notExist = []
-
-    permissionId?.forEach(element => {
-       const exists = validRole.permission.some((perm) => perm._id.toString() === element)
-
-        if (exists) {
-            exist.push(element)
-        } else {
-            notExist.push(element)
-        }
-    });
-
-    if (exist) {
-        // remove that permissionId from db
-        exist.forEach(ele => {
-            validRole.permission = validRole.permission.filter((perm) => {
-                perm._id.toString() !== ele;
-            })
-        })
-    }
-
-    if (notExist) {
-        // add that permissionId to db
-        validRole.permission.push(...notExist);
-    }
-
-    // clean up 
-    if (Object.keys(updateQuery.$set).length === 0) delete updateQuery.$set;
-    // if (Object.keys(updateQuery.$addToSet).length === 0 ) delete updateQuery.$addToSet;
-
-    const updatedRole = await Role.findByIdAndUpdate(roleId, updateQuery,
-        {
-            returnDocument: 'after',
-            runValidators: true
-        } 
-    );
-    await validRole.save();
-
-    if (!updatedRole) {
-        throw new AppError('No role discoverd matching that tracking ID', 404);
-    }
-    return updatedRole;
 }
 
 const deleteRoles = async (roleId) => {
+    console.log("ROLEID", roleId);
+    try {
+        const deletedRole = await Role.findByIdAndDelete(roleId);
+        return deletedRole;
+    } catch (error) {
+       throw new AppError("Failed to delete role", 405);
+    }
 }
 
 module.exports = { createRoles, getRoles, updateRoles, deleteRoles };
