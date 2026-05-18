@@ -19,6 +19,7 @@ api.interceptors.response.use(
     const originalRequest = error.config;
 
     if (error.response?.status === 401) {
+      console.log("TOKEN IS EXPIRED");
       // 1. Skip refresh for login attempts
       if (originalRequest.url.includes("/auth/login")) {
         return Promise.reject(error);
@@ -29,6 +30,7 @@ api.interceptors.response.use(
         originalRequest._retry = true; // Set flag ONLY here
 
         try {
+          console.log("REFRESHING TOKEN......");
           const response = await axios.post(
             "http://localhost:8080/api/v1/auth/refresh",
             {},
@@ -39,6 +41,8 @@ api.interceptors.response.use(
           const newAccessToken = data.accessToken;
 
           localStorage.setItem("token", newAccessToken);
+
+          console.log("TOKEN REFRESH SUCCESSFULLY......");
 
           window.dispatchEvent(
             new CustomEvent("onTokenRefresh", {

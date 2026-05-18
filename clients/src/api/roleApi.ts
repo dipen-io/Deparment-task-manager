@@ -1,21 +1,11 @@
 import api from "./axios";
 
-export const getPermission = () => {
-  const response = api.get("/permission");
+export const createRole = (data) => {
+  const response = api.post("/role", data);
   return response;
 };
 
-export const createPermission = async (data) => {
-  const response = await api.post("/permission", data);
-  return response;
-};
-
-export const removePermission = async (id: string) => {
-  const response = await api.delete(`/permission/${id}`);
-  return response;
-};
-
-export const editPermission = async (id: string, data) => {
-  const response = await api.patch(`/permission/${id}`, data);
+export const getRole = () => {
+  const response = api.get("/role");
   return response;
 };
