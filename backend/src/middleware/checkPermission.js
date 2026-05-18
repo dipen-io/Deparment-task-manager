@@ -34,10 +34,6 @@ const checkPermission = (permission) => {
           ),
         );
       }
-      // const hashPermision = user.roles.permission.includes(permission);
-      // if (!hashPermision) {
-      //   throw new AppError("Forbidden: not your department", 403);
-      // }
 
       req.userDoc = user;
       next();
