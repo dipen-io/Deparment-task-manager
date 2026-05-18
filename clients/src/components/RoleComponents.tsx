@@ -7,7 +7,7 @@ import {
 } from "../api/permissionApi";
 import toast from "react-hot-toast";
 import { PencilIcon, X } from "lucide-react";
-import { createRole, getRole } from "../api/roleApi";
+import { createRole, getRole, updateRoles, deleteRoles } from "../api/roleApi";
 
 export function RoleComponents() {
   const [permission, setPermission] = useState([]);
@@ -127,12 +127,27 @@ export function RoleComponents() {
 
   const handleAddRole = async (e) => {
     e.preventDefault();
+    if (!role.roleName.trim() || role.permissionId === null) {
+      toast.error("All Fileds are required");
+      return;
+    }
     try {
       const { data } = await createRole(role);
       toast.success(data.message);
+      fetchRole();
       setRole({ roleName: "", permissionId: null });
     } catch (err) {
       console.error(err.response.data);
+    }
+  };
+
+  const handleRemoveRole = async (id: string) => {
+    try {
+      const { data } = await deleteRoles(id);
+      toast.success(data.message);
+      fetchRole();
+    } catch (err) {
+      console.error("Error Deleting Roles: ", err.message);
     }
   };
 
@@ -231,6 +246,7 @@ export function RoleComponents() {
                 type="text"
                 name="roleName"
                 value={role.roleName}
+                required
                 onChange={handleChangeRole}
                 placeholder="e.g., Support Lead"
                 className="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 outline-none focus:border-indigo-500 transition-colors"
@@ -239,6 +255,7 @@ export function RoleComponents() {
               <select
                 className=" mt-2 w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-[#14b8a6]"
                 name="permissionId"
+                required
                 value={role.permissionId}
                 onChange={handleChangeRole}
               >
