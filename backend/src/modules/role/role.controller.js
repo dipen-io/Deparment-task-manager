@@ -3,14 +3,11 @@ const ApiResponse = require("../../utils/ApiResponse");
 const {createRoles, getRoles, getUpdatedUser, updateRoles, deleteRoles} = require("./role.service");
 
 const createRole = asyncHandler(async(req, res) => {
-    console.log(req.body);
     const roles  =  await createRoles(req.body) 
     res.status(201)
     .json(new ApiResponse(200, "creating new role", roles))
 })
 
-// const deletePermission = asyncHandler(async (req, res) => {
-// })
 
 const getRole = asyncHandler(async (req, res) => {
     const role = await getRoles();

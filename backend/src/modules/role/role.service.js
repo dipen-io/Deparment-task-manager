@@ -97,20 +97,22 @@ const updateRoles = async(roleId, { roleName, toAdd = [], toRemove = [] }) => {
 }
 
 const deleteRoles = async (roleId) => {
-    console.log("ROLEID", roleId);
     try {
         const deletedRole = await Role.findByIdAndDelete(roleId);
+
+        if (!deletedRole) {
+            throw new AppError("Role not found", 404);
+        }
+
         return deletedRole;
     } catch (error) {
-       throw new AppError("Failed to delete role", 405);
+        throw new AppError("Failed to delete role", 500);
     }
-}
+};
 
 const getUpdatedUser = async (userId, roleId) => {
     const validUser = await User.findById(userId);
     const validRole = await Role.findById(roleId);
-    console.log("validUser", validUser)
-    console.log("validRole", validUser)
 
     if (!validUser || !validRole) {
         throw new AppError("Invalid user or role", 404)
