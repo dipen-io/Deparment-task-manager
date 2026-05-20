@@ -8,6 +8,7 @@ import {
 import toast from "react-hot-toast";
 import { PencilIcon, X } from "lucide-react";
 import { createRole, getRole, updateRoles, deleteRoles } from "../api/roleApi";
+import { AssignUserRole } from "./AssingUserRole";
 
 export function RoleComponents() {
   const [permission, setPermission] = useState([]);
@@ -506,6 +507,7 @@ export function RoleComponents() {
               </div>
             </div>
           )}
+          <AssignUserRole />
         </section>
       </main>
     </div>

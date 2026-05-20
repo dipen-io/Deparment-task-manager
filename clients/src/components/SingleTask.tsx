@@ -38,7 +38,6 @@ export function SingleTask() {
     const fetchTask = async () => {
       try {
         const { data } = await getSingleTask(id!);
-        console.log("DATA: ", data);
         setTask(data.taskData);
         setMeta({
           accessedByName: data.accessedByName,

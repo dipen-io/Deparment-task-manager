@@ -7,7 +7,6 @@ import { CreateTaskModal } from "./CreateTaskModal";
 import { TeamOverview } from "./TeamOverview";
 
 export function DeptHeadDashboard() {
-  console.log("Dashboard Admin");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [taskCount, setTaskCount] = useState(0);

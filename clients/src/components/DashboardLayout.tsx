@@ -4,7 +4,6 @@ import { Outlet, Navigate } from "react-router";
 export function DashboardLayout({ user }) {
   // If no user is logged in, send them to login
   if (!user) return <Navigate to="/login" replace />;
-  console.log("USER FROM dashboardLayout: ", user);
 
   return (
     <div className="flex h-screen bg-gray-50">

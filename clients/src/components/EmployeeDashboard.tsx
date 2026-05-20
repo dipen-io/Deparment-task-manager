@@ -3,7 +3,6 @@ import { useAuth } from "../context/AuthContext";
 
 export function EmployeeDashbaord() {
   const { user } = useAuth();
-  console.log("EmployeeDashbaord");
 
   return (
     <div className="min-h-screen bg-gray-50 flex">

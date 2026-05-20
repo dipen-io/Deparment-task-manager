@@ -70,7 +70,6 @@ export function CreateTaskModal({
       setIsTaskAdding(true);
       if (task) {
         const response = await updateTask(newTask, task._id);
-        console.log(response.data);
 
         toast.success(response.message);
         onSuccess?.(response.data);

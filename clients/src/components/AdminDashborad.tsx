@@ -7,7 +7,6 @@ import { getUsers } from "../api/userApi";
 import { TeamOverview } from "./TeamOverview";
 
 export function AdminDashboard() {
-  console.log("Dashboard Admin");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [taskCount, setTaskCount] = useState(0);

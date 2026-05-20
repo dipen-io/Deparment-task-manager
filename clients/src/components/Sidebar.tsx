@@ -6,6 +6,7 @@ import {
   CheckSquare,
   Users,
   Settings,
+  RollerCoaster,
   User,
   Menu,
   X,
@@ -17,7 +18,6 @@ interface SidebarProps {
 }
 
 export function Sidebar({ role }: SidebarProps) {
-  console.log("Sidebar", role);
   const { logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
@@ -46,6 +46,19 @@ export function Sidebar({ role }: SidebarProps) {
       label: role === "Admin" ? "Tasks" : "My Tasks",
       path: `${basePath}/tasks`,
     },
+
+    // if role is then i want to show role
+    // Use a spread operator with a condition to inject the item only if Admin
+    ...(role === "Admin"
+      ? [
+          {
+            label: "Role",
+            icon: RollerCoaster, // Your admin icon component/asset
+            path: `${basePath}/role`,
+          },
+        ]
+      : []),
+
     // { icon: Users, label: "Team Requests", path: `${basePath}/requests` },
     { icon: User, label: "Profile", path: `/profile` },
     // { icon: Settings, label: "Settings", path: `${basePath}/settings` },

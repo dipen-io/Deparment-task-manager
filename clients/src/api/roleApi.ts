@@ -19,3 +19,10 @@ export const updateRoles = (roleId, data) => {
   const response = api.patch(`/role/${roleId}`, data);
   return response;
 };
+
+export const assingUserRole = (roleId, userId) => {
+  const response = api.put(`/role/${userId}`, {
+    roleId,
+  });
+  return response;
+};

@@ -1,18 +1,19 @@
 import { useEffect, useState } from "react";
 import { getUsers } from "../api/userApi";
 import { getRole, assingUserRole } from "../api/roleApi";
+import toast from "react-hot-toast";
 
 export function AssignUserRole() {
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
+  const [savingRoleId, setSavingRoleId] = useState(null);
+  const [savingRole, setSavingRole] = useState(false);
   const [selectedRole, setSelectedRole] = useState({});
 
   const fetchUsers = async () => {
     const { data } = await getUsers();
     setUsers(data.users);
   };
-
-  console.log(users);
 
   const fetchRole = async () => {
     const { data } = await getRole();
@@ -25,6 +26,7 @@ export function AssignUserRole() {
   }, []);
 
   const handleRoleChange = (userId, roleId) => {
+    setSavingRoleId(userId);
     setSelectedRole((prev) => ({
       ...prev,
       [userId]: roleId,
@@ -32,13 +34,24 @@ export function AssignUserRole() {
   };
 
   const updateUserRole = async (userId) => {
-    const roleId = selectedRole[userId];
-    if (!roleId) return;
-    console.log(roleId);
-    console.log(userId);
-    const { data } = await assingUserRole(roleId, userId);
-    console.log(data);
-    fetchUsers();
+    setSavingRoleId(userId);
+    setSavingRole(true);
+    try {
+      const roleId = selectedRole[userId];
+      if (!roleId) {
+        setSavingRole(false);
+        setSavingRoleId(null);
+        return;
+      }
+      const { data } = await assingUserRole(roleId, userId);
+      toast.success(data.message);
+      fetchUsers();
+    } catch (err) {
+      console.error("Error: ", err.response.data.message);
+    } finally {
+      setSavingRole(false);
+      setSavingRoleId(null);
+    }
   };
 
   return (
@@ -98,7 +111,9 @@ export function AssignUserRole() {
                   bg-indigo-600 text-white hover:bg-indigo-700
                   transition disabled:opacity-50"
                 >
-                  Save
+                  {savingRole && savingRoleId === user._id
+                    ? "Saving..."
+                    : "Save"}
                 </button>
               </div>
             </div>

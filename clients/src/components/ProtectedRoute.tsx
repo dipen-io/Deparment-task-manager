@@ -10,7 +10,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
       </div>
     );
   }
-  console.log("PROCTECED ROUTE USER:", user);
   if (!user) {
     console.log("No user found, kicking to landing");
     return <Navigate to="/landing" replace />;
