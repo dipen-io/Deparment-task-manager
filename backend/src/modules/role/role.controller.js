@@ -1,6 +1,6 @@
 const asyncHandler = require("../../utils/asyncHandler");
 const ApiResponse = require("../../utils/ApiResponse");
-const {createRoles, getRoles, updateRoles, deleteRoles} = require("./role.service");
+const {createRoles, getRoles, getUpdatedUser, updateRoles, deleteRoles} = require("./role.service");
 
 const createRole = asyncHandler(async(req, res) => {
     console.log(req.body);
@@ -33,4 +33,13 @@ const deleteRole = asyncHandler(async(req, res )=> {
     .json(new ApiResponse(200, "Role deleted Successfully", deletedRoleData))
 })
 
-module.exports = { createRole, getRole, updateRole, deleteRole };
+const assingRoleToUser = asyncHandler(async (req, res) => {
+    const { userId } = req.params;
+    const { roleId } = req.body;
+
+    const updatedUser = await getUpdatedUser(userId, roleId);
+    res.status(200)
+    .json(new ApiResponse(200, "updated user role", updatedUser));
+})
+
+module.exports = { createRole, getRole, updateRole, deleteRole, assingRoleToUser };

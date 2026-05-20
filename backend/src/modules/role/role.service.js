@@ -1,4 +1,5 @@
 const Role = require("./role.model");
+const User = require("../user/user.model");
 const AppError = require("../../utils/AppError");
 
 const createRoles = async ({roleName, permissionId}) => {
@@ -105,4 +106,18 @@ const deleteRoles = async (roleId) => {
     }
 }
 
-module.exports = { createRoles, getRoles, updateRoles, deleteRoles };
+const getUpdatedUser = async (userId, roleId) => {
+    const validUser = await User.findById(userId);
+    const validRole = await Role.findById(roleId);
+    console.log("validUser", validUser)
+    console.log("validRole", validUser)
+
+    if (!validUser || !validRole) {
+        throw new AppError("Invalid user or role", 404)
+    }
+    validUser.roles = roleId;
+    validUser.save();
+    return validUser
+}
+
+module.exports = { createRoles, getRoles, updateRoles, deleteRoles, getUpdatedUser };
