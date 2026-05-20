@@ -27,7 +27,7 @@ const getRoles = async () => {
 };
 
 // here let make if sending another same permission will remove that permission
-const updateRoles = async(roleId, { roleName, permissionId }) => {
+const updateRoles = async(roleId, { roleName, toAdd = [], toRemove = [] }) => {
 
     const role = await Role.findById(roleId);
 
@@ -40,6 +40,29 @@ const updateRoles = async(roleId, { roleName, permissionId }) => {
         role.name = roleName.trim().toUpperCase();
     }
 
+    // add
+    if (Array.isArray(toAdd) && toAdd.length > 0 ) {
+        const existing = role.permission.map((id) => id.toString());
+
+        toAdd.forEach((id) => {
+            if (!existing.includes(id.toString())) {
+                role.permission.push(id);
+            }
+        });
+    }
+
+    // remove
+    if (Array.isArray(toRemove) && toRemove.length > 0) {
+        const removeSet = new Set(toRemove.map(String));
+
+        role.permission = role.permission.filter(
+            (id) => !removeSet.has(id.toString())
+        );
+    }
+
+    /* 
+     * if ther is one permissionId = []
+     * and sending already existed id will remove it  or if new then add it 
     if (permissionId && Array.isArray(permissionId)) {
         // convert rule role objectId to clearn string
         const existingPerms = role.permission.map(id => id.toString());
@@ -60,7 +83,7 @@ const updateRoles = async(roleId, { roleName, permissionId }) => {
             }
         });
     }
-
+     */
     try {
        await role.save(); 
         return role;
