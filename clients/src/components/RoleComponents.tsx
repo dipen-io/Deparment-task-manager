@@ -14,6 +14,7 @@ export function RoleComponents() {
   const [loading, setLoading] = useState(true);
   const [permLoading, setPermLoading] = useState(false);
   const [permissionForm, setPermissionForm] = useState({ name: "", desc: "" });
+  const [correntRole, setCurrentRole] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [roleEditingId, setRoleEditingId] = useState(null);
   const [roles, setRoles] = useState([]);
@@ -79,18 +80,17 @@ export function RoleComponents() {
 
   const handlePermissionToggle = (permissionId) => {
     setRole((prev) => {
-      const currentId = prev.permissionId;
+      const current = [...prev.permissionId]; // 👈 CLONE
 
-      // Check if the ID is already selected
-      const isAlreadySelected = currentId?.includes(permissionId);
+      const isAlreadySelected = current.includes(permissionId);
 
-      const updatedIds = isAlreadySelected
-        ? currentId.filter((id) => id !== permissionId)
-        : [...currentId, permissionId];
+      const updated = isAlreadySelected
+        ? current.filter((id) => id !== permissionId)
+        : [...current, permissionId];
 
       return {
         ...prev,
-        permissionId: updatedIds,
+        permissionId: updated,
       };
     });
   };
@@ -149,11 +149,13 @@ export function RoleComponents() {
   };
 
   const startRoleEditMode = (role) => {
-    console.log("ROLE1: ", role);
+    console.log("ROLE", role);
+    const ids = role.permission.map((p) => p._id);
+    setCurrentRole([...ids]);
     setRoleEditingId(role._id);
     setRole({
       roleName: role.name,
-      permissionId: role.permission.map((p) => p._id),
+      permissionId: [...ids],
     });
     console.log("ROLE2", role);
   };
@@ -176,8 +178,21 @@ export function RoleComponents() {
     }
     setIsSubmitting(true);
     try {
-      const { data } = await createRole(role);
-      toast.success(data.message);
+      if (roleEditingId) {
+        const current = role.permissionId;
+        const original = correntRole;
+
+        const toAdd = current.filter((id) => !original.includes(id));
+        const toRemove = original.filter((id) => !current.includes(id));
+        const permData = { toAdd, toRemove };
+
+        const { data } = await updateRoles(roleEditingId, permData);
+        toast.success(data?.message);
+      } else {
+        const { data } = await createRole(role);
+        toast.success(data?.message);
+      }
+
       fetchRole();
       setRole({ roleName: "", permissionId: [] });
       setRole((prev) => ({
@@ -349,7 +364,13 @@ export function RoleComponents() {
               disabled={isSubmitting}
             >
               {/* TODO incase of update*/}
-              {isSubmitting ? "Syncing Permissions..." : "Generate Role Group"}
+              {isSubmitting
+                ? roleEditingId
+                  ? "Updating Role"
+                  : "Syncing Permission.."
+                : roleEditingId
+                  ? "Update Role"
+                  : "Generate Role Group"}
             </button>
           </div>
         </section>
