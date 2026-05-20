@@ -15,11 +15,14 @@ export function RoleComponents() {
   const [permLoading, setPermLoading] = useState(false);
   const [permissionForm, setPermissionForm] = useState({ name: "", desc: "" });
   const [editingId, setEditingId] = useState(null);
+  const [roleEditingId, setRoleEditingId] = useState(null);
   const [roles, setRoles] = useState([]);
 
-  const [role, setRole] = useState({ roleName: "", permissionId: null });
+  const [role, setRole] = useState({ roleName: "", permissionId: [] });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const nameInputRef = useRef(null);
+  const roleInputRef = useRef(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -55,7 +58,6 @@ export function RoleComponents() {
       setLoading(true);
       const { data } = await getRole();
       // Fallback to empty array if nested data structure evaluates to undefined
-      console.log("ROLE DATa", data);
       setRoles(data?.data || []);
     } catch (error) {
       console.error("Failed to fetch permissions:", error);
@@ -68,6 +70,32 @@ export function RoleComponents() {
     fetchPerm();
     fetchRole();
   }, []);
+
+  useEffect(() => {
+    if (roleEditingId && roleInputRef.current) {
+      roleInputRef.current.focus();
+    }
+  }, [roleEditingId]);
+
+  const handlePermissionToggle = (permissionId) => {
+    setRole((prev) => {
+      const currentId = prev.permissionId;
+
+      // Check if the ID is already selected
+      const isAlreadySelected = currentId?.includes(permissionId);
+
+      const updatedIds = isAlreadySelected
+        ? currentId.filter((id) => id !== permissionId)
+        : [...currentId, permissionId];
+
+      return {
+        ...prev,
+        permissionId: updatedIds,
+      };
+    });
+  };
+
+  const permissionsList = permission;
 
   const handleSubmitPermission = async (e) => {
     if (!permissionForm.name) {
@@ -120,9 +148,24 @@ export function RoleComponents() {
     }, 10);
   };
 
+  const startRoleEditMode = (role) => {
+    console.log("ROLE1: ", role);
+    setRoleEditingId(role._id);
+    setRole({
+      roleName: role.name,
+      permissionId: role.permission.map((p) => p._id),
+    });
+    console.log("ROLE2", role);
+  };
+
   const handleCancelEdit = () => {
     setEditingId(null);
     setPermissionForm({ name: "", desc: "" });
+  };
+
+  const handleRoleCancelEdit = () => {
+    setRoleEditingId(null);
+    setRole({ roleName: "", permissionId: [] });
   };
 
   const handleAddRole = async (e) => {
@@ -131,13 +174,20 @@ export function RoleComponents() {
       toast.error("All Fileds are required");
       return;
     }
+    setIsSubmitting(true);
     try {
       const { data } = await createRole(role);
       toast.success(data.message);
       fetchRole();
-      setRole({ roleName: "", permissionId: null });
+      setRole({ roleName: "", permissionId: [] });
+      setRole((prev) => ({
+        ...prev,
+        permissionId: [],
+      }));
     } catch (err) {
       console.error(err.response.data);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -244,6 +294,7 @@ export function RoleComponents() {
               </label>
               <input
                 type="text"
+                ref={roleInputRef}
                 name="roleName"
                 value={role.roleName}
                 required
@@ -252,26 +303,53 @@ export function RoleComponents() {
                 className="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 outline-none focus:border-indigo-500 transition-colors"
               />
               {/* Render here list of permision as a dropdown*/}
-              <select
-                className=" mt-2 w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-[#14b8a6]"
-                name="permissionId"
-                required
-                value={role.permissionId}
-                onChange={handleChangeRole}
-              >
-                <option value="">SELECT PERMISION</option>
-                {permission?.map((p) => (
-                  <option key={p._id} value={p._id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
+              {/* 4. Multi-Select Checkbox Container */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 mt-2">
+                  Assign System Permissions ({role?.permissionId?.length}{" "}
+                  Selected)
+                </label>
+
+                <div className="space-y-2 max-h-48 overflow-y-auto border border-slate-100 rounded-lg p-3 bg-slate-50/50">
+                  {permissionsList.map((perm) => {
+                    const isChecked = role.permissionId?.includes(perm._id);
+
+                    return (
+                      <label
+                        key={perm._id}
+                        className={`flex items-start gap-3 p-2 rounded-lg border transition-all cursor-pointer text-sm select-none ${
+                          isChecked
+                            ? "bg-indigo-50/60 border-indigo-200 text-indigo-900"
+                            : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => handlePermissionToggle(perm._id)}
+                          className="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                        />
+                        <div className="-mt-0.5">
+                          <span className="font-mono text-xs font-bold block">
+                            {perm.name}
+                          </span>
+                          <span className="text-xs text-slate-400 font-normal">
+                            {perm.desc}
+                          </span>
+                        </div>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
             <button
               className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium text-sm py-2.5 px-4 rounded-lg shadow transition-colors duration-150"
               onClick={handleAddRole}
+              disabled={isSubmitting}
             >
-              Generate Role Group
+              {/* TODO incase of update*/}
+              {isSubmitting ? "Syncing Permissions..." : "Generate Role Group"}
             </button>
           </div>
         </section>
@@ -356,10 +434,6 @@ export function RoleComponents() {
               </ul>
               <div>
                 <h2>Avalialable Roles </h2>
-                {/*{roles?.map((role) => (
-                  <li key={role._id}>{role.name}</li>
-                ))}*/}
-
                 <ul className="divide-y divide-slate-100 max-h-[70vh] overflow-y-auto">
                   {roles?.map((perm) => (
                     <li
@@ -376,11 +450,11 @@ export function RoleComponents() {
                             {perm.name}
                           </span>
                           {/* Description Text */}
-                          <p className="text-sm text-slate-600 leading-relaxed pt-0.5">
+                          <div className="text-sm text-slate-600 leading-relaxed pt-0.5">
                             {perm?.permission?.map((p) => (
-                              <p>{p.name}</p>
+                              <p key={p._id}>{p.name}</p>
                             ))}
-                          </p>
+                          </div>
                         </div>
                         <div className="space-x-2 flex">
                           <div
@@ -394,7 +468,7 @@ export function RoleComponents() {
                               // 5. Trigger form load and component input cursor tracking mechanics
                               onClick={() => startRoleEditMode(perm)}
                               className={`p-1.5 rounded transition-colors ${
-                                editingId === perm._id
+                                roleEditingId === perm._id
                                   ? "text-amber-600 bg-amber-50"
                                   : "text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
                               }`}
