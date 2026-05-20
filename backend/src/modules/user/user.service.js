@@ -39,7 +39,10 @@ const getUsersService = async (currentUser) => {
     throw new Error("403 Forbidden: Access Denied");
   }
 
-  return await User.find(query).select("-password"); // Exclude passwords for security
+  return await User.find(query).populate({
+      path: 'roles',
+      populate: 'permission'
+  });
 };
 
 module.exports = { getAllEmployees, getUsersService };
