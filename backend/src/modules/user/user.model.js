@@ -25,24 +25,15 @@ const userSchema = new mongoose.Schema(
       select: false, // never return in query
     },
 
-    role: {
-      type: String,
-      // enum: ["Admin", "Employee"],
-      enum: ["org_admin", "dept_head", "member"],
-      default: "member",
-    },
-
-    // for testing anther type of object
-    //
     roles: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Role",
       required: true,
     },
+
     department: {
-      type: String,
-      enum: ["engineering", "design", "marketing", "hr"], // ✅ add yours
-      required: [true, "Department is required"],
+        type: Schema.Types.ObjectId,
+        ref: 'Department'
     },
 
     refreshToken: {
@@ -52,6 +43,14 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
+
+// indexs
+userSchema.index({ email: 1 }, { unique: true });
+userSchema.index({ role: 1 });
+userSchema.index({ department: 1 });
+userSchema.index({ role: 1, isActive: 1 }); 
+userSchema.index({ department: 1, isActive: 1 }); 
+userSchema.index({ createdAt: -1 });  
 
 // hash the password
 userSchema.pre("save", async function () {
