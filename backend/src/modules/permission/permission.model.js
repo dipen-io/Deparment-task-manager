@@ -22,7 +22,7 @@ const permissionSchema = new Schema(
     { timestamps: true },
 );
 
-permissionSchema.index({ name: 1}, { unique: true });
+// permissionSchema.index({ name: 1}, { unique: true });
 permissionSchema.index({ createdBy: 1});
 
 module.exports = model("Permission", permissionSchema);

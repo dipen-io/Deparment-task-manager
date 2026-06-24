@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema(
     },
 
     department: {
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Department'
     },
 
@@ -45,7 +45,7 @@ const userSchema = new mongoose.Schema(
 );
 
 // indexs
-userSchema.index({ email: 1 }, { unique: true });
+// userSchema.index({ email: 1 }, { unique: true });
 userSchema.index({ role: 1 });
 userSchema.index({ department: 1 });
 userSchema.index({ role: 1, isActive: 1 }); 
