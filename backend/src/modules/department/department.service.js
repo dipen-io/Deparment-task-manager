@@ -1,5 +1,6 @@
 const AppError = require("../../utils/AppError");
 const Department = require("./department.model");
+const User = require("../user/user.model");
 
 const createDept = async (data) => {
     try {
@@ -118,4 +119,53 @@ const updateDept = async ({ deptId, name, description, manager }) => {
     return updatedData;
 };
 
-module.exports = { createDept, getDept, deleteDept, updateDept };
+const assignDept = async ( userId, deptId ) => {
+    const dept = await Department.findById(deptId);
+    if (!dept) {
+        throw new AppError("Department does not exist", 404);
+    }
+
+    const existingUser = await User.findById(userId);
+
+    if (!existingUser) {
+        throw new AppError("User does not existe", 404);
+    }
+
+    if (existingUser.department?.toString() === deptId) {
+        return {
+            user: await existingUser.populate("department", "name description"),
+            mesage: "User already assigned to this department"
+        }
+    }
+
+    // update user with new department
+    const user = await User.findByIdAndUpdate(
+        userId,
+        {
+            $set: { department: deptId },
+        },
+        { new: true, runValidators: true },
+    ).populate("department", "name description");
+
+    if (!user) {
+        throw new AppError("User does not exist", 404);
+    }
+    return user;
+};
+
+const removeDepartment = async (userId) => {
+    const user = await User.findByIdAndUpdate(
+        userId,
+        { $unset: { department: 1}}, // remove this fields
+        { new: true }
+    );
+
+    if (!user) {
+        throw new AppError("User does not exist", 404);
+    }
+
+    return user;
+
+}
+
+module.exports = { createDept, getDept, deleteDept, updateDept, assignDept, removeDepartment };

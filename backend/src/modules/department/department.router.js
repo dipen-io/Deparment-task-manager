@@ -3,6 +3,8 @@ const {
     getDepartment,
     delDepartment,
     updateDepartment,
+    assignDepartment,
+    unassingDepartment,
 } = require("./department.controller");
 const validate = require("../../middleware/input-validate");
 const { authorize, protect } = require("../../middleware/auth");
@@ -13,6 +15,10 @@ const router = require("express").Router();
 
 router.get("/get", getDepartment);
 router.post("/", deptValidator, validate, createDepartment);
+
+router.post("/unassign/:id", unassingDepartment);
+
+router.post("/:deptId/:userId", assignDepartment);
 // router.post("/", addPermissionValidator, validate, protect, authorize(ROLES.ADMIN), createPermission);
 router.patch("/:id", updateDepartment);
 router.delete("/:id", delDepartment);

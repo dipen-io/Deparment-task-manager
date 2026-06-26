@@ -4,6 +4,8 @@ const {
     createDept,
     deleteDept,
     updateDept,
+    assignDept,
+    removeDepartment,
 } = require("./department.service");
 const ApiResponse = require("../../utils/ApiResponse");
 
@@ -43,3 +45,20 @@ exports.updateDepartment = asyncHandler(async (req, res) => {
         new ApiResponse(200, "Department updated successfully", updatedData),
     );
 });
+
+exports.assignDepartment = asyncHandler(async (req, res) => {
+    const { userId, deptId } = req.params;
+    const user = await assignDept(userId, deptId);
+    res.status(200).json(
+        new ApiResponse(200, "Department assigned successfully", user),
+    );
+});
+
+exports.unassingDepartment = asyncHandler( async (req, res) => {
+    const userId = req.params.id;
+    await removeDepartment(userId);
+
+    res.status(200).json(
+        new ApiResponse(200, "Department removed successfully" ),
+    );
+})
