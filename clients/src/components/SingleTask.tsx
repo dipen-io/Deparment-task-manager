@@ -92,7 +92,8 @@ export function SingleTask() {
           <h3 className="text-sm text-gray-500 mb-1">Created At</h3>
           <p className="text-gray-800">
             {/* {new Date(task?.createdAt).toLocaleString()} */}
-            {task ? new Date(task.createdAt).toLocaleString() : "-"}
+            {/* {task ? new Date(task.createdAt).toLocaleString() : "-"} */}
+            {task?.createdAt ? new Date(task.createdAt).toLocaleString() : "-"}
           </p>
         </div>
 
@@ -101,7 +102,8 @@ export function SingleTask() {
           <h3 className="text-sm text-gray-500 mb-1">Last Updated</h3>
           <p className="text-gray-800">
             {/* {new Date(task?.updatedAt).toLocaleString()} */}
-            {task ? new Date(task.updatedAt).toLocaleString() : "-"}
+            {/* {task ? new Date(task.updatedAt).toLocaleString() : "-"} */}
+            {task?.updatedAt ? new Date(task.updatedAt).toLocaleString() : "-"}
           </p>
         </div>
       </div>

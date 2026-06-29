@@ -5,7 +5,7 @@ export function TeamOverview({ users }: { users: any[] }) {
   const [roleFilter, setRoleFilter] = useState("all");
   const [deptFilter, setDeptFilter] = useState("all");
   const { user: currentUser } = useAuth();
-  const isAdmin = currentUser?.role === "org_admin";
+  const isAdmin = currentUser?.userType === "admin";
 
   // 1. Filter Logic based on your received data
   const filteredMembers = users.filter((user) => {
@@ -97,11 +97,10 @@ export function TeamOverview({ users }: { users: any[] }) {
 
                     {/* Status Badge */}
                     <span
-                      className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                        member.role === "org_admin"
-                          ? "bg-purple-100 text-purple-700"
-                          : "bg-teal-100 text-teal-700"
-                      }`}
+                      className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${member.role === "org_admin"
+                        ? "bg-purple-100 text-purple-700"
+                        : "bg-teal-100 text-teal-700"
+                        }`}
                     >
                       {member.role === "org_admin" ? "Admin" : "Active"}
                     </span>
