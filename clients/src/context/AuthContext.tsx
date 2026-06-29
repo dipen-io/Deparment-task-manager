@@ -1,12 +1,31 @@
-import { createContext, useState, useEffect, useContext, useCallback } from "react";
+import {
+    createContext,
+    useState,
+    useEffect,
+    useContext,
+    useCallback,
+} from "react";
 import type { ReactNode } from "react";
+import type { User } from "../components/types/userType"
+// interface User {
+//     _id: string; // ✅ match MongoDB field
+//     name: string; // ✅ add name too
+//     email: string;
+//     role: Roles;
+//     department: Department;
+//     userType: "admin" | "head" | "member";
+// }
 
-interface User {
-    _id: string;  // ✅ match MongoDB field
-    name: string; // ✅ add name too
-    email: string;
-    role: string;
-}
+// interface Roles {
+//     _id: string;
+//     name: string;
+//     permissions: string[];
+// }
+// interface Department {
+//     _id: string;
+//     name: string;
+//     description: string;
+// }
 
 interface AuthContextType {
     user: User | null;
@@ -27,23 +46,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const logout = useCallback(() => {
         setUser(null);
         setToken(null);
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
     }, []);
 
     useEffect(() => {
-        const savedUser = localStorage.getItem('user');
-        const savedToken = localStorage.getItem('token');
+        const savedUser = localStorage.getItem("user");
+        const savedToken = localStorage.getItem("token");
 
         if (savedUser && savedUser !== "undefined") {
             try {
                 const parsedUser = JSON.parse(savedUser);
-                if (parsedUser && typeof parsedUser === 'object') {
+                if (parsedUser && typeof parsedUser === "object") {
                     setUser(parsedUser);
                 }
             } catch (error) {
                 console.error("Failed to parse user from localStorage", error);
-                localStorage.removeItem('user');
+                localStorage.removeItem("user");
             }
         }
 
@@ -62,24 +81,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             logout(); // ✅ now uses stable reference
         };
 
-        window.addEventListener('onTokenRefresh', handleTokenRefresh);
-        window.addEventListener('onTokenExpired', handleTokenExpired);
+        window.addEventListener("onTokenRefresh", handleTokenRefresh);
+        window.addEventListener("onTokenExpired", handleTokenExpired);
 
         return () => {
-            window.removeEventListener('onTokenRefresh', handleTokenRefresh);
-            window.removeEventListener('onTokenExpired', handleTokenExpired);
+            window.removeEventListener("onTokenRefresh", handleTokenRefresh);
+            window.removeEventListener("onTokenExpired", handleTokenExpired);
         };
     }, [logout]); // ✅ logout is stable so this only runs once
 
     const saveData = (userData: User, accessToken: string) => {
         setUser(userData);
         setToken(accessToken);
-        localStorage.setItem('user', JSON.stringify(userData));
-        localStorage.setItem('token', accessToken);
+        localStorage.setItem("user", JSON.stringify(userData));
+        localStorage.setItem("token", accessToken);
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, saveData, logout, loading }}>
+        <AuthContext.Provider
+            value={{
+                user,
+                token,
+                saveData,
+                logout,
+                loading,
+            }}
+        >
             {children}
         </AuthContext.Provider>
     );

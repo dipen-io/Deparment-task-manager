@@ -1,4 +1,5 @@
 import api from "./axios";
+import { User } from "../components/types/userType";
 
 // Request types
 export interface LoginPayload {
@@ -19,10 +20,22 @@ export interface User {
   // Add other user fields here (e.g., name: string;)
 }
 
-export interface AuthResponse {
-  user: User; // Moved out of a nested 'data' object
-  message: string;
+// export interface AuthResponse {
+//   user: User; // Moved out of a nested 'data' object
+//   message: string;
+//   accessToken: string;
+// }
+interface AuthResponse {
+  success: boolean;
   accessToken: string;
+
+  statusCode: number;
+  message: string;
+  data: {
+    user: User;
+    accessToken: string;
+    refreshToken: string;
+  };
 }
 
 // API functions
