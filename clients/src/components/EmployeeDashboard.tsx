@@ -5,7 +5,7 @@ import { useNavigate } from "react-router";
 export function EmployeeDashbaord() {
     const navigate = useNavigate();
     const { user } = useAuth();
-    if (user.role !== "dept_head") {
+    if (user?.userType !== "head") {
         console.log("route not found");
         navigate(-1);
     }
@@ -29,8 +29,8 @@ export function EmployeeDashbaord() {
                         </div>
                         <div className="hidden sm:block">
                             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#14b8a6] to-[#0d9488] flex items-center justify-center text-white">
-                                {user?.name.charAt(0).toUpperCase() +
-                                    user?.name.charAt(1).toUpperCase()}
+                                {(user?.name?.charAt(0) ?? 'U').toUpperCase() +
+                                    (user?.name?.charAt(1) ?? 'U').toUpperCase()}
                             </div>
                         </div>
                     </div>

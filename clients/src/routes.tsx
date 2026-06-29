@@ -62,7 +62,7 @@ export const router = createBrowserRouter([
     path: "/dept-head",
     element: (
       <ProtectedRoute>
-        <DashboardLayout user="Head_dept" />
+        <DashboardLayout user="Head" />
       </ProtectedRoute>
     ),
     children: [

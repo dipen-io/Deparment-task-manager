@@ -1,19 +1,23 @@
 import { Navigate } from "react-router";
 import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast";
 
 export function Home() {
-  const { user, loading } = useAuth();
+    const { user, loading } = useAuth();
+    console.log("USER", user);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+    if (loading) {
+        return <div>Loading...</div>;
+    }
 
-  if (user?.role === "org_admin") {
-    return <Navigate to="/admin/dashboard" replace />;
-  }
+    if (user?.userType === "admin") {
+        toast.success(user.userType);
+        return <Navigate to="/admin/dashboard" replace />;
+    }
 
-  if (user?.role === "dept_head") {
-    return <Navigate to="/dept-head/dashboard" replace />;
-  }
-  return <Navigate to="/member/dashboard" replace />;
+    if (user?.userType === "head") {
+        toast.success(user.userType);
+        return <Navigate to="/dept-head/dashboard" replace />;
+    }
+    return <Navigate to="/member/dashboard" replace />;
 }

@@ -1,5 +1,5 @@
 import api from "./axios";
-import { User } from "../components/types/userType";
+import type { User } from "../components/types/userType";
 
 // Request types
 export interface LoginPayload {
@@ -14,11 +14,11 @@ export interface SignupPayload {
 }
 
 // Response type (adjust based on your backend)
-export interface User {
-  id: string;
-  email: string;
-  // Add other user fields here (e.g., name: string;)
-}
+// export interface User {
+//   id: string;
+//   email: string;
+//   // Add other user fields here (e.g., name: string;)
+// }
 
 // export interface AuthResponse {
 //   user: User; // Moved out of a nested 'data' object

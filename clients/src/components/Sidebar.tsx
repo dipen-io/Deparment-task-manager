@@ -5,8 +5,6 @@ import toast from "react-hot-toast";
 import {
     Home,
     CheckSquare,
-    Users,
-    Settings,
     RollerCoaster,
     User,
     Menu,
@@ -54,12 +52,12 @@ export function Sidebar({ role }: SidebarProps) {
         // Use a spread operator with a condition to inject the item only if Admin
         ...(role === "Admin"
             ? [
-                  {
-                      label: "Role",
-                      icon: RollerCoaster, // Your admin icon component/asset
-                      path: `${basePath}/role`,
-                  },
-              ]
+                {
+                    label: "Role",
+                    icon: RollerCoaster, // Your admin icon component/asset
+                    path: `${basePath}/role`,
+                },
+            ]
             : []),
 
         // { icon: Users, label: "Team Requests", path: `${basePath}/requests` },
@@ -117,13 +115,12 @@ export function Sidebar({ role }: SidebarProps) {
                             }
                             className={`
         w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all
-        ${
-            item.action
-                ? "text-red-500 hover:bg-red-50" // ✅ logout styled differently
-                : location.pathname === item.path
-                  ? "bg-[#14b8a6]/10 text-[#14b8a6]"
-                  : "text-gray-600 hover:bg-gray-50"
-        }
+        ${item.action
+                                    ? "text-red-500 hover:bg-red-50" // ✅ logout styled differently
+                                    : location.pathname === item.path
+                                        ? "bg-[#14b8a6]/10 text-[#14b8a6]"
+                                        : "text-gray-600 hover:bg-gray-50"
+                                }
       `}
                         >
                             <item.icon size={20} />

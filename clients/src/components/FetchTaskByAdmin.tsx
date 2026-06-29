@@ -14,11 +14,11 @@ type FilterType = "all" | "pending" | "in-progress" | "completed";
 
 export function AllTasks() {
   const [deleting, setisDeleting] = useState(false);
-  const [deletingId, setDeletingId] = useState(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   // Store the meta data so we can use it for pagination later!
-  const [meta, setMeta] = useState<TaskResponse["meta"] | null>(null);
+  const [_meta, setMeta] = useState<TaskResponse["meta"] | null>(null);
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -57,10 +57,9 @@ export function AllTasks() {
         if (activeFilter !== "all") params.status = activeFilter;
         if (searchQuery) params.search = searchQuery;
 
-        const { data, meta } = await getTasks(params);
-        // console.log(data.tasks);
+        const { tasks, meta } = await getTasks(params);
 
-        setTasks(data?.tasks || []);
+        setTasks(tasks || []);
         setMeta(meta || null); // Save pagination data
       } catch (err: any) {
         setError(err.customMessage || "Failed to load tasks");
@@ -118,11 +117,10 @@ export function AllTasks() {
               <button
                 key={filter}
                 onClick={() => setActiveFilter(filter)}
-                className={`flex-1 md:flex-none px-4 py-2 rounded-md text-sm font-medium capitalize transition-colors ${
-                  activeFilter === filter
-                    ? "bg-[#14b8a6] text-white shadow-sm"
-                    : "text-gray-600 hover:bg-gray-100"
-                }`}
+                className={`flex-1 md:flex-none px-4 py-2 rounded-md text-sm font-medium capitalize transition-colors ${activeFilter === filter
+                  ? "bg-[#14b8a6] text-white shadow-sm"
+                  : "text-gray-600 hover:bg-gray-100"
+                  }`}
               >
                 {filter.replace("-", " ")}
               </button>

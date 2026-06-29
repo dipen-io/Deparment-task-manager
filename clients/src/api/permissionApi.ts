@@ -1,3 +1,4 @@
+import type { Permission } from "../components/types/rolesType";
 import api from "./axios";
 
 export const getPermission = () => {
@@ -5,7 +6,7 @@ export const getPermission = () => {
   return response;
 };
 
-export const createPermission = async (data) => {
+export const createPermission = async (data: Permission) => {
   const response = await api.post("/permission", data);
   return response;
 };
@@ -15,7 +16,7 @@ export const removePermission = async (id: string) => {
   return response;
 };
 
-export const editPermission = async (id: string, data) => {
+export const editPermission = async (id: string, data: Permission) => {
   const response = await api.patch(`/permission/${id}`, data);
   return response;
 };

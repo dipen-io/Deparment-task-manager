@@ -32,7 +32,7 @@ export function ProfilePage() {
           </div>
           <h2 className="text-xl font-bold text-gray-900">{user.name}</h2>
           <span className="mt-2 px-3 py-1 bg-gray-100 text-gray-600 text-xs font-bold uppercase tracking-wider rounded-full">
-            ID: {user.id || "N/A"}
+            ID: {user._id || "N/A"}
           </span>
         </div>
 
@@ -62,7 +62,7 @@ export function ProfilePage() {
                   Access Role
                 </p>
                 <p className="text-gray-900 font-medium capitalize">
-                  {user.role?.replace("_", " ")}
+                  {user.role?.name?.replace("_", " ")}
                 </p>
               </div>
             </div>
@@ -77,7 +77,7 @@ export function ProfilePage() {
                   Department
                 </p>
                 <p className="text-gray-900 font-medium capitalize">
-                  {user.department || "All Access"}
+                  {user.department?.name || "All Access"}
                 </p>
               </div>
             </div>
@@ -106,19 +106,19 @@ export function ProfilePage() {
             </h3>
             <ul className="space-y-2">
               <li className="text-sm text-gray-700 flex items-center gap-2">
-                ✅ View {user.role === "org_admin" ? "all" : "department"} tasks
+                ✅ View {user.userType === "admin" ? "all" : "department"} tasks
               </li>
 
               <li className="text-sm text-gray-700 flex items-center gap-2">
                 ✅{" "}
-                {user.role === "member" ? "update assinged task and view" : ""}
+                {user.userType === "member" ? "update assinged task and view" : ""}
               </li>
-              {user.role !== "member" && (
+              {user.userType !== "member" && (
                 <li className="text-sm text-gray-700 flex items-center gap-2">
                   ✅ Create and manage team tasks[cite: 1]
                 </li>
               )}
-              {user.role === "org_admin" && (
+              {user.userType === "admin" && (
                 <li className="text-sm text-gray-700 flex items-center gap-2">
                   ✅ Modify user roles and departments[cite: 1]
                 </li>

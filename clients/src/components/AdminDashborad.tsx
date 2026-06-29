@@ -1,19 +1,20 @@
 import { Sidebar } from "./Sidebar";
-import { BarChart3, Users, ClipboardCheck, TrendingUp } from "lucide-react";
+import { Users, ClipboardCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { CreateTaskModal } from "./CreateTaskModal";
 import { getTaskCount } from "../api/taskApi";
 import { getUsers } from "../api/userApi";
 import { TeamOverview } from "./TeamOverview";
-import { useAuth } from "../context/AuthContext";
+import type { Employee } from "../api/userApi";
+// import { useAuth } from "../context/AuthContext";
 
 export function AdminDashboard() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [taskCount, setTaskCount] = useState(0);
     const [usersCount, setUsersCount] = useState(0);
-    const [users, setUser] = useState([]);
+    const [users, setUser] = useState<Employee[]>([]);
 
-    const { user } = useAuth();
+    // const { user } = useAuth();
 
     const stats = [
         {
@@ -39,10 +40,10 @@ export function AdminDashboard() {
         };
         const getUser = async () => {
             console.log("SOMETHIGN WRONG HERE");
-            const user = await getUsers();
-            console.log("USER NO", user);
-            setUsersCount(user?.data?.totalUsers);
-            setUser(user?.data?.users);
+            const res = await getUsers();
+            console.log("USER NO", res);
+            setUsersCount(res?.data?.totalUsers);
+            setUser(res?.data?.users);
         };
         getTaskCounts();
         getUser();

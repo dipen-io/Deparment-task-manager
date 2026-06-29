@@ -1,7 +1,14 @@
 import { Outlet, Navigate } from "react-router";
+import type { ReactNode } from "react";
+// import type { User } from "./types/userType";
 // import { Sidebar } from './Sidebar';
 
-export function DashboardLayout({ user }) {
+interface DashboardLayoutProps {
+  user: "Admin" | "Head" | "Member";
+  childre?: ReactNode;
+}
+
+export function DashboardLayout({ user }: DashboardLayoutProps) {
   // If no user is logged in, send them to login
   if (!user) return <Navigate to="/login" replace />;
 

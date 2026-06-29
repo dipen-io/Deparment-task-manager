@@ -8,6 +8,7 @@ interface Employee {
   _id: string;
   name: string;
 }
+type TaskStatus = "pending" | "in-process" | "completed";
 
 interface CreateTaskModalProps {
   onClose: () => void;
@@ -23,7 +24,8 @@ export function CreateTaskModal({
   // Form State
   const [title, setTitle] = useState(task?.title || "");
   const [description, setDescription] = useState(task?.description || "");
-  const [status, setStatus] = useState(task?.status || "pending");
+  // const [status, setStatus] = useState(task?.status || "pending");
+  const [status, setStatus] = useState<TaskStatus>((task?.status as TaskStatus) || "pending");
   const [assigneeId, setAssigneeId] = useState(task?.assignee?._id || "");
 
   // API State
@@ -36,7 +38,7 @@ export function CreateTaskModal({
     if (task) {
       setTitle(task.title);
       setDescription(task.description);
-      setStatus(task.status);
+      setStatus(task.status as TaskStatus);
       setAssigneeId(task.assignedTo?._id || "");
     }
     const fetchEmployees = async () => {
@@ -136,7 +138,7 @@ export function CreateTaskModal({
             </label>
             <select
               value={status}
-              onChange={(e) => setStatus(e.target.value)}
+              onChange={(e) => setStatus(e.target.value as TaskStatus)}
               className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-[#14b8a6]"
             >
               <option value="pending">Pending</option>

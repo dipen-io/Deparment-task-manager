@@ -18,6 +18,11 @@ export const getSingleTask = async (id: string) => {
 };
 
 export interface Task {
+  assignee: {
+    _id: string;
+    name: string;
+    email: string;
+  };
   _id: string;
   title: string;
   description: string;

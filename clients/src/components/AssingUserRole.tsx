@@ -2,13 +2,16 @@ import { useEffect, useState } from "react";
 import { getUsers } from "../api/userApi";
 import { getRole, assingUserRole } from "../api/roleApi";
 import toast from "react-hot-toast";
+import type { Role } from "./types/userType";
+import type { Employee } from "../api/userApi";
+import axios from "axios";
 
 export function AssignUserRole() {
-    const [users, setUsers] = useState([]);
-    const [roles, setRoles] = useState([]);
-    const [savingRoleId, setSavingRoleId] = useState(null);
-    const [savingRole, setSavingRole] = useState(false);
-    const [selectedRole, setSelectedRole] = useState({});
+    const [users, setUsers] = useState<Employee[]>([]);
+    const [roles, setRoles] = useState<Role[]>([]);
+    const [savingRoleId, setSavingRoleId] = useState<string | null>(null);
+    const [savingRole, setSavingRole] = useState<boolean>(false);
+    const [selectedRole, setSelectedRole] = useState<Record<string, string>>({});
 
     const fetchUsers = async () => {
         const { data } = await getUsers();
@@ -25,7 +28,7 @@ export function AssignUserRole() {
         fetchRole();
     }, []);
 
-    const handleRoleChange = (userId, roleId) => {
+    const handleRoleChange = (userId: string, roleId: string) => {
         setSavingRoleId(userId);
         setSelectedRole((prev) => ({
             ...prev,
@@ -33,7 +36,7 @@ export function AssignUserRole() {
         }));
     };
 
-    const updateUserRole = async (userId) => {
+    const updateUserRole = async (userId: string) => {
         setSavingRoleId(userId);
         setSavingRole(true);
         try {
@@ -46,8 +49,13 @@ export function AssignUserRole() {
             const { data } = await assingUserRole(roleId, userId);
             toast.success(data.message);
             fetchUsers();
-        } catch (err) {
-            console.error("Error: ", err.response.data.message);
+        } catch (err: unknown) {
+            if (axios.isAxiosError(err)) {
+                console.error(err?.response?.data);
+            } else {
+                console.error("Unknown Error");
+
+            }
         } finally {
             setSavingRole(false);
             setSavingRoleId(null);

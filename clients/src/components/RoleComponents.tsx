@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, type ChangeEvent } from "react";
 import {
     getPermission,
     createPermission,
@@ -7,29 +7,31 @@ import {
 } from "../api/permissionApi";
 import toast from "react-hot-toast";
 import { PencilIcon, X } from "lucide-react";
-import { createRole, getRole, updateRoles, deleteRoles } from "../api/roleApi";
+import { createRole, getRole, updateRoles, deleteRoles, type UpdateRolePaylaod } from "../api/roleApi";
 import { AssignUserRole } from "./AssingUserRole";
+import type { Permission, Role, RoleForm } from "./types/rolesType";
+import axios from "axios";
 
 export function RoleComponents() {
-    const [permission, setPermission] = useState([]);
+    const [permission, setPermission] = useState<Permission[]>([]);
     const [loading, setLoading] = useState(true);
     const [permLoading, setPermLoading] = useState(false);
-    const [permissionForm, setPermissionForm] = useState({
+    const [permissionForm, setPermissionForm] = useState<Permission>({
         name: "",
         desc: "",
     });
-    const [correntRole, setCurrentRole] = useState([]);
-    const [editingId, setEditingId] = useState(null);
-    const [roleEditingId, setRoleEditingId] = useState(null);
-    const [roles, setRoles] = useState([]);
+    const [correntRole, setCurrentRole] = useState<string[]>([]);
+    const [editingId, setEditingId] = useState<string | null>(null);
+    const [roleEditingId, setRoleEditingId] = useState<string | null>(null);
+    const [roles, setRoles] = useState<Role[]>([]);
 
-    const [role, setRole] = useState({ roleName: "", permissionId: [] });
+    const [role, setRole] = useState<RoleForm>({ roleName: "", permissionId: [] });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const nameInputRef = useRef(null);
-    const roleInputRef = useRef(null);
+    const nameInputRef = useRef<HTMLInputElement | null>(null);
+    const roleInputRef = useRef<HTMLInputElement | null>(null);
 
-    const handleChange = (e) => {
+    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setPermissionForm((prev) => ({
             ...prev,
@@ -37,7 +39,7 @@ export function RoleComponents() {
         }));
     };
 
-    const handleChangeRole = (e) => {
+    const handleChangeRole = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setRole((prev) => ({
             ...prev,
@@ -64,8 +66,13 @@ export function RoleComponents() {
             const { data } = await getRole();
             // Fallback to empty array if nested data structure evaluates to undefined
             setRoles(data?.data || []);
-        } catch (error) {
-            console.error("Failed to fetch permissions:", error);
+        } catch (err: unknown) {
+            if (axios.isAxiosError(err)) {
+                console.error(err.response?.data);
+            } else {
+                console.error("Unkown Error");
+            }
+
         } finally {
             setLoading(false);
         }
@@ -82,7 +89,7 @@ export function RoleComponents() {
         }
     }, [roleEditingId]);
 
-    const handlePermissionToggle = (permissionId) => {
+    const handlePermissionToggle = (permissionId: string) => {
         setRole((prev) => {
             const current = [...prev.permissionId]; // 👈 CLONE
 
@@ -101,7 +108,7 @@ export function RoleComponents() {
 
     const permissionsList = permission;
 
-    const handleSubmitPermission = async (e) => {
+    const handleSubmitPermission = async (e: React.FormEvent) => {
         if (!permissionForm.name) {
             return;
         }
@@ -123,11 +130,16 @@ export function RoleComponents() {
                 toast.success(data.message);
             }
             fetchPerm();
-        } catch (err) {
-            const backendMessage =
-                err.response?.data?.message ||
-                "An unexpected system error occurred.";
-            console.error("Error:", backendMessage);
+        } catch (err: unknown) {
+            if (axios.isAxiosError(err)) {
+                const backendMessage =
+                    err.response?.data?.message ||
+                    "An unexpected system error occurred.";
+                console.error("Error:", backendMessage);
+            } else {
+                console.error("Unkown Error");
+            }
+
         } finally {
             setPermissionForm({ name: "", desc: "" });
             setPermLoading(false);
@@ -139,14 +151,22 @@ export function RoleComponents() {
             const { data } = await removePermission(id);
             toast.success(data.message);
             fetchPerm();
-        } catch (err) {
-            console.error("Error: ", err.response);
+        } catch (err: unknown) {
+            if (axios.isAxiosError(err)) {
+                console.error(err?.response?.data);
+            } else {
+                console.error("Unkown Error");
+            }
+
         }
     };
 
     // 3. Setup input populations and programmatically force cursor focus
-    const startEditMode = (perm) => {
-        setEditingId(perm._id);
+    const startEditMode = (perm: Permission) => {
+        if (perm._id) {
+            setEditingId(perm._id);
+
+        }
         setPermissionForm({
             name: perm.name,
             desc: perm.desc || "",
@@ -158,14 +178,16 @@ export function RoleComponents() {
         }, 10);
     };
 
-    const startRoleEditMode = (role) => {
+    const startRoleEditMode = (role: Role) => {
         console.log("ROLE", role);
         const ids = role.permission.map((p) => p._id);
-        setCurrentRole([...ids]);
+        // setCurrentRole([...ids]);
+        setCurrentRole(ids.filter(Boolean) as string[]);
         setRoleEditingId(role._id);
         setRole({
             roleName: role.name,
-            permissionId: [...ids],
+            // permissionId: [...ids],
+            permissionId: ids.filter((id): id is string => id !== undefined),
         });
         console.log("ROLE2", role);
     };
@@ -175,12 +197,12 @@ export function RoleComponents() {
         setPermissionForm({ name: "", desc: "" });
     };
 
-    const handleRoleCancelEdit = () => {
-        setRoleEditingId(null);
-        setRole({ roleName: "", permissionId: [] });
-    };
+    // const handleRoleCancelEdit = () => {
+    //     setRoleEditingId(null);
+    //     setRole({ roleName: "", permissionId: [] });
+    // };
 
-    const handleAddRole = async (e) => {
+    const handleAddRole = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!role.roleName.trim() || role.permissionId === null) {
             toast.error("All Fileds are required");
@@ -189,12 +211,12 @@ export function RoleComponents() {
         setIsSubmitting(true);
         try {
             if (roleEditingId) {
-                const current = role.permissionId;
-                const original = correntRole;
+                const current: string[] = role.permissionId;
+                const original: string[] = correntRole;
 
                 const toAdd = current.filter((id) => !original.includes(id));
                 const toRemove = original.filter((id) => !current.includes(id));
-                const permData = { toAdd, toRemove };
+                const permData: UpdateRolePaylaod = { toAdd, toRemove };
 
                 const { data } = await updateRoles(roleEditingId, permData);
                 toast.success(data?.message);
@@ -209,8 +231,13 @@ export function RoleComponents() {
                 ...prev,
                 permissionId: [],
             }));
-        } catch (err) {
-            console.error(err.response.data);
+        } catch (err: unknown) {
+            if (axios.isAxiosError(err)) {
+                console.error(err.response?.data);
+            } else {
+                console.error("Unknown Error");
+            }
+
         } finally {
             setIsSubmitting(false);
         }
@@ -221,8 +248,12 @@ export function RoleComponents() {
             const { data } = await deleteRoles(id);
             toast.success(data.message);
             fetchRole();
-        } catch (err) {
-            console.error("Error Deleting Roles: ", err.message);
+        } catch (err: unknown) {
+            if (axios.isAxiosError(err)) {
+                console.error(err?.response?.data);
+            } else {
+                console.error("Unknown Error");
+            }
         }
     };
 
@@ -287,8 +318,8 @@ export function RoleComponents() {
                                     ? "Saving..."
                                     : "Creating..."
                                 : editingId
-                                  ? "Update Permission Config"
-                                  : "Generate Role Permission"}
+                                    ? "Update Permission Config"
+                                    : "Generate Role Permission"}
                         </button>
                         {editingId && (
                             <button
@@ -339,24 +370,23 @@ export function RoleComponents() {
                                     {permissionsList.map((perm) => {
                                         const isChecked =
                                             role.permissionId?.includes(
-                                                perm._id,
+                                                perm._id ?? "",
                                             );
 
                                         return (
                                             <label
                                                 key={perm._id}
-                                                className={`flex items-start gap-3 p-2 rounded-lg border transition-all cursor-pointer text-sm select-none ${
-                                                    isChecked
-                                                        ? "bg-indigo-50/60 border-indigo-200 text-indigo-900"
-                                                        : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
-                                                }`}
+                                                className={`flex items-start gap-3 p-2 rounded-lg border transition-all cursor-pointer text-sm select-none ${isChecked
+                                                    ? "bg-indigo-50/60 border-indigo-200 text-indigo-900"
+                                                    : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                                                    }`}
                                             >
                                                 <input
                                                     type="checkbox"
                                                     checked={isChecked}
                                                     onChange={() =>
                                                         handlePermissionToggle(
-                                                            perm._id,
+                                                            perm._id ?? "",
                                                         )
                                                     }
                                                     className="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
@@ -386,8 +416,8 @@ export function RoleComponents() {
                                     ? "Updating Role"
                                     : "Syncing Permission.."
                                 : roleEditingId
-                                  ? "Update Role"
-                                  : "Generate Role Group"}
+                                    ? "Update Role"
+                                    : "Generate Role Group"}
                         </button>
                     </div>
                 </section>
@@ -450,7 +480,7 @@ export function RoleComponents() {
                                                 <div
                                                     className="text-red-900 hover:text-white hover:bg-red-500 h-8 p-1 hover:rounded"
                                                     onClick={() =>
-                                                        handleRemove(perm._id)
+                                                        handleRemove(perm._id ?? "")
                                                     }
                                                 >
                                                     <p>{<X />} </p>
@@ -461,12 +491,11 @@ export function RoleComponents() {
                                                         onClick={() =>
                                                             startEditMode(perm)
                                                         }
-                                                        className={`p-1.5 rounded transition-colors ${
-                                                            editingId ===
+                                                        className={`p-1.5 rounded transition-colors ${editingId ===
                                                             perm._id
-                                                                ? "text-amber-600 bg-amber-50"
-                                                                : "text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
-                                                        }`}
+                                                            ? "text-amber-600 bg-amber-50"
+                                                            : "text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
+                                                            }`}
                                                         title="Edit Permission"
                                                     >
                                                         <PencilIcon className="w-4 h-4" />
@@ -524,12 +553,11 @@ export function RoleComponents() {
                                                                     perm,
                                                                 )
                                                             }
-                                                            className={`p-1.5 rounded transition-colors ${
-                                                                roleEditingId ===
+                                                            className={`p-1.5 rounded transition-colors ${roleEditingId ===
                                                                 perm._id
-                                                                    ? "text-amber-600 bg-amber-50"
-                                                                    : "text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
-                                                            }`}
+                                                                ? "text-amber-600 bg-amber-50"
+                                                                : "text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
+                                                                }`}
                                                             title="Edit Permission"
                                                         >
                                                             <PencilIcon className="w-4 h-4" />
