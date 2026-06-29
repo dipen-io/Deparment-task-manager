@@ -1,13 +1,16 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, } from "react";
 import { Link, useNavigate, Navigate } from "react-router"; // Fixed: Standard is 'react-router-dom' but kept your import
 import { useAuth } from "../context/AuthContext";
 import { Mail, Lock, User } from "lucide-react";
 import { signupUser } from "../api/authApi";
 import { getDeptEnum } from "../api/taskApi";
 import toast from "react-hot-toast";
+import axios from "axios";
+
+
 
 // Helper for consistent styling without repeating config objects
-const notifyError = (msg) =>
+const notifyError = (msg: string) =>
   toast.error(msg, {
     duration: 4000,
     position: "top-center",
@@ -21,7 +24,7 @@ const notifyError = (msg) =>
 export function SignupPage() {
   const { user, saveData } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [departmentList, setDepartmentList] = useState([]);
+  const [departmentList, setDepartmentList] = useState<string[]>([]);
   const [roleList] = useState(["org_admin", "dept_head", "member"]); // Match seed data
 
   const navigate = useNavigate();
@@ -39,7 +42,9 @@ export function SignupPage() {
 
   if (loading) return <div>Loading...</div>;
   if (user) return <Navigate to="/" replace />;
-  const handleSubmit = async (e) => {
+
+  const handleSubmit = async (e: React.FormEvent) => {
+
     e.preventDefault();
 
     // 1. Validation Logic
@@ -56,10 +61,12 @@ export function SignupPage() {
       toast.success(response.message || "Account created!");
       saveData(response.data.user, response.data.accessToken);
       navigate("/", { replace: true });
-    } catch (err) {
-      notifyError(
-        err?.response?.data?.message || err?.message || "Signup failed",
-      );
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        notifyError(err.response?.data?.message || err.message);
+      } else {
+        notifyError("Signup failed");
+      };
     } finally {
       setLoading(false);
     }
