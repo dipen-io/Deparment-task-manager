@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { getSingleTask } from "../api/taskApi";
 import { Clock, User, CheckCircle, PlayCircle } from "lucide-react";
+import type { TaskType } from "./types/taskTypes";
 
 export function SingleTask() {
   const { id } = useParams();
-  const [task, setTask] = useState(null);
+  // const [task, setTask] = useState(null);
+  const [task, setTask] = useState<TaskType | null>(null);
   const [meta, setMeta] = useState<{
     accessedByName: string;
     accessedByRole: string;
@@ -55,7 +57,7 @@ export function SingleTask() {
       {/* Header */}
       <div className="flex justify-between items-start">
         <h1 className="text-2xl font-bold text-gray-800">{task?.title}</h1>
-        {renderStatus(task?.status)}
+        {task && renderStatus(task?.status)}
       </div>
 
       {/* Description */}
@@ -89,7 +91,8 @@ export function SingleTask() {
         <div className="bg-gray-50 p-4 rounded-lg">
           <h3 className="text-sm text-gray-500 mb-1">Created At</h3>
           <p className="text-gray-800">
-            {new Date(task?.createdAt).toLocaleString()}
+            {/* {new Date(task?.createdAt).toLocaleString()} */}
+            {task ? new Date(task.createdAt).toLocaleString() : "-"}
           </p>
         </div>
 
@@ -97,7 +100,8 @@ export function SingleTask() {
         <div className="bg-gray-50 p-4 rounded-lg">
           <h3 className="text-sm text-gray-500 mb-1">Last Updated</h3>
           <p className="text-gray-800">
-            {new Date(task?.updatedAt).toLocaleString()}
+            {/* {new Date(task?.updatedAt).toLocaleString()} */}
+            {task ? new Date(task.updatedAt).toLocaleString() : "-"}
           </p>
         </div>
       </div>
