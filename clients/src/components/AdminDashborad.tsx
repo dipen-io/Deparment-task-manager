@@ -12,7 +12,7 @@ export function AdminDashboard() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [taskCount, setTaskCount] = useState(0);
     const [usersCount, setUsersCount] = useState(0);
-    const [users, setUser] = useState<Employee[]>([]);
+    const [user, setUser] = useState<Employee[]>([]);
 
     // const { user } = useAuth();
 
@@ -39,15 +39,14 @@ export function AdminDashboard() {
             setTaskCount(count.data);
         };
         const getUser = async () => {
-            console.log("SOMETHIGN WRONG HERE");
             const res = await getUsers();
-            console.log("USER NO", res);
             setUsersCount(res?.data?.totalUsers);
             setUser(res?.data?.users);
         };
         getTaskCounts();
         getUser();
     }, []);
+
 
     return (
         <div className="min-h-screen bg-gray-50 flex">
@@ -121,7 +120,7 @@ export function AdminDashboard() {
                     </div>
 
                     {/*tearm overview*/}
-                    <TeamOverview users={users} />
+                    <TeamOverview users={user} />
                 </div>
             </main>
         </div>
