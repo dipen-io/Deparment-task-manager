@@ -1,6 +1,19 @@
 // import type { Role } from "../components/types/userType";
 import type { RoleForm } from "../components/types/rolesType";
 import api from "./axios";
+import type { Role } from "../components/types/rolesType";
+
+export interface RoleResponse {
+  success: boolean;
+  statusCode: number;
+  message: string;
+  data: Role[];
+  meta: {
+    timestamps: string;
+    unix: number;
+    meta: Record<string, unknown>;
+  };
+}
 
 export interface UpdateRolePaylaod {
     toAdd: string[];
@@ -12,11 +25,9 @@ export const createRole = (data: RoleForm) => {
     return response;
 };
 
-export const getRole = () => {
-    console.log("this is running.....................");
-    const response = api.get("/role");
-    console.log("RESPONSE FROM ROLE ", response);
-    return response;
+export const getRole =  async(): Promise<RoleResponse> => {
+    const response = await api.get("/role");
+    return response.data;
 };
 
 export const deleteRoles = (roleId: string) => {
