@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
 import { getUsers } from "../api/userApi";
-import { getRole, assingUserRole } from "../api/roleApi";
+import { getRole, assingUserRole, type RoleResponse } from "../api/roleApi";
 import toast from "react-hot-toast";
-import type { Role } from "./types/userType";
 import type { Employee } from "../api/userApi";
 import axios from "axios";
 
 export function AssignUserRole() {
     const [users, setUsers] = useState<Employee[]>([]);
-    const [roles, setRoles] = useState<Role[]>([]);
+    const [roles, setRoles] = useState<RoleResponse | null>(null);
     const [savingRoleId, setSavingRoleId] = useState<string | null>(null);
     const [savingRole, setSavingRole] = useState<boolean>(false);
     const [selectedRole, setSelectedRole] = useState<Record<string, string>>({});
@@ -19,8 +18,8 @@ export function AssignUserRole() {
     };
 
     const fetchRole = async () => {
-        const { data } = await getRole();
-        setRoles(data?.data || []);
+        const data  = await getRole();
+        setRoles(data);
     };
 
     useEffect(() => {
@@ -116,7 +115,7 @@ export function AssignUserRole() {
                   focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                                 >
                                     <option value="">Select Role</option>
-                                    {roles.map((role) => (
+                                    {roles?.data.map((role) => (
                                         <option key={role._id} value={role._id}>
                                             {role.name}
                                         </option>
