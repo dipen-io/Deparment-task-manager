@@ -28,9 +28,10 @@ const protect = asyncHandler(async (req, res, next) => {
 });
 
 const authorize = (...allowedRoles) => {
+
   return (req, res, next) => {
   console.log("req.user from authorize => ", req.user);
-    if (!req.user || !allowedRoles.includes(req.user.role)) {
+    if (!req.user || !allowedRoles.includes(req.user.userType)) {
       return res.status(403).json({
         error:
           "403 Forbidden: You do not have permission to perform this action.",

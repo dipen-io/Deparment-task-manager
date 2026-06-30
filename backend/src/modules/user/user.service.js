@@ -15,6 +15,26 @@ const getAllEmployees = async (role, department, query) => {
   }
 
   const employees = await User.find(filter)
+        .populate({
+            path: "roles",
+            populate: {
+                path: 'permission',
+                model: "Permission"
+            },
+        })
+        .populate({
+            path: "department",
+        })
+
+    // .populate({
+    //   path: "permissions",
+    //   select: "name desc createdBy",
+    //   populate: {
+    //     path: "createdBy",
+    //     model: "User",
+    //     select: "name email role"
+    //   }
+    // })
     .select("-password -refreshToken")
     .sort({ createdAt: -1 });
 

@@ -64,16 +64,17 @@ const registerUser = async ({ name, email, password, role, department }) => {
 };
 
 const loginUser = async (res, { email, password }) => {
-  const user = await User.findOne({ email }).select("+password");
-  if (!user) throw new AppError("Invalid email or password", 401);
+    const user = await User.findOne({ email }).select("+password").populate('roles')
+    .populate("department");
+    if (!user) throw new AppError("Invalid email or password", 401);
 
   const isMatch = await user.comparePassword(password);
   if (!isMatch) throw new AppError("Invalid email or password", 401);
 
   const { accessToken, refreshToken } = await generateToken(
     user._id,
-    user.role,
-    user.department,
+    user.roles.name,
+    user.department.name,
   );
 
   const hashedToken = await bcrypt.hash(refreshToken, 10);
@@ -85,7 +86,8 @@ const loginUser = async (res, { email, password }) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      role: user.role,
+      userType: user.userType,
+      role: user.roles,
       department: user.department,
     },
     accessToken,

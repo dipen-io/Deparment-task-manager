@@ -146,7 +146,7 @@ const getTaskCount = asyncHandler(async (req, res) => {
 
     res
       .status(200)
-      .json(new ApiResponse(200, `Get Task COunt by ${role}`, count));
+      .json(new ApiResponse(200, `Get Task Count by ${role}`, count));
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
   }

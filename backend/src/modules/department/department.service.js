@@ -60,6 +60,38 @@ const getDept = async (query = {}) => {
     const pipeline = [
         { $match: matchStage },
         { $sort: { [sortBy]: sortDirection, _id: sortDirection } },
+
+        {
+            $lookup: {
+                from:"users", // collection name
+                localField: "_id",
+                foreignField: "department",
+                as: "users"
+            }
+        },
+
+        // Optional: exclude sensitive fields
+        {
+            $project: {
+                name: 1,
+                description: 1,
+                code: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                users: {
+                    $map: {
+                        input: "$users",
+                        as: "user",
+                        in: {
+                            _id: "$$user._id",
+                            name: "$$user.name",
+                            email: "$$user.email",
+                            department: "$$user.department",
+                        },
+                    },
+                },
+            },
+        },
         { $limit: pageSize + 1 }, // extrac 1 for if there is more
     ];
 
