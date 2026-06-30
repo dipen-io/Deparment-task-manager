@@ -3,32 +3,38 @@ import { useAuth } from "../context/AuthContext";
 import { getDepartment } from "../api/departmentApi";
 import axios from "axios";
 import type { DeparmentData } from "../api/departmentApi";
+import { getRole, type RoleResponse } from "../api/roleApi";
 
 export function TeamOverview({ users }: { users: any[] }) {
   const [roleFilter, setRoleFilter] = useState("all");
   const [deptFilter, setDeptFilter] = useState("all");
   const [dept, setDept] = useState<DeparmentData | null>(null);
+  const [role, setRole]  = useState<RoleResponse| null>(null);
   const { user: currentUser } = useAuth();
   const isAdmin = currentUser?.userType === "admin";
-  console.log("USERS___BABY", users);
-  console.log("USERS.ROLE", users);
 
   // 1. Filter Logic based on your received data
   const filteredMembers = users?.filter((user) => {
     const matchesRole = roleFilter === "all" || user.roles?._id === roleFilter;
     const matchesDept = deptFilter === "all" || user.department?._id === deptFilter;
-    console.log('USER===>', user);
-    console.log('USER.ROLE===>', user.role);
-    console.log('USER.DEPARTMENT===>', user.department);
     return matchesRole && matchesDept;
   });
 
-  console.log("filteredMembers: ", filteredMembers);
   const fetchDepartment = async() => {
       try{
           const res = await getDepartment();
           setDept(res);
-          console.log("RES", res);
+      } catch(err: unknown) {
+          if(axios.isAxiosError(err)) {
+              console.error(err?.response?.data);
+          }
+      }
+  }
+
+  const fetchRole = async() => {
+      try{
+          const res = await getRole();
+          setRole(res);
       } catch(err: unknown) {
           if(axios.isAxiosError(err)) {
               console.error(err?.response?.data);
@@ -38,7 +44,9 @@ export function TeamOverview({ users }: { users: any[] }) {
 
   useEffect(() => {
       fetchDepartment();
+      fetchRole();
   },[])
+
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8">
@@ -61,7 +69,7 @@ export function TeamOverview({ users }: { users: any[] }) {
                   >
                     <option value="all">All Roles</option>
                     {
-                        dept?.data?.data?.map((d) => (
+                        role?.data?.map((d) => (
                             <option key={d._id} value={d._id} >
                             {d.name}
                             </option>
@@ -158,4 +166,6 @@ export function TeamOverview({ users }: { users: any[] }) {
       </div>
     </div>
   );
-}
+ }
+
+
