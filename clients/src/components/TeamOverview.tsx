@@ -1,22 +1,44 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { getDepartment } from "../api/departmentApi";
+import axios from "axios";
+import type { DeparmentData } from "../api/departmentApi";
 
 export function TeamOverview({ users }: { users: any[] }) {
   const [roleFilter, setRoleFilter] = useState("all");
   const [deptFilter, setDeptFilter] = useState("all");
+  const [dept, setDept] = useState<DeparmentData | null>(null);
   const { user: currentUser } = useAuth();
   const isAdmin = currentUser?.userType === "admin";
   console.log("USERS___BABY", users);
+  console.log("USERS.ROLE", users);
 
   // 1. Filter Logic based on your received data
   const filteredMembers = users?.filter((user) => {
-    const matchesRole = roleFilter === "all" || user.role === roleFilter;
-    const matchesDept = deptFilter === "all" || user.department === deptFilter;
+    const matchesRole = roleFilter === "all" || user.roles?._id === roleFilter;
+    const matchesDept = deptFilter === "all" || user.department?._id === deptFilter;
     console.log('USER===>', user);
+    console.log('USER.ROLE===>', user.role);
+    console.log('USER.DEPARTMENT===>', user.department);
     return matchesRole && matchesDept;
   });
 
   console.log("filteredMembers: ", filteredMembers);
+  const fetchDepartment = async() => {
+      try{
+          const res = await getDepartment();
+          setDept(res);
+          console.log("RES", res);
+      } catch(err: unknown) {
+          if(axios.isAxiosError(err)) {
+              console.error(err?.response?.data);
+          }
+      }
+  }
+
+  useEffect(() => {
+      fetchDepartment();
+  },[])
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8">
@@ -38,9 +60,13 @@ export function TeamOverview({ users }: { users: any[] }) {
                     className="text-sm border border-gray-200 rounded-lg px-2 py-1 outline-none focus:ring-2 focus:ring-[#14b8a6]/20"
                   >
                     <option value="all">All Roles</option>
-                    <option value="org_admin">Admin</option>
-                    <option value="dept_head">Dept Head</option>
-                    <option value="member">Member</option>
+                    {
+                        dept?.data?.data?.map((d) => (
+                            <option key={d._id} value={d._id} >
+                            {d.name}
+                            </option>
+                        ))
+                    }
                   </select>
 
                   <select
@@ -49,10 +75,13 @@ export function TeamOverview({ users }: { users: any[] }) {
                     className="text-sm border border-gray-200 rounded-lg px-2 py-1 outline-none focus:ring-2 focus:ring-[#14b8a6]/20"
                   >
                     <option value="all">All Depts</option>
-                    <option value="engineering">Engineering</option>
-                    <option value="design">Design</option>
-                    <option value="hr">Hr</option>
-                    <option value="marketing">Marketing</option>
+                    {
+                        dept?.data?.data?.map((d) => (
+                            <option key={d._id} value={d._id} >
+                            {d.name}
+                            </option>
+                        ))
+                    }
                   </select>
                 </div>
               </>
@@ -81,10 +110,10 @@ export function TeamOverview({ users }: { users: any[] }) {
                       </div>
                       <div className="text-xs text-gray-500 flex items-center gap-2">
                         <span className="capitalize">
-                          {member.role.replace("_", " ")}
+                          {member.roles?.name}
                         </span>
                         <span>•</span>
-                        <span className="capitalize">{member.department}</span>
+                        <span className="capitalize">{member.department?.name}</span>
                       </div>
                     </div>
                   </div>
@@ -106,7 +135,7 @@ export function TeamOverview({ users }: { users: any[] }) {
                         : "bg-teal-100 text-teal-700"
                         }`}
                     >
-                      {member.role === "org_admin" ? "Admin" : "Active"}
+                      {member.userType === "admin" ? "Admin" : "Active"}
                     </span>
                   </div>
                 </div>
