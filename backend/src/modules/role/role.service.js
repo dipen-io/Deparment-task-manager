@@ -11,10 +11,11 @@ const createRoles = async ({roleName, permissionId}) => {
 }
 
 const getRoles = async () => {
-  const roles = await Role.find({})
-    .select("name permission")
+    console.log("IS THIS RUNNING................");
+    const roles = await Role.find({})
+    .select("name permissions")
     .populate({
-      path: "permission",
+      path: "permissions",
       select: "name desc createdBy",
       populate: {
         path: "createdBy",
@@ -24,6 +25,7 @@ const getRoles = async () => {
     })
     .lean(); // 4. Critical performance booster for read-only operations
 
+    console.log("ROLES: ", roles);
   return roles;
 };
 

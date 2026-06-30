@@ -9,7 +9,8 @@ const roleSchema = new Schema(
             trim: true,
             uppercase: true,
         },
-        permissions: [
+        // removed s
+        permission: [
             {
                 type: Schema.Types.ObjectId,
                 ref: "Permission",
