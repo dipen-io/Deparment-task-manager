@@ -63,7 +63,7 @@ export function RoleComponents() {
     const fetchRole = async () => {
         try {
             setLoading(true);
-            const { data } = await getRole();
+            const data  = await getRole();
             // Fallback to empty array if nested data structure evaluates to undefined
             setRoles(data?.data || []);
         } catch (err: unknown) {
