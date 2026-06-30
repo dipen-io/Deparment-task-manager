@@ -6,13 +6,17 @@ export function TeamOverview({ users }: { users: any[] }) {
   const [deptFilter, setDeptFilter] = useState("all");
   const { user: currentUser } = useAuth();
   const isAdmin = currentUser?.userType === "admin";
+  console.log("USERS___BABY", users);
 
   // 1. Filter Logic based on your received data
-  const filteredMembers = users.filter((user) => {
+  const filteredMembers = users?.filter((user) => {
     const matchesRole = roleFilter === "all" || user.role === roleFilter;
     const matchesDept = deptFilter === "all" || user.department === deptFilter;
+    console.log('USER===>', user);
     return matchesRole && matchesDept;
   });
+
+  console.log("filteredMembers: ", filteredMembers);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8">
@@ -56,7 +60,7 @@ export function TeamOverview({ users }: { users: any[] }) {
           </div>
 
           <div className="space-y-4">
-            {filteredMembers.length > 0 ? (
+            {filteredMembers && filteredMembers?.length > 0 ? (
               filteredMembers.map((member) => (
                 <div
                   key={member._id}
@@ -120,7 +124,7 @@ export function TeamOverview({ users }: { users: any[] }) {
       <div className="hidden lg:block bg-white rounded-xl p-6 shadow-sm border border-gray-100 h-fit">
         <h3 className="font-bold text-gray-900 mb-4">Department Stats</h3>
         <p className="text-sm text-gray-600">
-          Showing {filteredMembers.length} active users based on filters.
+          Showing {filteredMembers?.length} active users based on filters.
         </p>
       </div>
     </div>
