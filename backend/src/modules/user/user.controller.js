@@ -6,13 +6,18 @@ const listEmployees = asyncHandler(async (req, res) => {
   const department = req.user.department;
   const role = req.user.role;
   const employees = await getAllEmployees(role, department, req.query);
+    const data = {
+        users: employees,
+        totalUsers: employees.length, 
+    }
 
   res
     .status(200)
-    .json(new ApiResponse(200, "Employees retrieved successfully", employees));
+    .json(new ApiResponse(200, "Employees retrieved successfully", data));
 });
 
 const getAllUsers = async (req, res) => {
+
   try {
     const users = await getUsersService(req.user);
     const totalUsers = users.length;

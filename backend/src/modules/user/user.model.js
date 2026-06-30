@@ -10,6 +10,12 @@ const userSchema = new mongoose.Schema(
       maxLength: [50, "Name cannot exceeded 50 character"],
     },
 
+    userType: {
+        type: String,
+        enum: ["admin", "head", "member"],
+        default: "member"
+    },
+
     email: {
       type: String,
       required: [true, "Email is Required"],

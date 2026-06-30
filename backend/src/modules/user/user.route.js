@@ -12,6 +12,6 @@ router.get(
 );
 
 // Only Admin and Dept Head are allowed to view user lists
-router.get("/users", protect, authorize("org_admin", "dept_head"), getAllUsers);
+router.get("/users", protect, authorize("admin", "head"), getAllUsers);
 
 module.exports = router;

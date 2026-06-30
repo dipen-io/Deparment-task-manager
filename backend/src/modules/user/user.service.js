@@ -41,7 +41,7 @@ const getUsersService = async (currentUser) => {
 
   return await User.find(query).populate({
       path: 'roles',
-      populate: 'permission'
+      populate: 'permissions'
   });
 };
 
