@@ -33,6 +33,9 @@ const deleteRole = asyncHandler(async(req, res )=> {
 const assingRoleToUser = asyncHandler(async (req, res) => {
     const { userId } = req.params;
     const { roleId } = req.body;
+    console.log("assiging role to User......" );
+    console.log("userId", userId);
+    console.log("roleId", roleId);
     const updatedUser = await getUpdatedUser(userId, roleId);
     res.status(200)
     .json(new ApiResponse(200, "updated user role", updatedUser));

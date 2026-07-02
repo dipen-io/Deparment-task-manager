@@ -80,7 +80,6 @@ const getOne = async (taskId, user) => {
     .populate("assignedTo", "name email")
     .populate("createdBy", "name");
 
-  console.log("TASK: ", task);
   if (!task) {
     throw new AppError("Task not found", 404);
   }
@@ -127,9 +126,7 @@ const updateOne = async (taskId, updateData, user, assignedTo) => {
     }
     delete finalUpdateData.assigneeId;
   } else if (isAssignee) {
-    console.log("isAssignee: ", isAssignee);
     // ✅ employee can ONLY update status
-    console.log("upd", updateData);
     if (!updateData.status) {
       throw new AppError("Employees can only update task status", 400);
     }

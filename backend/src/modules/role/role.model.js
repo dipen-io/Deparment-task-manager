@@ -25,7 +25,7 @@ const roleSchema = new Schema(
 );
 
 // roleSchema.index({ name: 1 }, { unique: true });
-roleSchema.index({ permissions: 1 });
+roleSchema.index({ permission: 1 });
 
 
 module.exports = mongoose.model("Role", roleSchema);

@@ -11,11 +11,10 @@ const createRoles = async ({roleName, permissionId}) => {
 }
 
 const getRoles = async () => {
-    console.log("IS THIS RUNNING................");
     const roles = await Role.find({})
     .select("name permissions")
     .populate({
-      path: "permissions",
+      path: "permission",
       select: "name desc createdBy",
       populate: {
         path: "createdBy",
@@ -25,8 +24,9 @@ const getRoles = async () => {
     })
     .lean(); // 4. Critical performance booster for read-only operations
 
-    console.log("ROLES: ", roles);
-  return roles;
+    // console.log("ROLES: ", roles);
+    // console.log(JSON.stringify(roles, null, 2));
+    return roles;
 };
 
 // here let make if sending another same permission will remove that permission
