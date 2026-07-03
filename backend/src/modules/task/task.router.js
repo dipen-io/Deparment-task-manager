@@ -6,6 +6,7 @@ const {
   CheckPermission,
 } = require("../../middleware/auth");
 const {
+  getUserTask,
   getTaskByEmp,
   updateTask,
   assignTask,
@@ -41,6 +42,8 @@ router.post(
     "/assgn",
     assignAnUserToTask
 )
+
+router.get('/get', getUserTask)
 
 // client fetching this for showing task by empl
 // EMPLOYEE

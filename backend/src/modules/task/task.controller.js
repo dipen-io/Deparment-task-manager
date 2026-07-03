@@ -5,6 +5,7 @@ const { ROLES } = require("../../constant/roles");
 const {
   getTaskByEmployee,
   create,
+  fetchingTaskforUser,
   remove,
   getAll,
   getOne,
@@ -154,7 +155,7 @@ const getTaskCount = asyncHandler(async (req, res) => {
 
 
 // assiging an user to an task with whole new model
-assignAnUserToTask = asyncHandler(async (req, res) => {
+const assignAnUserToTask = asyncHandler(async (req, res) => {
    // what i need is userId and taskId 
 
     const task = await assingTask(req.body); 
@@ -164,9 +165,20 @@ assignAnUserToTask = asyncHandler(async (req, res) => {
       .json(new ApiResponse(200, `Assgined an task to user`, task));
 }) 
 
+// have to provide esearch option
+const getUserTask = asyncHandler (async (req, res) => {
+    const { userId } = req.body;    
+    const { search, limit, page = 1 } = req.query;
+
+    const task = await fetchingTaskforUser(userId, search, limit, page); 
+
+    res.status(200)
+    .json(new ApiResponse(200, "fetch Task by user", task))
+})
 
 
 module.exports = {
+  getUserTask,
   assignAnUserToTask,
   createTask,
   deleteTask,

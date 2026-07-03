@@ -186,8 +186,47 @@ const assingTask = async({userId, taskId}) => {
     return newTask;
 }
 
+const fetchingTaskforUser = async( userId, search = "", limit = 10, page = 1 ) => {
+
+    page = Math.max(parseInt(page) || 1, 1);
+    limit = Math.min(Math.max(parseInt(limit) || 10, 1), 100);
+    const skip = ( page -1 ) * limit;
+
+    const filter = { assignedTo : userId };
+
+    if (search && search.trim() !== "") {
+        const matchingTasks = await Task.find(
+            {title: {$regex: search.trim(), $options: "i" } },
+            { _id : 1 } // only fetch ID not full docs
+        );
+        filter.task = {$in: matchingTasks.map((t) => t._id) };
+    }
+
+    const [tasks, totalCount ] = await Promise.all([
+        TaskAssignment.find(filter)
+        .populate("task", "title description dueData priority status")
+        .populate("assignedBy", "name email")
+        .sort({createdAt: -1})
+        .skip(skip)
+        .limit(limit),
+        TaskAssignment.countDocuments(filter),
+    ]);
+    return {
+        tasks,
+        pagination: {
+            totalCount,
+            currentPage: page,
+            totalPages: Math.ceil(totalCount / limit),
+            limit,
+            hasNextPage: page * limit < totalCount,
+            hasPrevPage: page > 1
+        },
+    };
+};
+
 
 module.exports = {
+  fetchingTaskforUser,
   assingTask,
   getDeptWiseTask,
   create,
