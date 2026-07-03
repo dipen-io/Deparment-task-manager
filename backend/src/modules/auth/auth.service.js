@@ -21,7 +21,9 @@ const generateToken = async (userId) => {
   return { accessToken, refreshToken };
 };
 
-const registerUser = async ({ name, email, password }) => {
+// user may pass the userType: head | member
+// need deparment Id
+const registerUser = async ({ name, email, password, userType, department }) => {
   const existingUser = await User.findOne({ email });
   if (existingUser) throw new AppError("Email already in use", 409);
 
@@ -37,6 +39,8 @@ const registerUser = async ({ name, email, password }) => {
     name,
     email,
     password,
+    userType,
+    department 
   });
 
   const { accessToken, refreshToken } = await generateToken(
