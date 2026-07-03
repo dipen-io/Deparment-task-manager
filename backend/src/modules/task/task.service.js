@@ -1,12 +1,10 @@
 const AppError = require("../../utils/AppError");
 const Task = require("./task.model");
+const TaskAssignment = require("./taskAssignment.model"); 
 const User = require("../user/user.model");
 const { ROLES } = require("../../constant/roles");
 
 const create = async (taskData) => {
-  if (!taskData.assignedTo || taskData.assignedTo === "") {
-    delete taskData.assignedTo;
-  }
   const task = await Task.create(taskData);
   return task;
 };
@@ -179,7 +177,18 @@ const getDeptWiseTask = async (id) => {
   return tasks;
 };
 
+const assingTask = async({userId, taskId}) => {
+    const newTask = await  TaskAssignment.create({
+        task: taskId,
+        assignedTo: userId,
+        assignedBy: "69f7c04664873be6ab4bbb73" 
+    })
+    return newTask;
+}
+
+
 module.exports = {
+  assingTask,
   getDeptWiseTask,
   create,
   remove,

@@ -11,6 +11,7 @@ const {
   updateOne,
   assignOne,
   getDeptWiseTask,
+  assingTask
 } = require("./task.service");
 const { HTTP_STATUS } = require("../../constant/httpStatus");
 
@@ -18,8 +19,7 @@ const { HTTP_STATUS } = require("../../constant/httpStatus");
 const createTask = asyncHandler(async (req, res) => {
   const taskPayoad = {
     ...req.body,
-    createdBy: req.user._id,
-    assignedTo: req.body.assigneeId,
+    // createdBy: req.user._id,
   };
 
   const result = await create(taskPayoad);
@@ -152,7 +152,22 @@ const getTaskCount = asyncHandler(async (req, res) => {
   }
 });
 
+
+// assiging an user to an task with whole new model
+assignAnUserToTask = asyncHandler(async (req, res) => {
+   // what i need is userId and taskId 
+
+    const task = await assingTask(req.body); 
+
+    res
+      .status(200)
+      .json(new ApiResponse(200, `Assgined an task to user`, task));
+}) 
+
+
+
 module.exports = {
+  assignAnUserToTask,
   createTask,
   deleteTask,
   getAllTasks,

@@ -15,6 +15,7 @@ const {
   getSingleTask,
   getDeptSelft,
   getTaskCount,
+    assignAnUserToTask
 } = require("./task.controller");
 const {
   assignTaskValidator,
@@ -27,13 +28,19 @@ const { ROLES } = require("../../constant/roles");
 
 router.post(
   "/create",
-  protect,
-  authorize(ROLES.ADMIN, ROLES.DEPT_HEAD),
-  checkPermission("CREATE_TASK"),
+  // protect,
+  // authorize(ROLES.ADMIN, ROLES.DEPT_HEAD),
+  // checkPermission("CREATE_TASK"),
   createTaskValidator,
   validate,
   createTask,
 );
+
+// new assing
+router.post(
+    "/assgn",
+    assignAnUserToTask
+)
 
 // client fetching this for showing task by empl
 // EMPLOYEE

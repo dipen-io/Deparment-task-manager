@@ -10,17 +10,20 @@ const createTaskValidator = [
     .escape(), // Converts <script> tags to safe HTML entities
 
   body("description").trim().notEmpty().withMessage("Description is required"),
-
-  body("status")
-    .optional()
-    .trim()
-    .isIn(["pending", "in-progress", "completed"])
-    .withMessage("Status must be pending, in-progress, or completed"),
+    body("priority").notEmpty().withMessage("priority is required").isIn(["low", "high", "medium"]),
+    body("createdBy").isMongoId(),
+    body("department").isMongoId().optional(),
+  // body("status")
+  //   .optional()
+  //   .trim()
+  //   .isIn(["pending", "in-progress", "completed"])
+  //   .withMessage("Status must be pending, in-progress, or completed"),
 
   body("assignedTo")
     .optional({ checkFalsy: true })
     .trim()
     .isMongoId()
+    .optional()
     .withMessage("Invalid User ID format"),
 ];
 

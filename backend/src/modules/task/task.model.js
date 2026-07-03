@@ -12,20 +12,21 @@ const taskSchema = new mongoose.Schema({
         required: [true, "Description is required"],
         trim: true
     },
-    status: {
+    priority: {
         type: String,
-        enum: ['pending', 'in-progress', 'completed'],
-        default: 'pending'
-    },
-    assignedTo: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        enum: ["low", "medium", "high", "urgent"],
+        default: "medium"
     },
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: [true, "Task must have a creator"]
+    },
+    department: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Department'
     }
+
 }, { timestamps: true });
 
 module.exports = mongoose.model("Task", taskSchema);
