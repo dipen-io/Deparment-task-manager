@@ -67,8 +67,6 @@ const loginUser = async (res, { email, password }) => {
 
   const { accessToken, refreshToken } = await generateToken(
     user._id,
-    user.roles.name,
-    user.department.name,
   );
 
   const hashedToken = await bcrypt.hash(refreshToken, 10);
@@ -80,9 +78,9 @@ const loginUser = async (res, { email, password }) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      userType: user.userType,
-      role: user.roles,
-      department: user.department,
+      userType: user?.userType,
+      role: user?.roles,
+      department: user?.department,
     },
     accessToken,
     refreshToken,
