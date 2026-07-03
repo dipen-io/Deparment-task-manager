@@ -7,8 +7,8 @@ const registerValidator = [
     .isLength({ min: 6 })
     .withMessage("Password must be at least 6 character "),
   body("adminSecret").isString().optional(),
-  body("role").isIn(["org_admin", "dept_head", "member"]),
-  body("department").isIn(["engineering", "design", "marketing", "hr"]),
+  // body("role").isIn(["org_admin", "dept_head", "member"]),
+  // body("department").isIn(["engineering", "design", "marketing", "hr"]),
 ];
 
 const loginValidator = [

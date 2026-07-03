@@ -4,9 +4,9 @@ const AppError = require("../../utils/AppError");
 const jwt = require("jsonwebtoken");
 const { COOKIE_OPTIONS } = require("../../constant/cookieOption");
 
-const generateToken = async (userId, role, department) => {
+const generateToken = async (userId) => {
   const accessToken = jwt.sign(
-    { id: userId, role, department },
+    { id: userId },
     process.env.JWT_SECRET,
     {
       expiresIn: process.env.JWT_EXPIRES_IN || "15m",
@@ -21,7 +21,7 @@ const generateToken = async (userId, role, department) => {
   return { accessToken, refreshToken };
 };
 
-const registerUser = async ({ name, email, password, role, department }) => {
+const registerUser = async ({ name, email, password }) => {
   const existingUser = await User.findOne({ email });
   if (existingUser) throw new AppError("Email already in use", 409);
 
@@ -37,14 +37,10 @@ const registerUser = async ({ name, email, password, role, department }) => {
     name,
     email,
     password,
-    role,
-    department,
   });
 
   const { accessToken, refreshToken } = await generateToken(
     user._id,
-    user.role,
-    user.department,
   );
   user.refreshToken = await bcrypt.hash(refreshToken, 10);
   await user.save({ validateBeforeSave: false });
@@ -55,8 +51,6 @@ const registerUser = async ({ name, email, password, role, department }) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      role: user.role,
-      department: user.department,
     },
     accessToken,
     refreshToken,
