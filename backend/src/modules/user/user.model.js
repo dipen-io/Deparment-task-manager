@@ -12,8 +12,8 @@ const userSchema = new mongoose.Schema(
 
     userType: {
         type: String,
-        enum: ["admin", "head", "member"],
-        default: "member"
+        enum: ["admin", "head" , "member", "user"], // head is head of department
+        default: "user"
     },
 
     email: {
@@ -34,12 +34,12 @@ const userSchema = new mongoose.Schema(
     roles: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Role",
-      required: true,
     },
 
     department: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Department'
+        ref: 'Department',
+        // index: true
     },
 
     refreshToken: {
