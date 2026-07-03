@@ -224,8 +224,28 @@ const fetchingTaskforUser = async( userId, search = "", limit = 10, page = 1 ) =
     };
 };
 
+const unAssignTask = async(taskId, userId) => {
+    try {
+        const deleted =  await TaskAssignment.findOneAndDelete({
+            assignedTo:userId,
+            task: taskId 
+        });
+
+        if (!deleted) {
+            throw new AppError("Task assignment not found", 404);
+        }
+
+        return deleted; 
+
+    } catch (error) {
+        if (error instanceof AppError) throw error;
+        throw new AppError("Something went wrong while unassigning the task", 500);
+    }
+}
+
 
 module.exports = {
+  unAssignTask,
   fetchingTaskforUser,
   assingTask,
   getDeptWiseTask,

@@ -12,7 +12,8 @@ const {
   updateOne,
   assignOne,
   getDeptWiseTask,
-  assingTask
+  assingTask,
+  unAssignTask,
 } = require("./task.service");
 const { HTTP_STATUS } = require("../../constant/httpStatus");
 
@@ -165,7 +166,17 @@ const assignAnUserToTask = asyncHandler(async (req, res) => {
       .json(new ApiResponse(200, `Assgined an task to user`, task));
 }) 
 
-// have to provide esearch option
+const unAssinAnUserToTask = asyncHandler(async (req, res) => {
+    const { taskId, userId } = req.body;
+    const deletedTask = await unAssignTask(taskId, userId); 
+
+    res
+      .status(200)
+      .json(new ApiResponse(200, `Task Deleted Successfully`, deletedTask ));
+
+})
+
+// fetch user with search option
 const getUserTask = asyncHandler (async (req, res) => {
     const { userId } = req.body;    
     const { search, limit, page = 1 } = req.query;
@@ -178,6 +189,7 @@ const getUserTask = asyncHandler (async (req, res) => {
 
 
 module.exports = {
+  unAssinAnUserToTask,
   getUserTask,
   assignAnUserToTask,
   createTask,

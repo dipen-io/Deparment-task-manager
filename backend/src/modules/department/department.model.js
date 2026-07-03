@@ -11,7 +11,7 @@ const departmentSchema = new Schema ({
         type: String,
         trim: true
     },
-    manager: {
+    head: {
         type: Schema.Types.ObjectId,
         ref: 'User',
     },

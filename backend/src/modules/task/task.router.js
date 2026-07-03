@@ -16,7 +16,8 @@ const {
   getSingleTask,
   getDeptSelft,
   getTaskCount,
-    assignAnUserToTask
+  assignAnUserToTask,
+  unAssinAnUserToTask,
 } = require("./task.controller");
 const {
   assignTaskValidator,
@@ -67,6 +68,9 @@ router.get(
   authorize(ROLES.ADMIN, ROLES.DEPT_HEAD),
   getDeptSelft,
 );
+
+router.delete("/unassign", unAssinAnUserToTask);
+
 router.delete("/:id", protect, taskIdValidator, validate, deleteTask);
 router.get("/", protect, authorize(ROLES.ADMIN, ROLES.DEPT_HEAD), getAllTasks);
 
