@@ -1,4 +1,5 @@
 const User = require("../user/user.model");
+const Department = require("../department/department.model");
 const bcrypt = require("bcrypt");
 const AppError = require("../../utils/AppError");
 const jwt = require("jsonwebtoken");
@@ -25,8 +26,15 @@ const generateToken = async (userId) => {
 // need deparment Id
 const registerUser = async ({ name, email, password, userType, department }) => {
   const existingUser = await User.findOne({ email });
+
+    //TODO:
+    // virify deparment id
   if (existingUser) throw new AppError("Email already in use", 409);
 
+    const validDeptId = await Department.findById(department);
+    if(!validDeptId) {
+        throw new AppError("Plase provide valid Department ID", 409)
+    }
   // Default role is Employee
   // let userRole = "Employee";
 
