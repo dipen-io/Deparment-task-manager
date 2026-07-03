@@ -7,7 +7,7 @@ const registerValidator = [
     .isLength({ min: 6 })
     .withMessage("Password must be at least 6 character "),
   body("adminSecret").isString().optional(),
-  body("role").isIn([ "head", "member" ]).optional(),
+  body("userType").isIn([ "head", "member" ]).optional(),
   body("department").isMongoId().optional(),
 ];
 
