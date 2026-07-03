@@ -25,18 +25,14 @@ const generateToken = async (userId) => {
 // user may pass the userType: head | member
 // need deparment Id
 const registerUser = async ({ name, email, password, userType, department }) => {
-  const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email });
 
-    //TODO:
-    // virify deparment id
-  if (existingUser) throw new AppError("Email already in use", 409);
+    if (existingUser) throw new AppError("Email already in use", 409);
 
     const validDeptId = await Department.findById(department);
     if(!validDeptId) {
         throw new AppError("Plase provide valid Department ID", 409)
     }
-  // Default role is Employee
-  // let userRole = "Employee";
 
   // If they provided the secret key, upgrade them to Admin
   // if (adminSecret && adminSecret === process.env.ADMIN_SECRET_KEY) {
