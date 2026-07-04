@@ -29,9 +29,11 @@ const registerUser = async ({ name, email, password, userType, department }) => 
 
     if (existingUser) throw new AppError("Email already in use", 409);
 
-    const validDeptId = await Department.findById(department);
-    if(!validDeptId) {
-        throw new AppError("Plase provide valid Department ID", 409)
+    if (department) {
+        const validDeptId = await Department.findById(department);
+        if(!validDeptId) {
+            throw new AppError("Plase provide valid Department ID", 409)
+        }
     }
 
   // If they provided the secret key, upgrade them to Admin
