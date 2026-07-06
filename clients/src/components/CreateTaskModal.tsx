@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import { getEmployees } from "../api/userApi";
 import { addTask, updateTask, type Task } from "../api/taskApi";
+import type { Employee, EmployeesDataPayload } from "../api/userApi";
 import toast from "react-hot-toast";
 import { X } from "lucide-react";
 
-interface Employee {
-  _id: string;
-  name: string;
-}
+// interface Employee {
+//   _id: string;
+//   name: string;
+// }
+
 type TaskStatus = "pending" | "in-process" | "completed";
 
 interface CreateTaskModalProps {
@@ -29,7 +31,7 @@ export function CreateTaskModal({
   const [assigneeId, setAssigneeId] = useState(task?.assignee?._id || "");
 
   // API State
-  const [employees, setEmployees] = useState<Employee[]>([]);
+const [employees, setEmployees] = useState<Employee[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isTaskAding, setIsTaskAdding] = useState(false);
 
@@ -45,8 +47,8 @@ export function CreateTaskModal({
       setIsLoading(true);
       try {
         // Replace with your actual API call
-        const response = await getEmployees();
-        setEmployees(response.data);
+        const {data} = await getEmployees();
+        setEmployees(data?.users);
 
         // Mock data for testing:
         // setEmployees([
@@ -62,6 +64,7 @@ export function CreateTaskModal({
 
     fetchEmployees();
   }, [task]);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,6 +90,8 @@ export function CreateTaskModal({
 
     onClose();
   };
+
+  console.log("EMPLOYES: ", employees);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -158,7 +163,7 @@ export function CreateTaskModal({
               className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-[#14b8a6]"
             >
               <option value="">Unassigned</option>
-              {employees.map((emp) => (
+              {employees?.map((emp) => (
                 <option key={emp._id} value={emp._id}>
                   {emp.name}
                 </option>

@@ -24,6 +24,11 @@ export interface Employee {
   // Add any other fields your backend returns (e.g., department, status)
 }
 
+export interface EmployeesDataPayload {
+    users: Employee[]
+    totalUsers?: number; // Optional metadata if you pass it
+}
+
 
 interface UsersResponse {
   data: {
@@ -32,8 +37,8 @@ interface UsersResponse {
   };
 }
 
-export const getEmployees = async (): Promise<ApiResponse<Employee[]>> => {
-  const res = await api.get<ApiResponse<Employee[]>>("/user/employees");
+export const getEmployees = async (): Promise<ApiResponse<EmployeesDataPayload>> => {
+  const res = await api.get<ApiResponse<EmployeesDataPayload>>("/user/employees");
   return res.data;
 };
 
