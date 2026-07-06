@@ -53,7 +53,7 @@ const getAll = async (role, id, query) => {
   const skip = (page - 1) * limit;
 
   const tasks = await Task.find(filter)
-    .populate("assignedTo", "name email")
+    // .populate("assignedTo", "name email") // removed
     .populate("createdBy", "name")
     .skip(skip)
     .limit(limit)
@@ -192,7 +192,7 @@ const fetchingTaskforUser = async( userId, search = "", limit = 10, page = 1 ) =
     limit = Math.min(Math.max(parseInt(limit) || 10, 1), 100);
     const skip = ( page -1 ) * limit;
 
-    const filter = { assignedTo : userId };
+    const filter = {assignedTo: userId };
 
     if (search && search.trim() !== "") {
         const matchingTasks = await Task.find(
