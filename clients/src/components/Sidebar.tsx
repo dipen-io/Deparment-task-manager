@@ -16,6 +16,10 @@ interface SidebarProps {
     role: "Member" | "Admin" | "Head_dept";
 }
 
+interface SidebarProps { 
+    allowedProps: Array<"admin" | "head" | "member">;
+}
+
 export function Sidebar({ role }: SidebarProps) {
     const { logout } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
