@@ -41,7 +41,9 @@ export interface Task {
 }
 
 export interface TaskResponse {
-  tasks: Task[];
+  data: {
+       tasks: Task[];
+  };
   meta: {
     total: number;
     page: number;
@@ -60,6 +62,8 @@ export const getTasks = async (params?: {
 }): Promise<TaskResponse> => {
   // Axios will automatically convert the params object into ?status=xxx&page=1
   const res = await api.get<TaskResponse>("/task", { params });
+  console.log("res", res);
+  console.log("res.data", res.data);
   return res.data;
 };
 
