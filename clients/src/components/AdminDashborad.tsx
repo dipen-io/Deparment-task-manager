@@ -14,6 +14,7 @@ export function AdminDashboard() {
     const [usersCount, setUsersCount] = useState(0);
     const [user, setUser] = useState<Employee[]>([]);
 
+
     // const { user } = useAuth();
 
     const stats = [
@@ -34,23 +35,39 @@ export function AdminDashboard() {
     ];
 
     useEffect(() => {
-        const getTaskCounts = async () => {
-            const count = await getTaskCount();
-            setTaskCount(count.data);
-        };
-        const getUser = async () => {
-            const res = await getUsers();
-            setUsersCount(res?.data?.totalUsers);
-            setUser(res?.data?.users);
-        };
-        getTaskCounts();
-        getUser();
+
+        const fetchDashboardData = async () => {
+            try{
+                const [countRes, userRole] = await Promise.all([
+                    getTaskCount(),
+                    getUsers()
+                ]);
+                setTaskCount(countRes.data);
+                setUsersCount(userRole?.data?.totalUsers);
+                setUser(userRole?.data?.users);
+            } catch(err){
+                console.error("Dashboard metrics load failure:", err);
+            }
+        }
+        fetchDashboardData();
+        // const getTaskCounts = async () => {
+        //     const count = await getTaskCount();
+        //     setTaskCount(count.data);
+        // };
+        // const getUser = async () => {
+        //     const res = await getUsers();
+        //     setUsersCount(res?.data?.totalUsers);
+        //     setUser(res?.data?.users);
+        // };
+        // getTaskCounts();
+        // getUser();
     }, []);
+
 
 
     return (
         <div className="min-h-screen bg-gray-50 flex">
-            <Sidebar role="Admin" />
+            {/* <Sidebar role="Admin" /> */}
 
             <main className="flex-1 pt-16 lg:pt-0">
                 {/* Header */}
@@ -120,7 +137,7 @@ export function AdminDashboard() {
                     </div>
 
                     {/*tearm overview*/}
-                    <TeamOverview users={user} />
+                     <TeamOverview users={user} /> 
                 </div>
             </main>
         </div>
