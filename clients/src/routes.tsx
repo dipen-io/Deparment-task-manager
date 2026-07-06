@@ -31,7 +31,7 @@ export const router = createBrowserRouter([
     path: "/admin",
     element: (
       <ProtectedRoute>
-        <DashboardLayout user="Admin" />
+        <DashboardLayout allowedProps={["admin"]} />
       </ProtectedRoute>
     ),
     children: [
