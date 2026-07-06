@@ -6,7 +6,7 @@ import {
   type Task,
   type TaskResponse,
 } from "../api/taskApi";
-import { Clock, PlayCircle, CheckCircle, Search } from "lucide-react";
+import { Clock, PlayCircle, CheckCircle, Search, Plus } from "lucide-react";
 import toast from "react-hot-toast";
 import { CreateTaskModal } from "./CreateTaskModal";
 
@@ -19,6 +19,7 @@ export function AllTasks() {
   const [tasks, setTasks] = useState<Task[]>([]);
   // Store the meta data so we can use it for pagination later!
   const [_meta, setMeta] = useState<TaskResponse["meta"] | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -57,9 +58,11 @@ export function AllTasks() {
         if (activeFilter !== "all") params.status = activeFilter;
         if (searchQuery) params.search = searchQuery;
 
-        const { tasks, meta } = await getTasks(params);
+        const { data, meta } = await getTasks(params);
+        console.log("tasks: ", data.tasks);
+        console.log("meta: ", meta);
 
-        setTasks(tasks || []);
+        setTasks(data.tasks || []);
         setMeta(meta || null); // Save pagination data
       } catch (err: any) {
         setError(err.customMessage || "Failed to load tasks");
@@ -106,6 +109,11 @@ export function AllTasks() {
     );
   };
 
+  const handleTaskCreated = (newTask: Task) => {
+      setTasks((prev) => [newTask, ...prev]);
+  }
+
+
   return (
     <div>
       {/* --- Controls Section --- */}
@@ -129,18 +137,29 @@ export function AllTasks() {
         </div>
 
         {/* Since your backend has a search feature, let's add a search bar! */}
-        <div className="relative w-full md:w-64">
-          <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            size={18}
-          />
-          <input
-            type="text"
-            placeholder="Search tasks..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#14b8a6]"
-          />
+{/* Search Bar & New Add Task Option Row */}
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <div className="relative flex-1 md:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+            <input
+              type="text"
+              placeholder="Search tasks..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#14b8a6]"
+            />
+          </div>
+
+          {/* ✅ THE NEW ADD TASK OPTION BUTTON */}
+          <button
+            onClick={() => {
+              setSelectedTask(null); // Clear selected to tell modal it's a NEW task
+              setIsModalOpen(true);
+            }}
+            className="flex items-center gap-1.5 px-4 py-2 bg-[#14b8a6] hover:bg-[#14b8a6]/90 text-white rounded-lg text-sm font-medium transition-colors shadow-sm cursor-pointer whitespace-nowrap"
+          >
+            <Plus size={16} /> Add Task
+          </button>
         </div>
       </div>
 
@@ -149,11 +168,21 @@ export function AllTasks() {
       {error && <div className="text-red-500 text-center py-10">{error}</div>}
 
       {/* modal for editing task  */}
-      {selectedTask && (
+      {/*      {selectedTask && (
         <CreateTaskModal
           task={selectedTask}
           onClose={() => setSelectedTask(null)}
           onSuccess={handleTaskUpdated}
+        />
+      )} */}
+{isModalOpen && (
+        <CreateTaskModal
+          task={selectedTask || undefined} // Passes existing task data for Edit mode, or undefined for Create mode
+          onClose={() => {
+            setIsModalOpen(false);
+            setSelectedTask(null);
+          }}
+          onSuccess={selectedTask ? handleTaskUpdated : handleTaskCreated}
         />
       )}
 
