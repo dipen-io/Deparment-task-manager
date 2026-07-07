@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { getEmployees } from "../api/userApi";
 import { addTask, updateTask, type Task } from "../api/taskApi";
-import type { Employee, EmployeesDataPayload } from "../api/userApi";
+import type { Employee } from "../api/userApi";
 import toast from "react-hot-toast";
 import { X } from "lucide-react";
 

@@ -38,24 +38,26 @@ export const router = createBrowserRouter([
       { index: true, element: <Navigate to="dashboard" replace /> },
       { path: "dashboard", element: <AdminDashboard /> },
       { path: "tasks", element: <AllTasks /> },
+      { path: "task/:id", element: <SingleTask /> }, 
+      { path: "role", element: <RoleComponents /> },
     ],
   },
-  {
-    path: "/admin/task/:id",
-    element: (
-      <ProtectedRoute>
-        <SingleTask />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/admin/role",
-    element: (
-      <ProtectedRoute>
-        <RoleComponents />
-      </ProtectedRoute>
-    ),
-  },
+  // {
+  //   path: "/admin/task/:id",
+  //   element: (
+  //     <ProtectedRoute>
+  //       <SingleTask />
+  //     </ProtectedRoute>
+  //   ),
+  // },
+  // {
+  //   path: "/admin/role",
+  //   element: (
+  //     <ProtectedRoute>
+  //       <RoleComponents />
+  //     </ProtectedRoute>
+  //   ),
+  // },
 
   // --- DEPT_HEAD ROUTES ---
   {
