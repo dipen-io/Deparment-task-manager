@@ -10,9 +10,9 @@ const createTaskValidator = [
     .escape(), // Converts <script> tags to safe HTML entities
 
   body("description").trim().notEmpty().withMessage("Description is required"),
-    body("priority").notEmpty().withMessage("priority is required").isIn(["low", "high", "medium"]),
-    body("createdBy").isMongoId(),
-    body("department").isMongoId().optional(),
+  body("priority").notEmpty().withMessage("priority is required").isIn(["low", "high", "medium"]),
+  body("createdBy").isMongoId(),
+  body("department").isMongoId().optional(),
   // body("status")
   //   .optional()
   //   .trim()
