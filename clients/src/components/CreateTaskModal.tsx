@@ -29,7 +29,7 @@ export function CreateTaskModal({
   const [description, setDescription] = useState(task?.description || "");
   // const [status, setStatus] = useState(task?.status || "pending");
   const [priority, setPriority] = useState<TaskPriority>((task?.priority as TaskPriority) || "medium");
-  const [assigneeId, setAssigneeId] = useState(task?.assignee?._id || "");
+  const [assigneeId, setAssigneeId] = useState(task?.assignedTo?._id || "");
   const [createdBy, setCreatedBy] = useState(task?.createdBy?._id || user?._id);
 
   // API State
@@ -72,19 +72,37 @@ const [employees, setEmployees] = useState<Employee[]>([]);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const newTask = { title, description, priority, assigneeId, createdBy };
+    const changedField: Record<string, any> = {};
+    if (title !== (task?.title || "")) changedField.title = title;
+    if (description !== (task?.description || "")) changedField.description = description;
+    if (priority !== (task?.priority || "medium")) changedField.priority = priority;
+
+    const currentAssignedId = task?.assignedTo?._id || "";
+    if (currentAssignedId !== assigneeId) {
+        changedField.assignedTo = assigneeId || null;
+    }
+
+    if (Object.keys(changedField).length === 0) {
+        toast.error("No change made.");
+        onClose();
+        return;
+    }
+
+    // const newTask = { title, description, priority, assigneeId, createdBy };
 
     try {
       setIsTaskAdding(true);
       if (task) {
-        const response = await updateTask(newTask, task._id);
+        const response = await updateTask(changedField, task._id);
+        console.log("response: ", response);
 
-        toast.success(response.message);
         onSuccess?.(response.data);
+        toast.success(response.message);
       } else {
-        const response = await addTask(newTask);
-        onSuccess?.(response.data);
-        toast.success(response.message);
+          const newTask = { title, description, priority, assigneeId, createdBy };
+          const response = await addTask(newTask);
+          onSuccess?.(response.data);
+          toast.success(response.message);
       }
     } catch (error) {
       console.error("Failed to add task", error);
@@ -95,7 +113,6 @@ const [employees, setEmployees] = useState<Employee[]>([]);
     onClose();
   };
 
-  console.log("EMPLOYES: ", employees);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -146,7 +163,7 @@ const [employees, setEmployees] = useState<Employee[]>([]);
              Priority 
             </label>
             <select
-              value={status}
+              value={priority}
               onChange={(e) => setPriority(e.target.value as TaskPriority)}
               className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-[#14b8a6]"
             >

@@ -102,11 +102,27 @@ export function AllTasks() {
     }
   };
 
-  const handleTaskUpdated = (updatedTask: Task) => {
-    setTasks((prev) =>
-      prev.map((task) => (task._id === updatedTask._id ? updatedTask : task)),
-    );
-  };
+  // const handleTaskUpdated = (updatedTask: Task) => {
+  //   setTasks((prev) =>
+  //     prev.map((task) => (task._id === updatedTask._id ? updatedTask : task)),
+  //   );
+  // };
+const handleTaskUpdated = (updatedTask: any) => {
+  setTasks((prev) =>
+    prev.map((task) => {
+      if (task._id === updatedTask._id) {
+        // Normalize the backend response structure to match what the grid expects
+        return {
+          ...updatedTask,
+          // Extract assignedTo out of the assignment object if it exists there
+          assignedTo: updatedTask.assignment?.assignedTo || updatedTask.assignedTo,
+          status: updatedTask.assignment?.status || updatedTask.status
+        };
+      }
+      return task;
+    })
+  );
+};
 
   const handleTaskCreated = (newTask: Task) => {
       setTasks((prev) => [newTask, ...prev]);
@@ -238,7 +254,11 @@ export function AllTasks() {
                   </span>
                   <span
                     className="bg-green-400 hover:bg-green-500 text-white text-sm font-medium p-1.5 rounded cursor-pointer"
-                    onClick={() => setSelectedTask(task)}
+                    onClick={() => {
+                        setSelectedTask(task);
+                        setIsModalOpen(true)
+                    }
+                    }
                   >
                     Edit
                   </span>
