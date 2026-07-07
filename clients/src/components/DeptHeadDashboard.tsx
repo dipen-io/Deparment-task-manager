@@ -36,9 +36,9 @@ export function DeptHeadDashboard() {
       setTaskCount(count.data);
     };
     const getUser = async () => {
-      const user = await getUsers();
-      setUsersCount(user?.data?.totalUsers);
-      setUser(user?.data?.users);
+      const res = await getUsers();
+      setUsersCount(res?.data?.totalUsers);
+      setUser(res?.data?.users);
 
       // setUser(user);
     };
@@ -46,9 +46,11 @@ export function DeptHeadDashboard() {
     getUser();
   }, []);
 
+  console.log("user from DeptHeadDashboard page: ", user);
+
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar role="Head_dept" />
+      <Sidebar role="Head" />
 
       <main className="flex-1 pt-16 lg:pt-0">
         {/* Header */}

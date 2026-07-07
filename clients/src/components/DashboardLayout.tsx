@@ -1,5 +1,6 @@
 import { Outlet, Navigate } from "react-router";
 import { useAuth } from "../context/AuthContext";
+import { Sidebar } from "./Sidebar";
 
 interface DashboardLayoutProps {
     allowedProps: Array<"admin" | "head" | "member">;
@@ -22,6 +23,7 @@ export function DashboardLayout({ allowedProps }: DashboardLayoutProps) {
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar gets the role to generate the correct links */}
       {/* <Sidebar role={user.role} /> */}
+    <Sidebar role={user.userType === "admin" ? "Admin" : user.userType === "head" ? "Head" : "Member"} />
 
       {/* The main content area */}
       <main className="flex-1 overflow-y-auto pt-16 lg:pt-0">
