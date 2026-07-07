@@ -3,6 +3,7 @@ const ApiResponse = require("../../utils/ApiResponse");
 const Task = require("../task/task.model");
 const { ROLES } = require("../../constant/roles");
 const {
+  getTaskForAdminOnly,
   getTaskByEmployee,
   create,
   fetchingTaskforUser,
@@ -64,7 +65,7 @@ const getSingleTask = asyncHandler(async (req, res) => {
 
   const task = await getOne(taskId, user);
   const responsePayload = {
-    accessedByRole: user.role, // Will be "Admin" or "Employee"
+    accessedByRole: user.userType, // Will be "Admin" or "Employee"
     accessedByName: user.name, // Bonus: literally tells you who!
     taskData: task,
   };
@@ -187,8 +188,19 @@ const getUserTask = asyncHandler (async (req, res) => {
     .json(new ApiResponse(200, "fetch Task by user", task))
 })
 
+const getAdminTask = asyncHandler (async (req, res) => {
+
+    const { search, limit, page } = req.query;
+
+    const task = await getTaskForAdminOnly( search, limit, page); 
+
+    res.status(200)
+    .json(new ApiResponse(200, "Fetch Task by Admin", task))
+})
+
 
 module.exports = {
+  getAdminTask, 
   unAssinAnUserToTask,
   getUserTask,
   assignAnUserToTask,

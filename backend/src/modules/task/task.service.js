@@ -26,6 +26,7 @@ const remove = async (taskId, user) => {
   return;
 };
 
+// OLD API
 const getAll = async (role, id, query) => {
   const filter = {};
 
@@ -75,22 +76,33 @@ const getAll = async (role, id, query) => {
 // single task
 const getOne = async (taskId, user) => {
   const task = await Task.findById(taskId)
-    .populate("assignedTo", "name email")
+    .populate("department", "name head description")
     .populate("createdBy", "name");
 
-  if (!task) {
-    throw new AppError("Task not found", 404);
-  }
+    if (!task) {
+        throw new AppError("Task not found", 404);
+    }
 
-  const isAdmin = user.role !== ROLES.MEMBER;
-  const isAssignee = task.assignedTo?._id.toString() === user._id.toString();
+    let assignedDetails;
+    if (user.userType == "admin") {
 
-  // 3. If they aren't an Admin AND they aren't the assignee, block them!
-  if (!isAdmin && !isAssignee) {
-    throw new AppError("You do not have permission to view this task", 403);
-  }
+       const  assingTaskDetails = await TaskAssignment.findOne({task: task._id}).
+            populate("assignedTo", "name email")
+        // if user is admin i need other detisl toos uch as  
+        // who is assgined too
+        assignedDetails = assingTaskDetails.assignedTo
+        console.log("assingTaskDetails", assingTaskDetails);
+    }
 
-  return task;
+  // const isAdmin = user.role !== ROLES.MEMBER;
+  // const isAssignee = task.assignedTo?._id.toString() === user._id.toString();
+  //
+  // // 3. If they aren't an Admin AND they aren't the assignee, block them!
+  // if (!isAdmin && !isAssignee) {
+  //   throw new AppError("You do not have permission to view this task", 403);
+  // }
+
+  return { task, assignedDetails };
 };
 
 const getTaskByEmployee = async (id) => {
@@ -243,8 +255,121 @@ const unAssignTask = async(taskId, userId) => {
     }
 }
 
+const getTaskForAdminOnly = async(search, limit = 10, page= 1 ) => {
+
+    page = Math.max(parseInt(page) || 1, 1);
+    limit = Math.min(Math.max(parseInt(limit) || 10, 1), 100);
+    const skip = (page - 1) * limit;
+
+    // 1. Build the search filter cleanly
+    const matchFilter = {};
+    if (search && search.trim() !== "") {
+        // Match search query against either title OR description case-insensitively
+        matchFilter.$or = [
+            { title: { $regex: search.trim(), $options: "i" } },
+            { description: { $regex: search.trim(), $options: "i" } }
+        ];
+    }
+
+    const result = await Task.aggregate([
+        // Place the match filter at the absolute top of the pipeline for best performance
+        { $match: matchFilter },
+
+        // Perform lookups on matching tasks
+        {
+            $lookup: {
+                from: "taskassignments",
+                localField: "_id",
+                foreignField: "task",
+                as: "assignment",
+            }
+        },
+        {
+            $unwind: {
+                path: "$assignment",
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "assignment.assignedTo",
+                foreignField: "_id",
+                as: "assignedUser"
+            }
+        },
+        {
+            $unwind: {
+                path: "$assignedUser",
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "createdBy",
+                foreignField: "_id",
+                as: "creatorUser"
+            }
+        },
+        {
+            $unwind: {
+                path: "$creatorUser",
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                title: 1,
+                description: 1,
+                priority: 1,
+                department: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                status: { $ifNull: ["$assignment.status", "pending"] },
+                assignedTo: {
+                    _id: "$assignedUser._id",
+                    name: "$assignedUser.name",
+                    email: "$assignedUser.email"
+                },
+                createdBy: {
+                    _id: "$creatorUser._id",
+                    name: "$creatorUser.name"
+                }
+            }
+        },
+        { $sort: { createdAt: -1 } },
+
+        // 2. Use $facet to calculate totalCount AND get paginated data in ONE query!
+        {
+            $facet: {
+                metadata: [{ $count: "total" }],
+                data: [{ $skip: skip }, { $limit: limit }]
+            }
+        }
+    ]);
+
+    // Extract values safely from the facet result arrays
+    const totalCount = result[0]?.metadata[0]?.total || 0;
+    const tasks = result[0]?.data || [];
+
+    return {
+        tasks,
+        pagination: {
+            totalCount,
+            currentPage: page,
+            totalPages: Math.ceil(totalCount / limit) || 1,
+            limit,
+            hasNextPage: page * limit < totalCount,
+            hasPrevPage: page > 1
+        },
+    };
+}
+
 
 module.exports = {
+  getTaskForAdminOnly,
   unAssignTask,
   fetchingTaskforUser,
   assingTask,

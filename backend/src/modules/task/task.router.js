@@ -6,6 +6,7 @@ const {
   CheckPermission,
 } = require("../../middleware/auth");
 const {
+  getAdminTask,
   getUserTask,
   getTaskByEmp,
   updateTask,
@@ -45,6 +46,7 @@ router.post(
 )
 
 router.get('/get', getUserTask)
+router.get('/admin/task', getAdminTask)
 
 // client fetching this for showing task by empl
 // EMPLOYEE
