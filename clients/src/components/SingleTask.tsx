@@ -8,7 +8,8 @@ export function SingleTask() {
   const { id } = useParams();
   // const [task, setTask] = useState(null);
   const [task, setTask] = useState<TaskType | null>(null);
-  const [assignedTo, setAssignedTo] = useState([]);
+  // const [assignedTo, setAssignedTo] = useState([]);
+  const [assignedTo, setAssignedTo] = useState<{ name: string; _id: string } | null>(null);
   const [meta, setMeta] = useState<{
     accessedByName: string;
     accessedByRole: string;
