@@ -59,8 +59,7 @@ export function AllTasks() {
         if (searchQuery) params.search = searchQuery;
 
         const { data, meta } = await getTasks(params);
-        console.log("tasks: ", data.tasks);
-        console.log("meta: ", meta);
+        console.log("ALL TASK : ", data.tasks);
 
         setTasks(data.tasks || []);
         setMeta(meta || null); // Save pagination data
@@ -205,8 +204,16 @@ export function AllTasks() {
                     <h3 className="font-semibold text-lg text-gray-800 line-clamp-1">
                       {task.title}
                     </h3>
-                    {renderStatusBadge(task.priority)}
+
+                    <div className="flex gap-2"> 
+                    <span className="italic text-xs bg-gray-100 text-gray-700 font-medium rounded-xl px-3 py-1"> 
+                        {task.priority}
+                    </span>
+                        {renderStatusBadge(task.status)}
+                    </div>
                   </div>
+
+
                   <p className="text-gray-600 text-sm mb-4 line-clamp-2 flex-grow">
                     {task.description}
                   </p>
