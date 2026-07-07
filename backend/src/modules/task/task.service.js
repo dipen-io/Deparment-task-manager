@@ -90,8 +90,7 @@ const getOne = async (taskId, user) => {
             populate("assignedTo", "name email")
         // if user is admin i need other detisl toos uch as  
         // who is assgined too
-        assignedDetails = assingTaskDetails.assignedTo
-        console.log("assingTaskDetails", assingTaskDetails);
+        assignedDetails = assingTaskDetails?.assignedTo
     }
 
   // const isAdmin = user.role !== ROLES.MEMBER;
