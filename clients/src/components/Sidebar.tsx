@@ -13,14 +13,15 @@ import {
 } from "lucide-react";
 
 interface SidebarProps {
-    role: "Member" | "Admin" | "Head_dept";
+    role: "Member" | "Admin" | "Head";
 }
 
-interface SidebarProps { 
-    allowedProps: Array<"admin" | "head" | "member">;
-}
+// interface SidebarProps { 
+//     allowedProps: Array<"admin" | "head" | "member">;
+// }
 
 export function Sidebar({ role }: SidebarProps) {
+    console.log("ROLE: ", role)
     const { logout } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate();
@@ -32,7 +33,7 @@ export function Sidebar({ role }: SidebarProps) {
     const rolePaths = {
         Admin: "/admin",
         Member: "/member",
-        Head_dept: "/dept-head", // Matches your SidebarProps interface
+        Head: "/dept-head", // Matches your SidebarProps interface
     };
 
     const basePath = rolePaths[role] || "/member";
