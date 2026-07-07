@@ -8,6 +8,7 @@ export function SingleTask() {
   const { id } = useParams();
   // const [task, setTask] = useState(null);
   const [task, setTask] = useState<TaskType | null>(null);
+  const [assignedTo, setAssignedTo] = useState([]);
   const [meta, setMeta] = useState<{
     accessedByName: string;
     accessedByRole: string;
@@ -40,7 +41,9 @@ export function SingleTask() {
     const fetchTask = async () => {
       try {
         const { data } = await getSingleTask(id!);
-        setTask(data.taskData);
+        setTask(data.taskData.task);
+        console.log("SINGLE TASK: ", data);
+        setAssignedTo(data.taskData.assignedDetails)
         setMeta({
           accessedByName: data.accessedByName,
           accessedByRole: data.accessedByRole,
@@ -76,7 +79,7 @@ export function SingleTask() {
             <User size={14} /> Assigned To
           </h3>
           <p className="text-gray-800 font-medium">
-            {task?.assignedTo?.name || "Unassigned"}
+            {assignedTo?.name || "Unassigned"}
           </p>
           <p className="text-gray-500 text-sm">{task?.assignedTo?.email}</p>
         </div>
