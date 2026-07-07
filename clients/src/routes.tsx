@@ -4,6 +4,7 @@ import { NotFound } from "./pages/NotFoundPage";
 import { SignupPage } from "./pages/SignupPage";
 import { LoginPage } from "./pages/LoginPage";
 import { Home } from "./pages/Home";
+import {Department} from "./pages/DepartmentPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import { AllTasks } from "./components/FetchTaskByAdmin";
@@ -40,6 +41,7 @@ export const router = createBrowserRouter([
       { path: "tasks", element: <AllTasks /> },
       { path: "task/:id", element: <SingleTask /> }, 
       { path: "role", element: <RoleComponents /> },
+      { path: "department", element: <Department /> },
     ],
   },
   // {
