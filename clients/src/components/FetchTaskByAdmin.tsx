@@ -205,7 +205,7 @@ export function AllTasks() {
                     <h3 className="font-semibold text-lg text-gray-800 line-clamp-1">
                       {task.title}
                     </h3>
-                    {renderStatusBadge(task.status)}
+                    {renderStatusBadge(task.priority)}
                   </div>
                   <p className="text-gray-600 text-sm mb-4 line-clamp-2 flex-grow">
                     {task.description}

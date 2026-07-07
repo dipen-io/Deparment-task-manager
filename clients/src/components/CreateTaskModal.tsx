@@ -4,13 +4,11 @@ import { addTask, updateTask, type Task } from "../api/taskApi";
 import type { Employee } from "../api/userApi";
 import toast from "react-hot-toast";
 import { X } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
-// interface Employee {
-//   _id: string;
-//   name: string;
-// }
 
-type TaskStatus = "pending" | "in-process" | "completed";
+// type TaskStatus = "pending" | "in-process" | "completed";
+type TaskPriority = "low" |  "medium" | "high" | "urgent";
 
 interface CreateTaskModalProps {
   onClose: () => void;
@@ -23,12 +21,16 @@ export function CreateTaskModal({
   task,
   onSuccess,
 }: CreateTaskModalProps) {
+
+
+  const { user } = useAuth();
   // Form State
   const [title, setTitle] = useState(task?.title || "");
   const [description, setDescription] = useState(task?.description || "");
   // const [status, setStatus] = useState(task?.status || "pending");
-  const [status, setStatus] = useState<TaskStatus>((task?.status as TaskStatus) || "pending");
+  const [priority, setPriority] = useState<TaskPriority>((task?.priority as TaskPriority) || "medium");
   const [assigneeId, setAssigneeId] = useState(task?.assignee?._id || "");
+  const [createdBy, setCreatedBy] = useState(task?.createdBy?._id || user?._id);
 
   // API State
 const [employees, setEmployees] = useState<Employee[]>([]);
@@ -40,8 +42,9 @@ const [employees, setEmployees] = useState<Employee[]>([]);
     if (task) {
       setTitle(task.title);
       setDescription(task.description);
-      setStatus(task.status as TaskStatus);
+      setPriority(task.priority as TaskPriority);
       setAssigneeId(task.assignedTo?._id || "");
+      setCreatedBy(task.createdBy._id || "");
     }
     const fetchEmployees = async () => {
       setIsLoading(true);
@@ -69,7 +72,7 @@ const [employees, setEmployees] = useState<Employee[]>([]);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const newTask = { title, description, status, assigneeId };
+    const newTask = { title, description, priority, assigneeId, createdBy };
 
     try {
       setIsTaskAdding(true);
@@ -80,6 +83,7 @@ const [employees, setEmployees] = useState<Employee[]>([]);
         onSuccess?.(response.data);
       } else {
         const response = await addTask(newTask);
+        onSuccess?.(response.data);
         toast.success(response.message);
       }
     } catch (error) {
@@ -139,16 +143,17 @@ const [employees, setEmployees] = useState<Employee[]>([]);
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Status
+             Priority 
             </label>
             <select
               value={status}
-              onChange={(e) => setStatus(e.target.value as TaskStatus)}
+              onChange={(e) => setPriority(e.target.value as TaskPriority)}
               className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-[#14b8a6]"
             >
-              <option value="pending">Pending</option>
-              <option value="in-progress">In Progress</option>
-              <option value="completed">Completed</option>
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="urgent">Urgent</option>
             </select>
           </div>
 
