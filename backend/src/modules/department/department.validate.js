@@ -1,9 +1,9 @@
 const { body } = require("express-validator");
 
 const deptValidator = [
-    body('name').isString().notEmpty().withMessage("Role Name is required"),
-    body('description').isString().notEmpty().withMessage("Description is required"),
-    body('manager').isMongoId().notEmpty().withMessage("Role Name is required")
+    body('name').isString().notEmpty().withMessage("Department Name is required"),
+    body('description').isString().notEmpty().withMessage("Dept Description is required"),
+    body('manager').isMongoId().optional()
 ]
 
 module.exports = { deptValidator };

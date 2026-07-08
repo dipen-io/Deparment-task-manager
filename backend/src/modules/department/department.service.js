@@ -16,7 +16,7 @@ const createDept = async (data) => {
 const getDept = async (query = {}) => {
     const {
         cursor,
-        limit = 1,
+        limit = 10,
         search,
         sortBy = "createdAt",
         sortOrder = "desc",
@@ -69,6 +69,21 @@ const getDept = async (query = {}) => {
                 as: "users"
             }
         },
+        {
+            $lookup: {
+                from: "users",
+                localField: "manager",
+                foreignField: "_id",
+                as: "managerDetails"
+            }
+        },
+        {
+            // turn managerDetails array into single object
+            $unwind : {
+                path: "$managerDetails",
+                preserveNullAndEmptyArrays: true // keep document if no manger is assinged
+            }
+        },
 
         // Optional: exclude sensitive fields
         {
@@ -78,6 +93,11 @@ const getDept = async (query = {}) => {
                 code: 1,
                 createdAt: 1,
                 updatedAt: 1,
+                manager: {
+                    _id: "$managerDetails._id",
+                    name: "$managerDetails.name",
+                    email: "$managerDetails.email"
+                },
                 users: {
                     $map: {
                         input: "$users",
@@ -151,7 +171,8 @@ const updateDept = async ({ deptId, name, description, manager }) => {
     return updatedData;
 };
 
-const assignDept = async ( userId, deptId ) => {
+const assignDept = async ( userId, deptId, role = "member" ) => {
+
     const dept = await Department.findById(deptId);
     if (!dept) {
         throw new AppError("Department does not exist", 404);
@@ -178,6 +199,11 @@ const assignDept = async ( userId, deptId ) => {
         },
         { new: true, runValidators: true },
     ).populate("department", "name description");
+    
+    // update the userType based on "role"
+    user.userType = role;
+
+
 
     if (!user) {
         throw new AppError("User does not exist", 404);
