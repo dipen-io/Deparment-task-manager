@@ -12,10 +12,10 @@ export const deptKeys = {
 
 };
 
-export function useDept(filters: {status?: string, search?: string}) {
+export function useDept(filters: {page?: number, search?: string, limit?: number}) {
     return useQuery({
         queryKey: deptKeys.lists(filters),
-        queryFn: () => getDepartment(),
+        queryFn: () => getDepartment(filters),
         placeholderData: keepPreviousData,
     })
 }

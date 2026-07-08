@@ -40,9 +40,16 @@ export interface AddDepartmentData {
     code?: string;
 }
 
+export interface FilterDept {
+    search?: string;
+    limit?: number;
+    status?: string;
+}
 
-export const getDepartment = async(): Promise<DeparmentData> => {
-    const response  = await api.get<DeparmentData>("/dept/get")
+
+export const getDepartment = async(filter: FilterDept): Promise<DeparmentData> => {
+    const response  = await api.get<DeparmentData>("/dept/get", {
+    params: filter} )
     return response.data;
 }
 
