@@ -13,7 +13,7 @@ const createDept = async (data) => {
     }
 };
 
-const getDept = async (query = {}) => {
+const getDeptCursorBase = async (query = {}) => {
     const {
         cursor,
         limit = 10,
@@ -135,6 +135,111 @@ const getDept = async (query = {}) => {
         data: departments,
         nextCursor,
         hasMore,
+        limit: pageSize,
+    };
+};
+// this is standard offset pagination
+const getDept = async (query = {}) => {
+    const {
+        page = 1,                 // 🔢 Default to page 1
+        limit = 10,
+        search,
+        sortBy = "createdAt",
+        sortOrder = "desc",
+    } = query;
+
+    // 1. Sanitize pagination inputs safely
+    const targetPage = Math.max(1, parseInt(page, 10) || 1);
+    const pageSize = Math.min(Math.max(1, parseInt(limit, 10) || 10), 100);
+    const sortDirection = sortOrder === "asc" ? 1 : -1;
+    
+    // ⚡ Calculate how many documents to skip over
+    const skipCount = (targetPage - 1) * pageSize;
+
+    const matchStage = {};
+
+    // 2. Handle search parameters across fields
+    if (search && search.trim()) {
+        const searchRegex = new RegExp(search.trim(), "i");
+        matchStage.$or = [
+            { name: searchRegex },
+            { description: searchRegex },
+            { code: searchRegex },
+        ];
+    }
+
+    // 3. Assemble the updated aggregation pipeline
+    const pipeline = [
+        { $match: matchStage },
+        { $sort: { [sortBy]: sortDirection, _id: sortDirection } },
+        
+        // ⚡ Offset Pagination Core Stages
+        { $skip: skipCount },
+        { $limit: pageSize + 1 }, // Fetch 1 extra to check if a next page exists
+
+        // Lookup user roster array matching this department _id
+        {
+            $lookup: {
+                from: "users", 
+                localField: "_id",
+                foreignField: "department",
+                as: "users"
+            }
+        },
+        // Lookup managing user details matching field reference Object ID
+        {
+            $lookup: {
+                from: "users",
+                localField: "manager",
+                foreignField: "_id",
+                as: "managerDetails"
+            }
+        },
+        {
+            $unwind: {
+                path: "$managerDetails",
+                preserveNullAndEmptyArrays: true 
+            }
+        },
+        // Format clean visual field projection package for frontend mapping
+        {
+            $project: {
+                name: 1,
+                description: 1,
+                code: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                manager: {
+                    _id: "$managerDetails._id",
+                    name: "$managerDetails.name",
+                    email: "$managerDetails.email"
+                },
+                users: {
+                    $map: {
+                        input: "$users",
+                        as: "user",
+                        in: {
+                            _id: "$$user._id",
+                            name: "$$user.name",
+                            email: "$$user.email",
+                            department: "$$user.department",
+                        },
+                    },
+                },
+            },
+        },
+    ];
+
+    const results = await Department.aggregate(pipeline);
+
+    // 4. Evaluate if more data follows our slice window
+    const hasMore = results.length > pageSize;
+    const departments = hasMore ? results.slice(0, pageSize) : results;
+
+    return {
+        data: departments,
+        hasMore,
+        page: targetPage,
         limit: pageSize,
     };
 };

@@ -15,6 +15,7 @@ exports.createDepartment = asyncHandler(async (req, res) => {
 });
 
 exports.getDepartment = asyncHandler(async (req, res) => {
+    console.log("req.query : ", req.query);
     const departments = await getDept(req.query);
 
     res.status(200).json(
