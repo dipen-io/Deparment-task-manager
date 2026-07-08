@@ -1,11 +1,13 @@
 import api from "./axios";  
 
 export interface DeparmentData {
+    message?: string;
     data: {
         data: {
             _id: string;
             name: string;
             description: string;
+            code: string;
             createdAt: string;
             updatedAt: string;
             users: {
@@ -14,6 +16,12 @@ export interface DeparmentData {
                 email: string;
                 department: string;
             }[];
+
+            manager: {
+                _id: string;
+                name: string;
+                email: string;
+            } | null;
         }[];
         nextCursor: string | null;
         hasMore: boolean;
@@ -26,9 +34,19 @@ export interface DeparmentData {
     }
 }
 
+export interface AddDepartmentData {
+    name: string;
+    description?: string;
+    code?: string;
+}
+
 
 export const getDepartment = async(): Promise<DeparmentData> => {
     const response  = await api.get<DeparmentData>("/dept/get")
     return response.data;
 }
 
+export const createDepartment  = async(dept: AddDepartmentData) => {
+    const response  = await api.post<DeparmentData>("/dept", dept)
+    return response.data;
+} 
