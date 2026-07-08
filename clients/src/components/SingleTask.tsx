@@ -57,7 +57,7 @@ export function SingleTask() {
     fetchTask();
   }, [id]);
   return (
-    <div className="max-w-3xl mx-auto mt-10 bg-white border border-gray-200 rounded-xl shadow-md p-6 space-y-6">
+    <div className="max-w-3xl mx-40 mt-10 bg-white border border-gray-200 rounded-xl shadow-md p-6 space-y-6">
       {/* Header */}
       <div className="flex justify-between items-start">
         <h1 className="text-2xl font-bold text-gray-800">{task?.title}</h1>
