@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router";
+import { LoadingSpinner } from "./LoadingSpinner";
 import {
   getTasks,
   removeTask,
@@ -59,7 +60,6 @@ export function AllTasks() {
         if (searchQuery) params.search = searchQuery;
 
         const { data, meta } = await getTasks(params);
-        console.log("ALL TASK : ", data.tasks);
 
         setTasks(data.tasks || []);
         setMeta(meta || null); // Save pagination data
@@ -179,8 +179,13 @@ const handleTaskUpdated = (updatedTask: any) => {
       </div>
 
       {/* --- State Handling --- */}
-      {isLoading && <div className="text-center py-10">Loading tasks...</div>}
-      {error && <div className="text-red-500 text-center py-10">{error}</div>}
+      {isLoading && <div className="relative mt-43 mr-70 justify-start">
+          <LoadingSpinner />
+          </div>}
+      {/*
+          // {error && <div className="text-red-500 text-center py-10">{error}</div>} 
+      */}
+      {error && <div className="italic text-gray-700 text-center py-10">please check internet</div>}
 
       {/* modal for editing task  */}
       {/*      {selectedTask && (
