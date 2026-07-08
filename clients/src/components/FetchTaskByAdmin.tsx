@@ -10,6 +10,7 @@ import {
 import { Clock, PlayCircle, CheckCircle, Search, Plus } from "lucide-react";
 import toast from "react-hot-toast";
 import { CreateTaskModal } from "./CreateTaskModal";
+import { useTask } from "../hooks/useTask";
 
 type FilterType = "all" | "pending" | "in-progress" | "completed";
 
@@ -17,13 +18,13 @@ export function AllTasks() {
   const [deleting, setisDeleting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [tasks, setTasks] = useState<Task[]>([]);
+  // const [tasks, setTasks] = useState<Task[]>([]);
   // Store the meta data so we can use it for pagination later!
-  const [_meta, setMeta] = useState<TaskResponse["meta"] | null>(null);
+  // const [_meta, setMeta] = useState<TaskResponse["meta"] | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // const [isLoading, setIsLoading] = useState(true);
+  // const [error, setError] = useState<string | null>(null);
 
   const location = useLocation();
 
@@ -32,6 +33,7 @@ export function AllTasks() {
   // Filters
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");
   const [searchQuery, setSearchQuery] = useState(""); // Let's use your backend search too!
+  const [debounchSearch, setDebounceSearch] = useState("");
 
   const removeTaskkk = async (id: string) => {
     setisDeleting(true);
@@ -48,8 +50,16 @@ export function AllTasks() {
     }
   };
 
+  const {data: response, isLoading, error} = useTask({
+          status: activeFilter != "all" ? activeFilter : undefined,
+          search: debounchSearch || undefined,
+  });
+  const tasks = response?.data?.tasks || [];
+  const meta = response?.meta || null;
+
   // 1. Notice activeFilter and searchQuery are now in the dependency array!
   useEffect(() => {
+      /*
     const fetchTasks = async () => {
       try {
         setIsLoading(true);
@@ -69,10 +79,10 @@ export function AllTasks() {
         setIsLoading(false);
       }
     };
-
+    */
     // Add a small delay (debounce) for search so we don't spam the API on every keystroke
     const delayDebounceFn = setTimeout(() => {
-      fetchTasks();
+        setDebounceSearch(searchQuery);
     }, 300);
 
     return () => clearTimeout(delayDebounceFn);

@@ -1,19 +1,12 @@
-import { useEffect, useState } from "react";
 import { useParams } from "react-router";
-import { getSingleTask } from "../api/taskApi";
 import { Clock, User, CheckCircle, PlayCircle } from "lucide-react";
-import type { TaskType } from "./types/taskTypes";
+import { useSingleTask } from "../hooks/useTask";
 
 export function SingleTask() {
   const { id } = useParams();
-  // const [task, setTask] = useState(null);
-  const [task, setTask] = useState<TaskType | null>(null);
-  // const [assignedTo, setAssignedTo] = useState([]);
-  const [assignedTo, setAssignedTo] = useState<{ name: string; _id: string } | null>(null);
-  const [meta, setMeta] = useState<{
-    accessedByName: string;
-    accessedByRole: string;
-  } | null>(null);
+
+
+  const {data: taskDetails, isLoading, isError} = useSingleTask(id!);
 
   const renderStatus = (status: string) => {
     switch (status) {
@@ -38,24 +31,38 @@ export function SingleTask() {
     }
   };
 
-  useEffect(() => {
-    const fetchTask = async () => {
-      try {
-        const { data } = await getSingleTask(id!);
-        setTask(data.taskData.task);
-        console.log("SINGLE TASK: ", data);
-        setAssignedTo(data.taskData.assignedDetails)
-        setMeta({
-          accessedByName: data.accessedByName,
-          accessedByRole: data.accessedByRole,
-        });
-      } catch (err) {
-        console.error("Failed to fetch task");
-      }
-    };
 
-    fetchTask();
-  }, [id]);
+// ⏳ Handle Loading and Error views cleanly
+  if (isLoading) return <div className="text-center py-20">Loading task details...</div>;
+  if (isError || !taskDetails?.data) return <div className="text-center py-20 text-red-500">Failed to load task details.</div>;
+
+  // 📦 Safely extract values from your custom hook's nested payload structure
+  const serverPayload = taskDetails.data;
+  const task = serverPayload?.taskData?.task || null;
+  const assignedTo = serverPayload?.taskData?.assignedDetails || null;
+  const meta = {
+    accessedByName: serverPayload?.accessedByName || "",
+    accessedByRole: serverPayload?.accessedByRole || "",
+  };
+
+  // useEffect(() => {
+  //   const fetchTask = async () => {
+  //     try {
+  //       const { data } = await getSingleTask(id!);
+  //       setTask(data.taskData.task);
+  //       console.log("SINGLE TASK: ", data);
+  //       setAssignedTo(data.taskData.assignedDetails)
+  //       setMeta({
+  //         accessedByName: data.accessedByName,
+  //         accessedByRole: data.accessedByRole,
+  //       });
+  //     } catch (err) {
+  //       console.error("Failed to fetch task");
+  //     }
+  //   };
+  //
+  //   fetchTask();
+  // }, [id]);
   return (
     <div className="max-w-3xl mx-40 mt-10 bg-white border border-gray-200 rounded-xl shadow-md p-6 space-y-6">
       {/* Header */}
