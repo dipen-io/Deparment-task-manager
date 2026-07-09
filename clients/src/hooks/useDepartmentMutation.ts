@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createDepartment, deleteDepartment } from "../api/departmentApi";
+import { createDepartment, deleteDepartment, getDeptCount } from "../api/departmentApi";
 import { deptKeys } from "./useDepartment";
 import toast from "react-hot-toast";
 
@@ -41,6 +41,11 @@ export function useDeptMutations() {
     }
   });
 
+  const getDepartmentCount = useMutation({
+    queryKey: ["departments", "count"],
+    queryFn: getDeptCount,
+  })
+
   return {
     createDepartment: createTaskMutation.mutateAsync, // .mutateAsync allows component await chaining
     // updateTask: updateTaskMutation.mutateAsync,
@@ -48,5 +53,10 @@ export function useDeptMutations() {
     isCreating: createTaskMutation.isPending,
     // isUpdating: updateTaskMutation.isPending,
     isDeleting: deleteDeptMutation.isPending,
+
+    //department count 
+    countDept: getDepartmentCount.mutateAsync,
+    isFetching: getDepartmentCount.isPending,
+
   };
 }

@@ -1,4 +1,4 @@
-import api from "./axios";  
+import api from "./axios";
 
 export interface DeparmentData {
     message?: string;
@@ -30,7 +30,7 @@ export interface DeparmentData {
     meta: {
         timestamps: string;
         unix: number,
-        meta: Record<string, unknown>; 
+        meta: Record<string, unknown>;
     }
 }
 
@@ -47,13 +47,25 @@ export interface FilterDept {
 }
 
 
-export const getDepartment = async(filter: FilterDept): Promise<DeparmentData> => {
-    const response  = await api.get<DeparmentData>("/dept/get", {
-    params: filter} )
+export const getDepartment = async (filter: FilterDept): Promise<DeparmentData> => {
+    const response = await api.get<DeparmentData>("/dept/get", {
+        params: filter
+    })
     return response.data;
 }
 
-export const createDepartment  = async(dept: AddDepartmentData) => {
-    const response  = await api.post<DeparmentData>("/dept", dept)
+export const createDepartment = async (dept: AddDepartmentData) => {
+    const response = await api.post<DeparmentData>("/dept", dept)
     return response.data;
-} 
+}
+
+export const deleteDepartment = async (deptId: string) => {
+    const response = await api.delete(`/dept/${deptId}`);
+    return response.data;
+}
+
+export const getDeptCount = async () => {
+    const response = await api.get("/dept/count");
+    console.log("Response: ", response);
+    return response.data;
+}

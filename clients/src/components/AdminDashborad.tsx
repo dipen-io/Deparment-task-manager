@@ -1,11 +1,12 @@
 // import { Sidebar } from "./Sidebar";
-import { Users, ClipboardCheck } from "lucide-react";
+import { Users, ClipboardCheck, PercentSquareIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { CreateTaskModal } from "./CreateTaskModal";
 import { getTaskCount } from "../api/taskApi";
 import { getUsers } from "../api/userApi";
 import { TeamOverview } from "./TeamOverview";
 import type { Employee } from "../api/userApi";
+import { useDeptCount } from "../hooks/useDepartment";
 // import { useAuth } from "../context/AuthContext";
 
 export function AdminDashboard() {
@@ -16,7 +17,8 @@ export function AdminDashboard() {
 
 
     // const { user } = useAuth();
-
+    const { totalCount } = useDeptCount();
+    console.log("COUNTDEPT: ", totalCount.data);
     const stats = [
         {
             label: "Total Tasks",
@@ -32,12 +34,19 @@ export function AdminDashboard() {
             icon: Users,
             color: "text-blue-600",
         },
+        {
+            label: "Total Departments",
+            value: totalCount.data,
+            change: "+5%",
+            icon: PercentSquareIcon,
+            color: "text-blue-600",
+        },
     ];
 
     useEffect(() => {
 
         const fetchDashboardData = async () => {
-            try{
+            try {
                 const [countRes, userRole] = await Promise.all([
                     getTaskCount(),
                     getUsers()
@@ -45,7 +54,7 @@ export function AdminDashboard() {
                 setTaskCount(countRes.data);
                 setUsersCount(userRole?.data?.totalUsers);
                 setUser(userRole?.data?.users);
-            } catch(err){
+            } catch (err) {
                 console.error("Dashboard metrics load failure:", err);
             }
         }
@@ -137,7 +146,7 @@ export function AdminDashboard() {
                     </div>
 
                     {/*tearm overview*/}
-                     <TeamOverview users={user} /> 
+                    <TeamOverview users={user} />
                 </div>
             </main>
         </div>
