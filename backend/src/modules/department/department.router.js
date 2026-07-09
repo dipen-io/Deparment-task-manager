@@ -5,6 +5,7 @@ const {
     updateDepartment,
     assignDepartment,
     unassingDepartment,
+   getDeptCount,
 } = require("./department.controller");
 const validate = require("../../middleware/input-validate");
 const { authorize, protect } = require("../../middleware/auth");
@@ -14,6 +15,7 @@ const { deptValidator } = require("./department.validate");
 const router = require("express").Router();
 
 router.get("/get", getDepartment);
+router.get("/count", getDeptCount);
 router.post("/", deptValidator, validate, createDepartment);
 
 router.post("/unassign/:id", unassingDepartment);

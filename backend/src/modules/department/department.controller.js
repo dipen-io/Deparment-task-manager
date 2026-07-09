@@ -1,5 +1,6 @@
 const asyncHandler = require("../../utils/asyncHandler");
 const {
+    deptCount,
     getDept,
     createDept,
     deleteDept,
@@ -62,5 +63,14 @@ exports.unassingDepartment = asyncHandler( async (req, res) => {
 
     res.status(200).json(
         new ApiResponse(200, "Department removed successfully" ),
+    );
+})
+
+exports.getDeptCount = asyncHandler(async (req, res) => {
+
+    const deptcounts =  await deptCount();
+
+    res.status(200).json(
+        new ApiResponse(200, "Department count received successfully", deptcounts ),
     );
 })

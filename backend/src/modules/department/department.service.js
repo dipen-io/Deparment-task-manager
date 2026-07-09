@@ -331,4 +331,9 @@ const removeDepartment = async (userId) => {
 
 }
 
-module.exports = { createDept, getDept, deleteDept, updateDept, assignDept, removeDepartment };
+const deptCount = async () => {
+    const deptCount = await Department.countDocuments({});
+    return deptCount
+}
+
+module.exports = { deptCount ,createDept, getDept, deleteDept, updateDept, assignDept, removeDepartment };
