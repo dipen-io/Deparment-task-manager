@@ -3,6 +3,7 @@ import { LoadingSpinner } from "../components/LoadingSpinner";
 import { Building2, ShieldAlert, UserCheck, Users, ArrowRight, Plus, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { CreeateDepartmentModal } from "../components/CreateDeptModal";
+import { DepartmentDetails } from "../components/DepartmentDetails";
 
 export function Department() {
     const [search, setSearch] = useState("");
@@ -11,6 +12,8 @@ export function Department() {
     const [limit] = useState(6); // Set your pagination limit per page grid
 
     const [isCreateDeptModelOpen, setIsCreateDeptModalOpen] = useState(false);
+    const [isDeptDetailOpen, setIsDeptDetailOpen] = useState(false);
+    const [selectedDeptData, setSelectedDeptData] = useState<any>(null);
 
     // ⏳ 300ms Search Input Debouncer Effect
     useEffect(() => {
@@ -26,6 +29,8 @@ export function Department() {
         page: page,
         limit: limit
     });
+
+
 
     // Handle Loading State
     if (isLoading) {
@@ -62,9 +67,23 @@ export function Department() {
         setPage((prev) => Math.max(prev - 1, 1));
     };
 
+
+    // const CurrentUser = () => {
+    //     const selectedDept = departments.filter((dept) => dept._id === selectedDeptId)
+
+    //     setSelectedUser((prev) => ({
+    //         ...prev,
+    //         departments: selectedDept || null
+    //     }))
+    // }
+    const handleOpenDetails = (dept: any) => {
+        setSelectedDeptData(dept);
+        setIsDeptDetailOpen(true);
+    };
+
     return (
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8"> 
-            
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+
             {/* Top Header Control panel Section */}
             <div className="flex flex-col md:flex-row md:items-center md:justify-between border-b border-gray-100 pb-5 mb-8 gap-4">
                 <div>
@@ -78,47 +97,47 @@ export function Department() {
                 {/* Controls: Search, Add Button, Total Count Banner */}
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                     {/* Polished Search Bar Input Container */}
-                    <div className="relative flex-1 sm:w-64">
+                    <div className="relative flex-1 sm:w-64 ">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                        <input 
-                            type="text" 
+                        <input
+                            type="text"
                             value={search}
                             placeholder="Search departments..."
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#14b8a6] focus:border-transparent bg-white transition-all shadow-sm placeholder:text-gray-400"
+                            className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#14b8a6] focus:border-transparent bg-white transition-all shadow-sm placeholder:text-gray-400 "
                         />
                     </div>
 
                     {/* Add Dept Trigger Button */}
-                    <button 
+                    <button
                         onClick={() => setIsCreateDeptModalOpen(true)}
                         className="flex items-center justify-center gap-1.5 px-4 py-2 bg-[#14b8a6] hover:bg-[#14b8a6]/90 text-white rounded-xl text-sm font-semibold transition-all shadow-sm cursor-pointer whitespace-nowrap"
-                    > 
+                    >
                         <Plus size={16} /> Add Dept
                     </button>
 
                     {/* Total Count Display Banner */}
-                    <div className="bg-gray-50 border border-gray-200/60 px-4 py-2 text-gray-600 text-xs font-semibold rounded-xl flex items-center justify-center whitespace-nowrap shadow-sm"> 
+                    <div className="bg-gray-50 border border-gray-200/60 px-4 py-2 text-gray-600 text-xs font-semibold rounded-xl flex items-center justify-center whitespace-nowrap shadow-sm">
                         Total in Page: {departments.length}
                     </div>
                 </div>
             </div>
-            
+
             {/* Main Cards Grid Frame Context Display */}
-            {departments.length === 0 ? ( 
-                <div className="text-center py-16 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200 max-w-xl mx-auto">  
+            {departments.length === 0 ? (
+                <div className="text-center py-16 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200 max-w-xl mx-auto ">
                     <Building2 className="mx-auto text-gray-300 mb-3" size={40} />
                     <h3 className="text-gray-700 font-semibold">No Departments Found</h3>
                     <p className="text-gray-400 text-sm mt-1 max-w-xs mx-auto">There are currently no active organizational listings matching these filter criteria.</p>
                 </div>
             ) : (
                 <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {departments.map((dept) => (
-                            <div 
-                                key={dept._id} 
-                                className="group bg-white border border-gray-200 rounded-2xl p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:border-[#14b8a6]/40 transition-all duration-200"
-                            > 
+                            <div
+                                key={dept._id}
+                                className="group bg-white border border-gray-200 rounded-2xl p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:border-[#14b8a6]/40 transition-all duration-200 hover:bg-slate-200"
+                            >
                                 <div>
                                     <div className="flex items-start justify-between gap-4 mb-2">
                                         <h3 className="font-bold text-lg text-gray-900 group-hover:text-[#14b8a6] transition-colors line-clamp-1">
@@ -130,12 +149,12 @@ export function Department() {
                                             </span>
                                         )}
                                     </div>
-                                    
+
                                     <p className="text-gray-500 text-sm leading-relaxed mb-6 line-clamp-3">
                                         {dept.description || "No dynamic summary profile has been defined for this department unit."}
                                     </p>
                                 </div>
-                                
+
                                 <div className="space-y-4 border-t border-gray-50 pt-4 mt-auto">
                                     {/* Supervisor Info Bar */}
                                     <div className="flex items-start gap-3 bg-slate-50/70 rounded-xl p-3">
@@ -143,32 +162,46 @@ export function Department() {
                                             <UserCheck size={16} />
                                         </div>
                                         <div className="text-xs min-w-0">
-                                            <span className="text-gray-400 block font-semibold uppercase tracking-wider text-[10px] mb-0.5">Manager Profile</span>
+                                            <span className="text-gray-400 block font-semibold 
+                                            uppercase tracking-wider text-[10px] mb-0.5">
+                                                Manager Profile</span>
                                             {dept.manager?._id ? (
                                                 <div>
-                                                    <p className="text-gray-800 font-semibold truncate">{dept.manager.name}</p>
-                                                    <p className="text-gray-500 truncate mt-0.5">{dept.manager.email}</p>
+                                                    <p className="text-gray-800 font-semibold 
+                                                    truncate">{dept.manager.name}</p>
+                                                    <p className="text-gray-500 truncate mt-0.5">
+                                                        {dept.manager.email}</p>
                                                 </div>
                                             ) : (
-                                                <p className="text-gray-400 italic font-medium py-0.5">Vacant Position</p>
+                                                <p className="text-gray-400 italic font-medium 
+                                                py-0.5">Vacant Position</p>
                                             )}
                                         </div>
                                     </div>
 
                                     {/* Active User Metric Bottom Row */}
-                                    <div className="flex items-center justify-between text-xs font-medium text-gray-600 px-1 pt-1">
+                                    <div className="flex items-center justify-between text-xs 
+                                    font-medium text-gray-600 px-1 pt-1">
                                         <div className="flex items-center gap-1.5 text-gray-500">
                                             <Users size={15} className="text-gray-400" />
                                             <span>Roster Size:</span>
-                                            <strong className="text-gray-900 font-semibold">{dept.users?.length || 0} members</strong>
+                                            <strong className="text-gray-900 font-semibold">
+                                                {dept.users?.length || 0} members</strong>
                                         </div>
-                                        <button className="text-gray-400 group-hover:text-[#14b8a6] transition-colors flex items-center gap-0.5 font-semibold text-xs cursor-pointer">
+                                        <button className="text-gray-400 
+                                        group-hover:text-[#14b8a6] transition-colors flex 
+                                        items-center gap-0.5 font-semibold text-xs cursor-pointer"
+                                            onClick={() => {
+                                                handleOpenDetails(dept)
+                                            }}
+                                        >
                                             Details
-                                            <ArrowRight size={13} className="transform group-hover:translate-x-0.5 transition-transform" />
+                                            <ArrowRight size={13} className="transform 
+                                            group-hover:translate-x-0.5 transition-transform" />
                                         </button>
                                     </div>
                                 </div>
-                            </div> 
+                            </div>
                         ))}
                     </div>
 
@@ -181,14 +214,21 @@ export function Department() {
                             <button
                                 onClick={handlePrevPage}
                                 disabled={page === 1}
-                                className="flex items-center gap-1 px-3 py-2 border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer"
+                                className="flex items-center gap-1 px-3 py-2 border border-gray-200 
+                                rounded-xl text-sm font-semibold text-gray-600 bg-white 
+                                hover:bg-gray-50 
+                                disabled:opacity-40 disabled:hover:bg-white transition-colors 
+                                cursor-pointer"
                             >
                                 <ChevronLeft size={16} /> Previous
                             </button>
                             <button
                                 onClick={handleNextPage}
                                 disabled={!hasMore}
-                                className="flex items-center gap-1 px-3 py-2 border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer"
+                                className="flex items-center gap-1 px-3 py-2 border border-gray-200 
+                                rounded-xl text-sm font-semibold text-gray-600 bg-white 
+                                hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white 
+                                transition-colors cursor-pointer"
                             >
                                 Next <ChevronRight size={16} />
                             </button>
@@ -200,6 +240,10 @@ export function Department() {
             {/* MODAL CONDITIONAL PORTAL MOUNTING GATEWAY CONTAINER */}
             {isCreateDeptModelOpen && (
                 <CreeateDepartmentModal onClose={() => setIsCreateDeptModalOpen(false)} />
+            )}
+
+            {isDeptDetailOpen && selectedDeptData && (
+                <DepartmentDetails onClose={() => setIsDeptDetailOpen(false)} data={selectedDeptData} />
             )}
         </div>
     );
