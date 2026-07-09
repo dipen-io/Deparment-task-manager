@@ -1,4 +1,5 @@
 import { Building2, X, ShieldCheck, Mail, Users, FileText, Fingerprint, Calendar } from "lucide-react";
+import { useDeptMutations } from "../hooks/useDepartmentMutation";
 
 interface CreateDeptModalProps {
     onClose: () => void;
@@ -6,13 +7,29 @@ interface CreateDeptModalProps {
 }
 
 export function DepartmentDetails({ onClose, data }: CreateDeptModalProps) {
+
+    const { deleteDept, isDeleting } = useDeptMutations();
+
     // Format creation date if it exists in your schema
     const creationDate = data.createdAt
         ? new Date(data.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
         : "N/A";
 
+
+    const handleDelete = async () => {
+        const confirmDelete = window.confirm(`are u want to delete`)
+
+        if (!confirmDelete) return;
+
+        try {
+            await deleteDept(data._id);
+            onClose();
+        } catch (error) {
+            console.error("Delete sequence interrupted: ", error);
+        }
+    }
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-fade-in">
+        <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-fade-in">
             <div className="bg-white rounded-2xl w-full max-w-3xl shadow-2xl border border-gray-100 flex flex-col overflow-hidden animate-scale-up max-h-[90vh]">
 
                 {/* Modal Header Banner */}
@@ -140,6 +157,13 @@ export function DepartmentDetails({ onClose, data }: CreateDeptModalProps) {
                         className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200/70 rounded-xl transition-all cursor-pointer"
                     >
                         Close
+                    </button>
+                    <button
+                        type="button"
+                        onClick={handleDelete}
+                        className="px-4 py-2 text-sm bg-red-200 font-medium text-gray-600 hover:bg-gray-200/70 rounded-xl transition-all cursor-pointer"
+                    >
+                        {isDeleting ? "Deleting..." : "Delete Department"}
                     </button>
                     <button
                         type="button"

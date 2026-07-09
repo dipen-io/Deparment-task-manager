@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createDepartment } from "../api/departmentApi";
+import { createDepartment, deleteDepartment } from "../api/departmentApi";
 import { deptKeys } from "./useDepartment";
 import toast from "react-hot-toast";
 
@@ -30,20 +30,23 @@ export function useDeptMutations() {
   // });
 
   // ❌ Remove Task Mutation
-  // const deleteTaskMutation = useMutation({
-  //   mutationFn: removeTask,
-  //   onSuccess: (response) => {
-  //     queryClient.invalidateQueries({ queryKey: taskKeys.all });
-  //     toast.success(response.message || "Task deleted permanently.");
-  //   },
-  // });
+  const deleteDeptMutation = useMutation({
+    mutationFn: deleteDepartment,
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: deptKeys.all });
+      toast.success(response.message || "Department deleted permanently.");
+    },
+    onError: (error: any) => {
+      toast.error(error?.message || "Failed to remove department record.");
+    }
+  });
 
   return {
     createDepartment: createTaskMutation.mutateAsync, // .mutateAsync allows component await chaining
     // updateTask: updateTaskMutation.mutateAsync,
-    // deleteTask: deleteTaskMutation.mutateAsync,
+    deleteDept: deleteDeptMutation.mutateAsync,
     isCreating: createTaskMutation.isPending,
     // isUpdating: updateTaskMutation.isPending,
-    // isDeleting: deleteTaskMutation.isPending,
+    isDeleting: deleteDeptMutation.isPending,
   };
 }
