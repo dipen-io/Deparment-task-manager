@@ -16,7 +16,7 @@ interface DeptDetailsProps {
 export function DepartmentDetails({ onClose, data }: DeptDetailsProps) {
     const [activeTab, setActiveTab] = useState<"view" | "manage">("view");
     const [userSearchTerm, setUserSearchTerm] = useState("");
-    const { updateHead, toggleUserAssignment, isUpdatingHead, isUpdatingRoster } = useDeptMutations();
+    const { deleteDept } = useDeptMutations();
 
     // const filter = {};
     // const { data: response } = useUser(filter);
@@ -41,7 +41,6 @@ export function DepartmentDetails({ onClose, data }: DeptDetailsProps) {
         ...(usr_mem_head?.data?.users || []),
         ...(usr_mem_head?.data.memberInDept || [])
     ]
-    console.log("AVAILABLE USER: ", allAvailableUsers)
 
     const creationDate = data.createdAt
         ? new Date(data.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
@@ -82,6 +81,11 @@ export function DepartmentDetails({ onClose, data }: DeptDetailsProps) {
         user.name?.toLowerCase().includes(userSearchTerm.toLowerCase()) ||
         user.email?.toLowerCase().includes(userSearchTerm.toLowerCase())
     );
+
+    // Delete an department
+    const handleDelDept = () => {
+        deleteDept(data._id);
+    }
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-fade-in">
@@ -290,6 +294,13 @@ export function DepartmentDetails({ onClose, data }: DeptDetailsProps) {
                         className="px-5 py-2 text-sm font-semibold bg-gray-200 hover:bg-gray-300/80 text-gray-700 rounded-xl transition-all cursor-pointer"
                     >
                         Done Managing
+                    </button>
+                    <button
+                        type="button"
+                        onClick={handleDelDept}
+                        className="px-5 py-2 text-sm font-semibold bg-gray-200 hover:bg-gray-300/80 text-red-500 rounded-xl transition-all cursor-pointer"
+                    >
+                        Delete
                     </button>
                 </div>
             </div>

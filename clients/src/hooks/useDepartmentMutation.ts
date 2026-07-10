@@ -42,8 +42,15 @@ export function useDeptMutations() {
   });
 
   const getDepartmentCount = useMutation({
-    queryKey: ["departments", "count"],
-    queryFn: getDeptCount,
+    mutationFn: getDeptCount,
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: deptKeys.all });
+      toast.success(response.message || "Department Count fetched");
+    },
+    onError: (error: any) => {
+      toast.error(error?.message || "Failed to fetch department count.");
+
+    }
   })
 
   return {
