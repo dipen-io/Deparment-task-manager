@@ -16,7 +16,7 @@ interface DeptDetailsProps {
 export function DepartmentDetails({ onClose, data }: DeptDetailsProps) {
     const [activeTab, setActiveTab] = useState<"view" | "manage">("view");
     const [userSearchTerm, setUserSearchTerm] = useState("");
-    const { deleteDept, updateHead, isUpdatingHead, isUpdatingRoster } = useDeptMutations();
+    const { unAssign, deleteDept, updateHead, isUpdatingHead, isUpdatingRoster } = useDeptMutations();
 
     // const filter = {};
     // const { data: response } = useUser(filter);
@@ -68,11 +68,27 @@ export function DepartmentDetails({ onClose, data }: DeptDetailsProps) {
     // 👥 Event Handler: Assign / Unassign a team member
     const handleToggleMember = async (userId: string, currentStatus: boolean) => {
         try {
-            await toggleUserAssignment({
-                deptId: data._id,
-                userId,
-                action: currentStatus ? "unassign" : "assign"
-            });
+
+            if (currentStatus) {
+                unAssign({
+                    deptId: data._id,
+                    deptCode: data.code,
+                    userId: userId,
+                })
+            }
+            else {
+                try {
+                    await updateHead({
+                        deptId: data._id,
+                        deptCode: data.code,
+                        userId: userId,
+                        role: "",
+                        oldMangerId: ""
+                    });
+                } catch (err) {
+                    console.error("Failed to assign member:", err);
+                }
+            }
         } catch (err) {
             console.error("Roster operation tracking failure:", err);
         }
@@ -83,6 +99,8 @@ export function DepartmentDetails({ onClose, data }: DeptDetailsProps) {
         user.name?.toLowerCase().includes(userSearchTerm.toLowerCase()) ||
         user.email?.toLowerCase().includes(userSearchTerm.toLowerCase())
     );
+    console.log(data);
+    console.log(allAvailableUsers)
 
     // Delete an department
     const handleDelDept = () => {
@@ -319,4 +337,8 @@ export function DepartmentDetails({ onClose, data }: DeptDetailsProps) {
             </div>
         </div>
     );
+}
+
+function toggleUserAssignment(arg0: { deptId: any; userId: string; action: string; }) {
+    throw new Error("Function not implemented.");
 }

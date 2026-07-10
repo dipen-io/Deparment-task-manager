@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createDepartment, deleteDepartment, getDeptCount, assignDept } from "../api/departmentApi";
+import { createDepartment, deleteDepartment, getDeptCount, assignDept, unAssignDept } from "../api/departmentApi";
 import { deptKeys } from "./useDepartment";
 import toast from "react-hot-toast";
 import { userKeys } from "./useUser";
@@ -42,6 +42,20 @@ export function useDeptMutations() {
       toast.success(response.message || "User Assigned!");
     }
   })
+
+  const UnassignMemUsrDept = useMutation({
+    mutationFn: ({ userId, }: { deptId: string, deptCode: string, userId: string }) => unAssignDept(userId),
+    onSuccess: (response, variable) => {
+      queryClient.invalidateQueries({ queryKey: deptKeys.all });
+      queryClient.invalidateQueries({
+        // queryKey: ["users", "admin"],
+        queryKey: userKeys.admin(variable.deptId, variable.deptCode),
+      });
+      queryClient.invalidateQueries({ queryKey: deptKeys.detail(variable.deptId) });
+
+      toast.success(response.message || "User UnaSssigned!");
+    }
+  })
   // ❌ Remove Task Mutation
   const deleteDeptMutation = useMutation({
     mutationFn: deleteDepartment,
@@ -82,6 +96,9 @@ export function useDeptMutations() {
     updateHead: assignMemUsrDept.mutateAsync,
     isUpdatingHead: assignMemUsrDept.isPending,
     isUpdatingRoster: assignMemUsrDept.isPending,
+
+    unAssign: UnassignMemUsrDept.mutateAsync,
+    isUnassigning: UnassignMemUsrDept.isPaused
 
   };
 }
