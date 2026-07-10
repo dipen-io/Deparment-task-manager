@@ -339,6 +339,3 @@ export function DepartmentDetails({ onClose, data }: DeptDetailsProps) {
     );
 }
 
-function toggleUserAssignment(arg0: { deptId: any; userId: string; action: string; }) {
-    throw new Error("Function not implemented.");
-}

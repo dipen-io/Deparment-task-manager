@@ -188,7 +188,7 @@ export function Department() {
                                             <Users size={15} className="text-gray-400" />
                                             <span>Roster Size:</span>
                                             <strong className="text-gray-900 font-semibold">
-                                                {dept.users?.length || 0} members</strong>
+                                                {dept?.users.filter((user: any) => user.userType === "member").length || 0} members</strong>
                                         </div>
                                         <button className="text-gray-400 hover:underline
                                         group-hover:text-[#14b8a6] transition-colors flex 

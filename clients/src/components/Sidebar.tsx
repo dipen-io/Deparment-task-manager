@@ -10,6 +10,7 @@ import {
     Menu,
     X,
     LogOut,
+    Landmark,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -21,13 +22,10 @@ interface SidebarProps {
 // }
 
 export function Sidebar({ role }: SidebarProps) {
-    console.log("ROLE: ", role)
     const { logout } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
-
-    toast.success(role);
 
     // const basePath = role === "Admin" ? "/admin" : "/member";
     const rolePaths = {
@@ -52,6 +50,17 @@ export function Sidebar({ role }: SidebarProps) {
             label: role === "Admin" ? "Tasks" : "My Tasks",
             path: `${basePath}/tasks`,
         },
+
+
+        ...(role === "Admin"
+            ? [
+                {
+                    label: "Department",
+                    icon: Landmark, // Your admin icon component/asset
+                    path: `${basePath}/department`,
+                },
+            ]
+            : []),
 
         // if role is then i want to show role
         // Use a spread operator with a condition to inject the item only if Admin
