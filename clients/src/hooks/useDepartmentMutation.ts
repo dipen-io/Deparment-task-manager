@@ -1,7 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createDepartment, deleteDepartment, getDeptCount } from "../api/departmentApi";
+import { createDepartment, deleteDepartment, getDeptCount, assignDept } from "../api/departmentApi";
 import { deptKeys } from "./useDepartment";
 import toast from "react-hot-toast";
+import { userKeys } from "./useUser";
 
 export function useDeptMutations() {
   const queryClient = useQueryClient();
@@ -17,7 +18,7 @@ export function useDeptMutations() {
   });
 
   // ✏️ Update Task Mutation
-  // const updateTaskMutation = useMutation({
+  // const updateDeptkMutation = useMutation({
   //   mutationFn: ({ id, data }: { id: string; data: any }) => updateTask(data, id),
   //   onSuccess: (response, variables) => {
   //     // 1. Refresh global lookup lists
@@ -28,7 +29,19 @@ export function useDeptMutations() {
   //     toast.success(response.message || "Task updated!");
   //   },
   // });
+  const assignMemUsrDept = useMutation({
+    mutationFn: ({ deptId, userId, role }: { deptId: string, deptCode: string, userId: string, role: string }) => assignDept(deptId, userId, role),
+    onSuccess: (response, variable) => {
+      queryClient.invalidateQueries({ queryKey: deptKeys.all });
+      queryClient.invalidateQueries({
+        // queryKey: ["users", "admin"],
+        queryKey: userKeys.admin(variable.deptId, variable.deptCode),
+      });
+      queryClient.invalidateQueries({ queryKey: deptKeys.detail(variable.deptId) });
 
+      toast.success(response.message || "User Assigned!");
+    }
+  })
   // ❌ Remove Task Mutation
   const deleteDeptMutation = useMutation({
     mutationFn: deleteDepartment,
@@ -64,6 +77,11 @@ export function useDeptMutations() {
     //department count 
     countDept: getDepartmentCount.mutateAsync,
     isFetching: getDepartmentCount.isPending,
+
+    // assign memeber & head department
+    updateHead: assignMemUsrDept.mutateAsync,
+    isUpdatingHead: assignMemUsrDept.isPending,
+    isUpdatingRoster: assignMemUsrDept.isPending,
 
   };
 }
