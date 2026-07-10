@@ -4,25 +4,24 @@ import {
     Fingerprint, Calendar, Settings2, UserPlus, UserMinus, Crown
 } from "lucide-react";
 import { useDeptMutations } from "../hooks/useDepartmentMutation";
-import { useUser, user_member_head } from "../hooks/useUser";
+import { user_member_head } from "../hooks/useUser";
 import { LoadingSpinner } from "./LoadingSpinner";
+
 
 interface DeptDetailsProps {
     onClose: () => void;
     data: any; // Current department data object passed from parent grid
-    allAvailableUsers?: any[]; // Optional array of all corporate users from your system
 }
 
 export function DepartmentDetails({ onClose, data }: DeptDetailsProps) {
     const [activeTab, setActiveTab] = useState<"view" | "manage">("view");
     const [userSearchTerm, setUserSearchTerm] = useState("");
-    const { deleteDept } = useDeptMutations();
+    const { deleteDept, updateHead, isUpdatingHead, isUpdatingRoster } = useDeptMutations();
 
     // const filter = {};
     // const { data: response } = useUser(filter);
+    // console.log("data: ", response);
 
-
-    // console.log("data: ", data.manager);
     const { data: usr_mem_head, isLoading } = user_member_head(data._id, data.code)
     // console.log("use_memeber_head", usr_mem_head?.data?.headInDept.name);
 
@@ -56,7 +55,9 @@ export function DepartmentDetails({ onClose, data }: DeptDetailsProps) {
         try {
             await updateHead({
                 deptId: data._id,
-                managerId: managerId === "vacant" ? null : managerId
+                deptCode: data.code,
+                userId: managerId === "vacant" ? null : managerId,
+                role: "head"
             });
         } catch (err) {
             console.error("Failed to reassign supervisor:", err);
