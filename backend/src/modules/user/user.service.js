@@ -1,5 +1,7 @@
 const User = require("./user.model");
+const Department = require('../department/department.model') ;
 const { ROLES } = require("../../constant/roles");
+
 
 const getAllEmployees = async (role, department, query) => {
   const filter = { role: "member" };
@@ -65,4 +67,30 @@ const getUsersService = async (currentUser) => {
   });
 };
 
-module.exports = { getAllEmployees, getUsersService };
+
+/*
+ * Admin
+ *  return all userType: users
+ *  return member for current department
+ *  return head for current department
+ */
+const usersByAdmin = async(deptId, deptCode) => {
+
+    const [ users, memberInDept, department ] = await Promise.all([
+        User.find({ userType: "user" }).lean(),
+        User.find({ department: deptId }).lean(),
+        Department.findOne({ code: deptCode })
+        .populate("head")
+        .lean(),
+    ]);
+
+    return {
+        users,
+        memberInDept,
+        headInDept: department?.head || null
+    }
+}
+
+
+
+module.exports = { getAllEmployees, getUsersService, usersByAdmin };
