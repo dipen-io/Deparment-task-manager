@@ -190,7 +190,7 @@ const getDept = async (query = {}) => {
         {
             $lookup: {
                 from: "users",
-                localField: "manager",
+                localField: "head",
                 foreignField: "_id",
                 as: "managerDetails"
             }
@@ -290,9 +290,24 @@ const assignDept = async ( userId, deptId, role = "member" ) => {
     }
 
     if (existingUser.department?.toString() === deptId) {
+        // user is already in department so lets update its userType to head
+        // and userType : head
+
+        // update the userType based on "role"
+        existingUser.userType = role;
+        if (role === "head") {
+            await Department.findByIdAndUpdate(
+                deptId,
+                {
+                    $set: { head: userId }
+                },
+                { new: true, runValidators: true },
+            )
+        }
         return {
             user: await existingUser.populate("department", "name description"),
-            mesage: "User already assigned to this department"
+            // mesage: "User already assigned to this department"
+            mesage: "User Promoted to head"
         }
     }
 
@@ -307,8 +322,6 @@ const assignDept = async ( userId, deptId, role = "member" ) => {
     
     // update the userType based on "role"
     user.userType = role;
-
-
 
     if (!user) {
         throw new AppError("User does not exist", 404);

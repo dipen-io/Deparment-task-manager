@@ -51,6 +51,7 @@ exports.updateDepartment = asyncHandler(async (req, res) => {
 exports.assignDepartment = asyncHandler(async (req, res) => {
     const { userId, deptId } = req.params;
     const { role } = req.body
+
     const user = await assignDept(userId, deptId, role);
     res.status(200).json(
         new ApiResponse(200, "Department assigned successfully", user),
