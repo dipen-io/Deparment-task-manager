@@ -245,6 +245,10 @@ export function DepartmentDetails({ onClose, data }: DeptDetailsProps) {
                                                     <p className="text-sm font-semibold text-gray-800 truncate">{user.name}</p>
                                                     <p className="text-xs text-gray-400 truncate">{user.email}</p>
                                                 </div>
+                                                <div className="min-w-0 pr-3">
+
+                                                    <p className="text-xs text-gray-400 truncate">{user.userType}</p>
+                                                </div>
 
                                                 <button
                                                     type="button"
