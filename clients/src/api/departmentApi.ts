@@ -66,6 +66,16 @@ export const deleteDepartment = async (deptId: string) => {
 
 export const getDeptCount = async () => {
     const response = await api.get("/dept/count");
-    console.log("Response: ", response);
+    return response.data;
+}
+
+export const assignDept = async (deptId: string, userId: string, role: string, oldMangerId: string) => {
+    const response = await api.post(`/dept/${deptId}/${userId}`, { role, oldMangerId });
+    console.log("rep: ", response);
+    return response.data;
+}
+
+export const unAssignDept = async (userId: string) => {
+    const response = await api.post(`/dept/unassign/${userId}`)
     return response.data;
 }

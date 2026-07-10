@@ -26,7 +26,7 @@ export interface Task {
   _id: string;
   title: string;
   description: string;
-  // status: "pending" | "in-progress" | "completed"; // removed
+  status: "pending" | "in-progress" | "completed";
   priority : "low" |  "medium" | "high" | "urgent";
   assignedTo?: {
     _id: string;
@@ -62,11 +62,10 @@ export const getTasks = async (params?: {
   assignedTo?: string;
 }): Promise<TaskResponse> => {
   // Axios will automatically convert the params object into ?status=xxx&page=1
-  const res = await api.get<TaskResponse>("/task", { params });
-  console.log("res", res);
-  console.log("res.data", res.data);
+  const res = await api.get<TaskResponse>("/task/admin/task", { params });
   return res.data;
 };
+
 
 export const removeTask = async (id: string) => {
   const res = await api.delete(`/task/${id}`);

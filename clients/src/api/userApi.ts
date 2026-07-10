@@ -25,8 +25,8 @@ export interface Employee {
 }
 
 export interface EmployeesDataPayload {
-    users: Employee[]
-    totalUsers?: number; // Optional metadata if you pass it
+  users: Employee[]
+  totalUsers?: number; // Optional metadata if you pass it
 }
 
 
@@ -49,5 +49,15 @@ export const getEmployees = async (): Promise<ApiResponse<EmployeesDataPayload>>
 // };
 export const getUsers = async (): Promise<UsersResponse> => {
   const res = await api.get<UsersResponse>("/user/employees");
+  return res.data;
+};
+
+export const getUsersByAdmin = async (deptId: string, deptCode: string) => {
+  const res = await api.get("/user/user_member_head", {
+    params: {
+      deptId,
+      deptCode,
+    },
+  });
   return res.data;
 };
