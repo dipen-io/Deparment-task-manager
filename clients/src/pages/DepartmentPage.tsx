@@ -30,8 +30,6 @@ export function Department() {
         limit: limit
     });
 
-
-
     // Handle Loading State
     if (isLoading) {
         return (
@@ -68,14 +66,6 @@ export function Department() {
     };
 
 
-    // const CurrentUser = () => {
-    //     const selectedDept = departments.filter((dept) => dept._id === selectedDeptId)
-
-    //     setSelectedUser((prev) => ({
-    //         ...prev,
-    //         departments: selectedDept || null
-    //     }))
-    // }
     const handleOpenDetails = (dept: any) => {
         setSelectedDeptData(dept);
         setIsDeptDetailOpen(true);
@@ -188,7 +178,7 @@ export function Department() {
                                             <strong className="text-gray-900 font-semibold">
                                                 {dept.users?.length || 0} members</strong>
                                         </div>
-                                        <button className="text-gray-400 
+                                        <button className="text-gray-400 hover:underline
                                         group-hover:text-[#14b8a6] transition-colors flex 
                                         items-center gap-0.5 font-semibold text-xs cursor-pointer"
                                             onClick={() => {
