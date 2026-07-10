@@ -57,7 +57,8 @@ export function DepartmentDetails({ onClose, data }: DeptDetailsProps) {
                 deptId: data._id,
                 deptCode: data.code,
                 userId: managerId === "vacant" ? null : managerId,
-                role: "head"
+                role: "head",
+                oldMangerId: data.manager._id
             });
         } catch (err) {
             console.error("Failed to reassign supervisor:", err);
@@ -171,19 +172,30 @@ export function DepartmentDetails({ onClose, data }: DeptDetailsProps) {
                             <div className="flex-1 flex flex-col min-h-[180px]">
                                 <div className="flex justify-between items-center mb-2">
                                     <span className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1"><Users size={13} /> Active Roster</span>
-                                    <span className="text-[10px] bg-teal-50 border border-teal-100 text-[#14b8a6] font-bold px-2 py-0.5 rounded-full">{data.users?.length || 0} Members</span>
+                                    <span className="text-[10px] bg-teal-50 border border-teal-100 text-[#14b8a6] font-bold px-2 py-0.5 rounded-full">  {data.users?.filter((user: any) => user.userType === "member").length || 0} Members</span>
                                 </div>
                                 <div className="border border-gray-100 rounded-xl flex-1 overflow-y-auto max-h-[220px] bg-white divide-y divide-gray-50 p-1">
                                     {data.users && data.users.length > 0 ? (
-                                        data.users.map((user: any) => (
-                                            <div key={user._id} className="p-2.5 flex items-center justify-between hover:bg-slate-50 rounded-lg">
-                                                <div className="min-w-0">
-                                                    <p className="text-sm font-semibold text-gray-800 truncate">{user.name}</p>
-                                                    <p className="text-xs text-gray-400 truncate mt-0.5">{user.email}</p>
+                                        data.users
+                                            .filter((user: any) => user.userType === "member")
+                                            .map((user: any) => (
+                                                <div
+                                                    key={user._id}
+                                                    className="p-2.5 flex items-center justify-between hover:bg-slate-50 rounded-lg"
+                                                >
+                                                    <div className="min-w-0">
+                                                        <p className="text-sm font-semibold text-gray-800 truncate">
+                                                            {user.name}
+                                                        </p>
+                                                        <p className="text-xs text-gray-400 truncate mt-0.5">
+                                                            {user.email}
+                                                        </p>
+                                                    </div>
+                                                    <span className="text-[10px] bg-gray-100 text-gray-500 font-medium px-2 py-0.5 rounded">
+                                                        Active
+                                                    </span>
                                                 </div>
-                                                <span className="text-[10px] bg-gray-100 text-gray-500 font-medium px-2 py-0.5 rounded">Active</span>
-                                            </div>
-                                        ))
+                                            ))
                                     ) : (
                                         <div className="h-full flex flex-col items-center justify-center text-center p-6 text-gray-400 gap-1.5"><Users size={24} className="text-gray-300" /><p className="text-xs font-medium">No team members assigned.</p></div>
                                     )}

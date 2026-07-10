@@ -24,11 +24,26 @@ export function Department() {
         return () => clearTimeout(handler);
     }, [search]);
 
+
     const { data: response, isLoading, isError } = useDept({
         search: debouncedSearch || undefined,
         page: page,
         limit: limit
     });
+    // Extract elements from nested offset schema
+    const nestedPayload = response?.data;
+    const departments = nestedPayload?.data || [];
+    const hasMore = nestedPayload?.hasMore || false;
+
+    // For getting fresh updated data on DepartmentDetails page
+    useEffect(() => {
+        if (!selectedDeptData) return;
+        const updatedDept = departments.find((dept: any) =>
+            dept._id === selectedDeptData._id);
+        if (updatedDept) {
+            setSelectedDeptData(updatedDept);
+        }
+    }, [departments, selectedDeptData])
 
     // Handle Loading State
     if (isLoading) {
@@ -51,10 +66,7 @@ export function Department() {
         );
     }
 
-    // Extract elements from nested offset schema
-    const nestedPayload = response?.data;
-    const departments = nestedPayload?.data || [];
-    const hasMore = nestedPayload?.hasMore || false;
+
 
     // 🔀 Page Shifting Event Actions
     const handleNextPage = () => {

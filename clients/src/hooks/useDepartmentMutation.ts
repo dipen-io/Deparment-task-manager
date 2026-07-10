@@ -30,7 +30,7 @@ export function useDeptMutations() {
   //   },
   // });
   const assignMemUsrDept = useMutation({
-    mutationFn: ({ deptId, userId, role }: { deptId: string, deptCode: string, userId: string, role: string }) => assignDept(deptId, userId, role),
+    mutationFn: ({ deptId, userId, role, oldMangerId }: { deptId: string, deptCode: string, userId: string, role: string, oldMangerId: string }) => assignDept(deptId, userId, role, oldMangerId),
     onSuccess: (response, variable) => {
       queryClient.invalidateQueries({ queryKey: deptKeys.all });
       queryClient.invalidateQueries({
