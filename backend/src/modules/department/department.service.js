@@ -223,6 +223,7 @@ const getDept = async (query = {}) => {
                             name: "$$user.name",
                             email: "$$user.email",
                             department: "$$user.department",
+                            userType: "$$user.userType",
                         },
                     },
                 },
@@ -276,63 +277,65 @@ const updateDept = async ({ deptId, name, description, manager }) => {
     return updatedData;
 };
 
-const assignDept = async ( userId, deptId, role = "member" ) => {
-
+const assignDept = async (userId, deptId, role = "member", oldManagerId) => {
     const dept = await Department.findById(deptId);
+
     if (!dept) {
         throw new AppError("Department does not exist", 404);
     }
 
-    const existingUser = await User.findById(userId);
-
-    if (!existingUser) {
-        throw new AppError("User does not existe", 404);
-    }
-
-    if (existingUser.department?.toString() === deptId) {
-        // user is already in department so lets update its userType to head
-        // and userType : head
-
-        // update the userType based on "role"
-        existingUser.userType = role;
-        if (role === "head") {
-            await Department.findByIdAndUpdate(
-                deptId,
-                {
-                    $set: { head: userId }
-                },
-                { new: true, runValidators: true },
-            )
-        }
-        return {
-            user: await existingUser.populate("department", "name description"),
-            // mesage: "User already assigned to this department"
-            mesage: "User Promoted to head"
-        }
-    }
-
-    // update user with new department
-    const user = await User.findByIdAndUpdate(
-        userId,
-        {
-            $set: { department: deptId },
-        },
-        { new: true, runValidators: true },
-    ).populate("department", "name description");
-    
-    // update the userType based on "role"
-    user.userType = role;
+    const user = await User.findById(userId);
 
     if (!user) {
         throw new AppError("User does not exist", 404);
     }
+
+    // If user already belongs to this department
+    if (user.department?.toString() === deptId) {
+
+        user.userType = role;
+        await user.save();
+
+        if (role === "head") {
+            await Department.findByIdAndUpdate(
+                deptId,
+                { $set: { head: userId } },
+                { new: true, runValidators: true }
+            );
+
+            if (oldManagerId) {
+                const oldManager = await User.findById(oldManagerId);
+
+                //TODO: confusion here should i make "user" member or "user"
+                if (oldManager) {
+                    oldManager.userType = "member";
+                    await oldManager.save();
+                }
+            }
+        }
+
+        return {
+            user: await user.populate("department", "name description"),
+            message: "User updated successfully"
+        };
+    }
+
+    user.department = deptId;
+    user.userType = "member";
+
+    await user.save();
+
     return user;
+    
 };
+
 
 const removeDepartment = async (userId) => {
     const user = await User.findByIdAndUpdate(
         userId,
-        { $unset: { department: 1}}, // remove this fields
+        { $unset: { department: 1}, // remove this fields
+            $set: { userType: "user" } // update this to user
+        },
         { new: true }
     );
 
