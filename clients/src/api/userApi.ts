@@ -20,6 +20,11 @@ export interface Employee {
   role: "Employee" | "Admin";
   userType: "member" | "admin" | "head";
   roles: Role;
+  department: {
+      _id: string;
+      name: string;
+      code: string;
+  }
 
   // Add any other fields your backend returns (e.g., department, status)
 }
@@ -31,10 +36,18 @@ export interface EmployeesDataPayload {
 
 
 interface UsersResponse {
-  data: {
-    users: Employee[];
-    totalUsers: number;
-  };
+    success: boolean;
+    statusCode: number;
+    message: string;
+    data: {
+        users: Employee[];
+        totalUsers: number;
+    };
+    meta: {
+        timestamps: string;
+        unix: number;
+        meta: Record<string, unknown>;
+    };
 }
 
 export const getEmployees = async (): Promise<ApiResponse<EmployeesDataPayload>> => {
@@ -43,10 +56,12 @@ export const getEmployees = async (): Promise<ApiResponse<EmployeesDataPayload>>
 };
 
 // get users by only admin or dept admin
-// export const getUsers = async (): Promise<UsersResponse[]> => {
-//   const res = await api.get<UsersResponse[]>("/user/users");
-//   return res.data;
-// };
+export const getUsersNormal = async (): Promise<UsersResponse> => {
+  const res = await api.get<UsersResponse>("/user/users");
+  return res.data;
+};
+
+
 export const getUsers = async (): Promise<UsersResponse> => {
   const res = await api.get<UsersResponse>("/user/employees");
   return res.data;
