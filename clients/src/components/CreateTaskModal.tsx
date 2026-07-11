@@ -5,6 +5,8 @@ import type { Employee } from "../api/userApi";
 import toast from "react-hot-toast";
 import { X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { useDept } from "../hooks/useDepartment"
+import { useTaskMutations } from "../hooks/useTaskMutation";
 
 
 // type TaskStatus = "pending" | "in-process" | "completed";
@@ -24,6 +26,11 @@ export function CreateTaskModal({
 
 
   const { user } = useAuth();
+  const filter = { limit: 100}
+  const { createDepartment } = useTaskMutations();
+  const {data: res, isLoading: isDeptLoading} = useDept(filter);
+
+  const departments = res?.data?.data;
   // Form State
   const [title, setTitle] = useState(task?.title || "");
   const [description, setDescription] = useState(task?.description || "");
@@ -31,6 +38,7 @@ export function CreateTaskModal({
   const [priority, setPriority] = useState<TaskPriority>((task?.priority as TaskPriority) || "medium");
   const [assigneeId, setAssigneeId] = useState(task?.assignedTo?._id || "");
   const [createdBy, setCreatedBy] = useState(task?.createdBy?._id || user?._id);
+  const [selectedDeptId, setSelectedDeptId] = useState("");
 
   // API State
 const [employees, setEmployees] = useState<Employee[]>([]);
@@ -81,6 +89,9 @@ const [employees, setEmployees] = useState<Employee[]>([]);
     if (currentAssignedId !== assigneeId) {
         changedField.assignedTo = assigneeId || null;
     }
+    if (selectedDeptId) {
+        changedField.department = selectedDeptId;
+    }
 
     if (Object.keys(changedField).length === 0) {
         toast.error("No change made.");
@@ -99,13 +110,17 @@ const [employees, setEmployees] = useState<Employee[]>([]);
         onSuccess?.(response.data);
         toast.success(response.message);
       } else {
-          const newTask = { title, description, priority, assigneeId, createdBy };
-          const response = await addTask(newTask);
+          const newTask = { title, description, priority, assigneeId, createdBy, department: selectedDeptId };
+          // const response = await addTask(newTask);
+          const response = await createDepartment(newTask);
+
+          console.log("response: ", response);
+
           onSuccess?.(response.data);
-          toast.success(response.message);
+          // toast.success(response.message);
       }
     } catch (error) {
-      console.error("Failed to add task", error);
+      console.error("Failed to add task: ", error);
     } finally {
       setIsTaskAdding(false);
     }
@@ -181,13 +196,33 @@ const [employees, setEmployees] = useState<Employee[]>([]);
             <select
               value={assigneeId}
               onChange={(e) => setAssigneeId(e.target.value)}
-              disabled={isLoading}
+              disabled={isDeptLoading}
               className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-[#14b8a6]"
             >
               <option value="">Unassigned</option>
               {employees?.map((emp) => (
                 <option key={emp._id} value={emp._id}>
                   {emp.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Assign An Department (Optional)
+            </label>
+            <select
+              value={selectedDeptId}
+              onChange={(e) => 
+                  setSelectedDeptId(e.target.value)}
+              disabled={isLoading}
+              className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-[#14b8a6]"
+            >
+              <option value="">selected department</option>
+              {departments?.map((dept) => (
+                <option key={dept._id} value={dept._id}>
+                  {dept.name}
                 </option>
               ))}
             </select>
