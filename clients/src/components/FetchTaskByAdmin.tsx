@@ -11,6 +11,7 @@ import { Clock, PlayCircle, CheckCircle, Search, Plus } from "lucide-react";
 import toast from "react-hot-toast";
 import { CreateTaskModal } from "./CreateTaskModal";
 import { useTask } from "../hooks/useTask";
+import { useTaskMutations } from "../hooks/useTaskMutation";
 
 type FilterType = "all" | "pending" | "in-progress" | "completed";
 
@@ -18,7 +19,7 @@ export function AllTasks() {
   const [deleting, setisDeleting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  // const [tasks, setTasks] = useState<Task[]>([]);
+  const [taskss, setTasks] = useState<Task[]>([]); //TODO: remove this 
   // Store the meta data so we can use it for pagination later!
   // const [_meta, setMeta] = useState<TaskResponse["meta"] | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -35,13 +36,15 @@ export function AllTasks() {
   const [searchQuery, setSearchQuery] = useState(""); // Let's use your backend search too!
   const [debounchSearch, setDebounceSearch] = useState("");
 
+  const {deleteTask} = useTaskMutations();
+
   const removeTaskkk = async (id: string) => {
     setisDeleting(true);
     setDeletingId(id);
     try {
-      const res = await removeTask(id);
-      setTasks((prev) => prev.filter((task) => task._id !== id));
-      toast.success(res.message);
+       await deleteTask(id);
+      // setTasks((prev) => prev.filter((task) => task._id !== id));
+      // toast.success(res.message);
     } catch (error) {
       toast.error("error deleting task");
     } finally {
