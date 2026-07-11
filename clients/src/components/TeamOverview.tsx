@@ -5,8 +5,9 @@ import { getRole, type RoleResponse } from "../api/roleApi";
 import { useDept } from "../hooks/useDepartment";
 import { ChevronDown, Search } from "lucide-react"; // 📥 Helpful icons for clean custom dropdown styling
 import { useUserNormal } from "../hooks/useUser";
+import type { Employee } from "../api/userApi";
 
-export function TeamOverview({ users }: { users: any[] }) {
+export function TeamOverview({ users }: { users: Employee[] }) {
   const [roleFilter, setRoleFilter] = useState("all");
   const [deptFilter, setDeptFilter] = useState("all");
   const [search, setSearch] = useState("");
@@ -16,24 +17,16 @@ export function TeamOverview({ users }: { users: any[] }) {
   const [isDeptDropdownOpen, setIsDeptDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const filter = {}
-  const { data: res } = useUserNormal(filter);
-
   const { user: currentUser } = useAuth();
   const isAdmin = currentUser?.userType === "admin";
 
   // Filter Members matching selection criteria
-  const filteredMembers = res?.data?.users?.filter((user: any) => {
+  const filteredMembers = users?.filter((user: any) => {
     const matchesRole = roleFilter === "all" || user.roles?._id === roleFilter;
     const matchesDept = deptFilter === "all" || user.department?._id === deptFilter;
     return matchesRole && matchesDept;
   });
 
-
-  // console.log(" users : " ,users);
-  // console.log(" filteredMembers :" ,filteredMembers);
-  console.log("res; ", res?.data?.users);
-  console.log("user ", users);
 
   const { data: response } = useDept({
     search: undefined,
