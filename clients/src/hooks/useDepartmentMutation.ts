@@ -8,7 +8,7 @@ export function useDeptMutations() {
   const queryClient = useQueryClient();
 
   // ➕ Create Task Mutation
-  const createTaskMutation = useMutation({
+  const createDeptMutation = useMutation({
     mutationFn: createDepartment,
     onSuccess: (response) => {
       // Invalidate every list cache view to ensure fresh inject occurs
@@ -81,10 +81,10 @@ export function useDeptMutations() {
   })
 
   return {
-    createDepartment: createTaskMutation.mutateAsync, // .mutateAsync allows component await chaining
+    createDepartment: createDeptMutation.mutateAsync, // .mutateAsync allows component await chaining
     // updateTask: updateTaskMutation.mutateAsync,
     deleteDept: deleteDeptMutation.mutateAsync,
-    isCreating: createTaskMutation.isPending,
+    isCreating: createDeptMutation.isPending,
     // isUpdating: updateTaskMutation.isPending,
     isDeleting: deleteDeptMutation.isPending,
 
