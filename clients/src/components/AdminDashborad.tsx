@@ -7,18 +7,24 @@ import { getUsers } from "../api/userApi";
 import { TeamOverview } from "./TeamOverview";
 import type { Employee } from "../api/userApi";
 import { useDeptCount } from "../hooks/useDepartment";
+
+import { useUserNormal } from "../hooks/useUser";
+
 // import { useAuth } from "../context/AuthContext";
 
 export function AdminDashboard() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [taskCount, setTaskCount] = useState(0);
-    const [usersCount, setUsersCount] = useState(0);
     const [user, setUser] = useState<Employee[]>([]);
 
 
     // const { user } = useAuth();
     const { totalCount } = useDeptCount();
-    console.log("COUNTDEPT: ", totalCount.data);
+    const filter = {}
+    const { data: res } = useUserNormal(filter);
+   const usersCounts = res?.data?.totalUsers;   
+   const usersData = res?.data?.users;
+
     const stats = [
         {
             label: "Total Tasks",
@@ -29,7 +35,7 @@ export function AdminDashboard() {
         },
         {
             label: "Active Users",
-            value: usersCount,
+            value: usersCounts,
             change: "+5%",
             icon: Users,
             color: "text-blue-600",
@@ -52,7 +58,6 @@ export function AdminDashboard() {
                     getUsers()
                 ]);
                 setTaskCount(countRes.data);
-                setUsersCount(userRole?.data?.totalUsers);
                 setUser(userRole?.data?.users);
             } catch (err) {
                 console.error("Dashboard metrics load failure:", err);
@@ -146,7 +151,7 @@ export function AdminDashboard() {
                     </div>
 
                     {/*tearm overview*/}
-                    <TeamOverview users={user} />
+                    <TeamOverview users={usersData!} />
                 </div>
             </main>
         </div>
