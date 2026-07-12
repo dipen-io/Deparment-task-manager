@@ -3,15 +3,15 @@ import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { getPermission } from "../api/permissionApi";
 
 // Query keys Centralized startegy
-export const deptKeys = {
-    all: ["roles"] as const,
-    lists: () => [...deptKeys.all, "list"] as const,
-    detail: (id: string) => [...deptKeys.all, "detail", id] as const,
+export const permKeys = {
+    all: ["perm"] as const,
+    lists: () => [...permKeys.all, "list"] as const,
+    detail: (id: string) => [...permKeys.all, "detail", id] as const,
 };
 
-export function UseGetDepartment() {
+export function UseGetPermission() {
     return useQuery({
-        queryKey: deptKeys.lists(),
+        queryKey: permKeys.lists(),
         queryFn: () => getPermission(),
         placeholderData: keepPreviousData,
     });
