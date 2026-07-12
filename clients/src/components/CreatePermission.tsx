@@ -1,9 +1,10 @@
 import { X } from "lucide-react";
 import { useState, useRef, type ChangeEvent } from "react";
-import { createPermission, editPermission } from "../api/permissionApi";
+import { editPermission } from "../api/permissionApi";
 import type { Permission } from "./types/rolesType";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { usePermissionMutations } from "../hooks/usePermissionMutation";
 
 export function CreatePermission({ onClose }) {
     const [permissionForm, setPermissionForm] = useState<Permission>({
@@ -11,9 +12,10 @@ export function CreatePermission({ onClose }) {
         desc: "",
     });
 
-    const [permLoading, setPermLoading] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const nameInputRef = useRef(null);
+
+    const { createPermission, isCreating } = usePermissionMutations();
 
     const handleChange = (
         e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -30,7 +32,6 @@ export function CreatePermission({ onClose }) {
             return;
         }
         e.preventDefault();
-        setPermLoading(true);
 
         try {
             if (editingId) {
@@ -57,7 +58,6 @@ export function CreatePermission({ onClose }) {
             }
         } finally {
             setPermissionForm({ name: "", desc: "" });
-            setPermLoading(false);
         }
     };
 
@@ -111,17 +111,17 @@ export function CreatePermission({ onClose }) {
                     </div>
                     <button
                         className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium text-sm py-2.5 px-4 rounded-lg shadow transition-colors duration-150"
-                        disabled={permLoading}
+                        disabled={isCreating}
                         onClick={handleSubmitPermission}
                     >
                         {/*{permLoading ? "creating..." : "Generate Role Permission"}*/}
-                        {permLoading
+                        {isCreating
                             ? editingId
                                 ? "Saving..."
                                 : "Creating..."
                             : editingId
-                              ? "Update Permission Config"
-                              : "Generate Role Permission"}
+                                ? "Update Permission Config"
+                                : "Generate Role Permission"}
                     </button>
                     {editingId && (
                         <button
