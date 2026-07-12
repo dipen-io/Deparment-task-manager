@@ -46,6 +46,7 @@ export function AllTasks() {
             // setTasks((prev) => prev.filter((task) => task._id !== id));
             // toast.success(res.message);
         } catch (error) {
+            console.log(error.message);
             toast.error("error deleting task");
         } finally {
             setisDeleting(false);
@@ -63,7 +64,6 @@ export function AllTasks() {
     });
     const tasks = response?.data?.tasks || [];
     // const meta = response?.meta || null;
-    console.log("tasks", tasks);
 
     // 1. Notice activeFilter and searchQuery are now in the dependency array!
     useEffect(() => {
