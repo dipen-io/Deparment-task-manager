@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { getEmployees } from "../api/userApi";
-import { updateTask, type Task } from "../api/taskApi";
+import { type Task } from "../api/taskApi";
 import type { Employee } from "../api/userApi";
 import toast from "react-hot-toast";
 import { ChevronDown, Search, X } from "lucide-react";
@@ -24,7 +24,7 @@ export function CreateTaskModal({
 }: CreateTaskModalProps) {
     const { user } = useAuth();
     const filter = { limit: 100 };
-    const { createDepartment } = useTaskMutations();
+    const { createDepartment, updateTask } = useTaskMutations();
     const { data: res, isLoading: isDeptLoading } = useDept(filter);
 
     const departments = res?.data?.data;
@@ -39,7 +39,10 @@ export function CreateTaskModal({
     const [createdBy, setCreatedBy] = useState(
         task?.createdBy?._id || user?._id,
     );
-    const [selectedDeptId, setSelectedDeptId] = useState("");
+    // const [selectedDeptId, setSelectedDeptId] = useState("");
+    const [selectedDeptId, setSelectedDeptId] = useState(
+        task?.department?._id || task?.department || "",
+    );
     const [search, setSearch] = useState("");
     const dropdownRef = useRef<HTMLDivElement>(null);
     const [isOpen, setIsOpen] = useState(false);
@@ -57,6 +60,7 @@ export function CreateTaskModal({
             setPriority(task.priority as TaskPriority);
             setAssigneeId(task.assignedTo?._id || "");
             setCreatedBy(task.createdBy._id || "");
+            setSelectedDeptId(task.department?._id || task.department || "");
         }
         const fetchEmployees = async () => {
             setIsLoading(true);
@@ -109,8 +113,10 @@ export function CreateTaskModal({
         try {
             setIsTaskAdding(true);
             if (task) {
-                const response = await updateTask(changedField, task._id);
-                console.log("response: ", response);
+                const response = await updateTask({
+                    changedField: changedField,
+                    id: task._id,
+                });
 
                 onSuccess?.(response.data);
                 toast.success(response.message);

@@ -1,7 +1,7 @@
 // get request and caching
 
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { getUsers, getUsersByAdmin } from "../api/userApi";
+import { getUsers, getUsersByAdmin, getUsersNormal } from "../api/userApi";
 
 // Query keys Centralized startegy
 export const userKeys = {
@@ -17,6 +17,14 @@ export function useUser(filters: { status?: string, search?: string }) {
     return useQuery({
         queryKey: userKeys.lists(filters),
         queryFn: () => getUsers(),
+        placeholderData: keepPreviousData,
+    })
+}
+
+export function useUserNormal(filters: { status?: string, search?: string }) {
+    return useQuery({
+        queryKey: userKeys.lists(filters),
+        queryFn: () => getUsersNormal(),
         placeholderData: keepPreviousData,
     })
 }
