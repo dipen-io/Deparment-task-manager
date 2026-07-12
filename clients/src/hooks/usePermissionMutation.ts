@@ -46,10 +46,10 @@ export function usePermissionMutations() {
         mutationFn: removePermission,
         onSuccess: (response) => {
             queryClient.invalidateQueries({ queryKey: permKeys.all });
-            toast.success(response.message || "Task deleted permanently.");
+            toast.success(response?.data?.message || "Permission deleted permanently.");
         },
         onError: (error: any) => {
-            toast.error(error?.message || "Failed to remove task record.");
+            toast.error(error?.message || "Failed to remove permission record.");
         },
     });
 

@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
-import { getPermission, removePermission } from "../api/permissionApi";
-import toast from "react-hot-toast";
+import { useState } from "react";
 import { PencilIcon, Plus, X } from "lucide-react";
+
 import { useRolesMutations } from "../hooks/useRoleMutation";
+import { usePermissionMutations } from "../hooks/usePermissionMutation";
+import { UseGetPermission } from "../hooks/usePermission";
 
 import { AssignUserRole } from "./AssingUserRole";
 import type { Permission, Role, RoleForm } from "./types/rolesType";
@@ -12,8 +13,8 @@ import { CreateRoles } from "./CreateRoles";
 import { UseGetRole } from "../hooks/useRole";
 
 export function RoleComponents() {
-    const [permission, setPermission] = useState<Permission[]>([]);
-    const [loading, setLoading] = useState(true);
+    // const [permission, setPermission] = useState<Permission[]>([]);
+    // const [loading, setLoading] = useState(true);
     const [permissionForm, setPermissionForm] = useState<Permission>({
         name: "",
         desc: "",
@@ -30,36 +31,17 @@ export function RoleComponents() {
         roleName: "",
         permissionId: [],
     });
-    // const [isSubmitting, setIsSubmitting] = useState(false);
-
-    const fetchPerm = async () => {
-        try {
-            setLoading(true);
-            const { data } = await getPermission();
-            // Fallback to empty array if nested data structure evaluates to undefined
-            setPermission(data?.data?.data || []);
-        } catch (error) {
-            console.error("Failed to fetch permissions:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const { data: fetchRole } = UseGetRole();
+    const { data: fetchPermissions, isLoading: loading } = UseGetPermission()
     const { deleteRoles } = useRolesMutations();
+    const { deletePermission } = usePermissionMutations();
     const roles = fetchRole?.data || []
-
-
-    useEffect(() => {
-        fetchPerm();
-        // fetchRole();
-    }, []);
+    const permission = fetchPermissions?.data?.data?.data || [];
 
     const handleRemove = async (id: string) => {
         try {
-            const { data } = await removePermission(id);
-            toast.success(data.message);
-            fetchPerm();
+            await deletePermission(id);
         } catch (err: unknown) {
             if (axios.isAxiosError(err)) {
                 console.error(err?.response?.data);
@@ -78,9 +60,7 @@ export function RoleComponents() {
             name: perm.name,
             desc: perm.desc || "",
         });
-
         // Timeout guarantees input rendering cycles complete before executing focus call
-
     };
 
     const startRoleEditMode = (role: Role) => {
