@@ -79,7 +79,7 @@ const updateTask = asyncHandler(async (req, res) => {
   // task status update by employee
   const taskId = req.params.id;
   const updatePayload = req.body;
-  const assignedTo = req.body.assigneeId;
+  const assignedTo = req.body.assignedTo;
   const user = req.user;
 
   // Pass everything to our smart service

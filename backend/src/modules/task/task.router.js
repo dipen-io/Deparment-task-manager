@@ -31,8 +31,8 @@ const { ROLES } = require("../../constant/roles");
 
 router.post(
   "/create",
-  // protect,
-  // authorize(ROLES.ADMIN, ROLES.DEPT_HEAD),
+  protect,
+  authorize(ROLES.ADMIN, ROLES.DEPT_HEAD),
   // checkPermission("CREATE_TASK"),
   createTaskValidator,
   validate,
