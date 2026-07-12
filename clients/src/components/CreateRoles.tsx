@@ -57,9 +57,6 @@ export function CreateRoles({ onClose }) {
         }
         setIsSubmitting(true);
         try {
-            // curentrly not edit option avaiable
-            setRoleEditingId(null);
-            setCurrentRole(null);
             if (roleEditingId) {
                 const current: string[] = role.permissionId;
                 const original: string[] = currentRole;
@@ -69,10 +66,18 @@ export function CreateRoles({ onClose }) {
                 const { data } = await updateRoles(roleEditingId, permData);
                 toast.success(data?.message);
             } else {
+                console.log("role", role)
                 await createRoles(role);
             }
 
+            // ⚡ FIX: Clear internal values first BEFORE notifying parent to unmount layout layers
+            setRoleEditingId(null);
+            setCurrentRole([]); // ⚡ FIX: Kept as array instead of crashing with null
             setRole({ roleName: "", permissionId: [] });
+
+            // Notify parent closure handler to exit view frame cleanly
+            onClose(true);
+
             setRole((prev) => ({
                 ...prev,
                 permissionId: [],
@@ -88,7 +93,7 @@ export function CreateRoles({ onClose }) {
         }
     };
 
-    // ROLE
+    // PERMISSION
     const { data: response } = UseGetPermission();
     const permissionsList = response?.data?.data?.data || [];
 
@@ -140,7 +145,7 @@ export function CreateRoles({ onClose }) {
                             </label>
 
                             <div className="space-y-2 max-h-48 overflow-y-auto border border-slate-100 rounded-lg p-3 bg-slate-50/50">
-                                {permissionsList.map((perm) => {
+                                {permissionsList.length > 0 && permissionsList?.map((perm) => {
                                     const isChecked =
                                         role.permissionId?.includes(
                                             perm._id ?? "",
