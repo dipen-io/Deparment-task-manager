@@ -24,7 +24,7 @@ export function useUser(filters: { status?: string, search?: string }) {
 export function useUserNormal(filters: { status?: string, search?: string }) {
     return useQuery({
         queryKey: userKeys.lists(filters),
-        queryFn: () => getUsersNormal(),
+        queryFn: () => getUsersNormal(filters),
         placeholderData: keepPreviousData,
     })
 }
