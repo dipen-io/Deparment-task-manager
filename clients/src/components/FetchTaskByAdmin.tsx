@@ -1,12 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router";
 import { LoadingSpinner } from "./LoadingSpinner";
-import {
-    getTasks,
-    removeTask,
-    type Task,
-    type TaskResponse,
-} from "../api/taskApi";
+import { type Task } from "../api/taskApi";
 import { Clock, PlayCircle, CheckCircle, Search, Plus } from "lucide-react";
 import toast from "react-hot-toast";
 import { CreateTaskModal } from "./CreateTaskModal";
@@ -19,13 +14,9 @@ export function AllTasks() {
     const [deleting, setisDeleting] = useState(false);
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-    const [taskss, setTasks] = useState<Task[]>([]); //TODO: remove this
     // Store the meta data so we can use it for pagination later!
     // const [_meta, setMeta] = useState<TaskResponse["meta"] | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-
-    // const [isLoading, setIsLoading] = useState(true);
-    // const [error, setError] = useState<string | null>(null);
 
     const location = useLocation();
 
@@ -67,27 +58,6 @@ export function AllTasks() {
 
     // 1. Notice activeFilter and searchQuery are now in the dependency array!
     useEffect(() => {
-        /*
-    const fetchTasks = async () => {
-      try {
-        setIsLoading(true);
-
-        // Build the params object. If filter is 'all', we don't send a status param.
-        const params: any = {};
-        if (activeFilter !== "all") params.status = activeFilter;
-        if (searchQuery) params.search = searchQuery;
-
-        const { data, meta } = await getTasks(params);
-
-        setTasks(data.tasks || []);
-        setMeta(meta || null); // Save pagination data
-      } catch (err: any) {
-        setError(err.customMessage || "Failed to load tasks");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    */
         // Add a small delay (debounce) for search so we don't spam the API on every keystroke
         const delayDebounceFn = setTimeout(() => {
             setDebounceSearch(searchQuery);
@@ -118,36 +88,6 @@ export function AllTasks() {
                     </span>
                 );
         }
-    };
-
-    // const handleTaskUpdated = (updatedTask: Task) => {
-    //   setTasks((prev) =>
-    //     prev.map((task) => (task._id === updatedTask._id ? updatedTask : task)),
-    //   );
-    // };
-    const handleTaskUpdated = (updatedTask: any) => {
-        setTasks((prev) =>
-            prev.map((task) => {
-                if (task._id === updatedTask._id) {
-                    // Normalize the backend response structure to match what the grid expects
-                    return {
-                        ...updatedTask,
-                        // Extract assignedTo out of the assignment object if it exists there
-                        assignedTo:
-                            updatedTask.assignment?.assignedTo ||
-                            updatedTask.assignedTo,
-                        status:
-                            updatedTask.assignment?.status ||
-                            updatedTask.status,
-                    };
-                }
-                return task;
-            }),
-        );
-    };
-
-    const handleTaskCreated = (newTask: Task) => {
-        setTasks((prev) => [newTask, ...prev]);
     };
 
     return (
@@ -238,9 +178,6 @@ export function AllTasks() {
                         setIsModalOpen(false);
                         setSelectedTask(null);
                     }}
-                    onSuccess={
-                        selectedTask ? handleTaskUpdated : handleTaskCreated
-                    }
                 />
             )}
 

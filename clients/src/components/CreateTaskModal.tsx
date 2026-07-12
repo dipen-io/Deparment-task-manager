@@ -14,14 +14,9 @@ type TaskPriority = "low" | "medium" | "high" | "urgent";
 interface CreateTaskModalProps {
     onClose: () => void;
     task?: Task;
-    onSuccess?: (task: Task) => void;
 }
 
-export function CreateTaskModal({
-    onClose,
-    task,
-    onSuccess,
-}: CreateTaskModalProps) {
+export function CreateTaskModal({ onClose, task }: CreateTaskModalProps) {
     const { user } = useAuth();
     const filter = { limit: 100 };
     const { createDepartment, updateTask } = useTaskMutations();
@@ -113,13 +108,10 @@ export function CreateTaskModal({
         try {
             setIsTaskAdding(true);
             if (task) {
-                const response = await updateTask({
+                await updateTask({
                     changedField: changedField,
                     id: task._id,
                 });
-
-                onSuccess?.(response.data);
-                toast.success(response.message);
             } else {
                 const newTask = {
                     title,
@@ -129,20 +121,13 @@ export function CreateTaskModal({
                     createdBy,
                     department: selectedDeptId,
                 };
-                // const response = await addTask(newTask);
-                const response = await createDepartment(newTask);
-
-                console.log("response: ", response);
-
-                onSuccess?.(response.data);
-                // toast.success(response.message);
+                await createDepartment(newTask);
             }
         } catch (error) {
             console.error("Failed to add task: ", error);
         } finally {
             setIsTaskAdding(false);
         }
-
         onClose();
     };
 
