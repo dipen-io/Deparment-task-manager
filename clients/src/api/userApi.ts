@@ -14,6 +14,7 @@ export interface ApiResponse<T> {
 }
 
 export interface Employee {
+  createdAt: any;
   _id: string;
   name: string;
   email: string;
@@ -21,9 +22,9 @@ export interface Employee {
   userType: "member" | "admin" | "head";
   roles: Role;
   department: {
-      _id: string;
-      name: string;
-      code: string;
+    _id: string;
+    name: string;
+    code: string;
   }
 
   // Add any other fields your backend returns (e.g., department, status)
@@ -36,18 +37,18 @@ export interface EmployeesDataPayload {
 
 
 interface UsersResponse {
-    success: boolean;
-    statusCode: number;
-    message: string;
-    data: {
-        users: Employee[];
-        totalUsers: number;
-    };
-    meta: {
-        timestamps: string;
-        unix: number;
-        meta: Record<string, unknown>;
-    };
+  success: boolean;
+  statusCode: number;
+  message: string;
+  data: {
+    users: Employee[];
+    totalUsers: number;
+  };
+  meta: {
+    timestamps: string;
+    unix: number;
+    meta: Record<string, unknown>;
+  };
 }
 
 export const getEmployees = async (): Promise<ApiResponse<EmployeesDataPayload>> => {
@@ -56,8 +57,10 @@ export const getEmployees = async (): Promise<ApiResponse<EmployeesDataPayload>>
 };
 
 // get users by only admin or dept admin
-export const getUsersNormal = async (): Promise<UsersResponse> => {
-  const res = await api.get<UsersResponse>("/user/users");
+export const getUsersNormal = async (filters): Promise<UsersResponse> => {
+  const res = await api.get<UsersResponse>("/user/users", {
+    params: filters
+  });
   return res.data;
 };
 
