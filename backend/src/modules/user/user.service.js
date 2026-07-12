@@ -92,5 +92,4 @@ const usersByAdmin = async(deptId, deptCode) => {
 }
 
 
-
 module.exports = { getAllEmployees, getUsersService, usersByAdmin };
