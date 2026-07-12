@@ -43,17 +43,17 @@ const getAllEmployees = async (role, department, query) => {
   return employees;
 };
 
-const getUsersService = async (currentUser) => {
-  // if the user is dept_head then return only that department
+const getUsersService = async (currentUser, search) => {
+  // If the user is dept_head then return only that department
   let query = {};
 
   if (currentUser.userType === "admin") {
     // Org Admin: View all users
     query = {
-      _id: { $ne: currentUser._id }, //excluding self
+      _id: { $ne: currentUser._id }, // excluding self
       // role: { $in: ["dept_head", "member"] },
     };
-  } else if (currentUser.userType=== "head") {
+  } else if (currentUser.userType === "head") {
     // Dept Head: Only users in their department
     query = { department: currentUser.department, userType: "member" };
   } else {
@@ -61,10 +61,23 @@ const getUsersService = async (currentUser) => {
     throw new Error("403 Forbidden: Access Denied");
   }
 
-  return await User.find(query).populate({
+  // 🔍 1. INTEGRATE SEARCH FILTER INJECTION
+  if (search && search.trim() !== "") {
+    const searchRegex = new RegExp(search.trim(), "i"); // "i" makes the search case-insensitive
+    
+    // Append the search conditions to the existing role/department filter rules
+    query.$or = [
+      { name: { $regex: searchRegex } },
+      { email: { $regex: searchRegex } }
+    ];
+  }
+
+  return await User.find(query)
+    .populate({
       path: 'roles',
       populate: 'permission'
-  }).populate("department", "name code")
+    })
+    .populate("department", "name code");
 };
 
 

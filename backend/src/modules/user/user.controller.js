@@ -19,7 +19,8 @@ const listEmployees = asyncHandler(async (req, res) => {
 const getAllUsers = async (req, res) => {
 
   try {
-    const users = await getUsersService(req.user);
+    const { search } = req.query;
+    const users = await getUsersService(req.user, search);
     const totalUsers = users.length;
     res
       .status(200)
