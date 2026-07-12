@@ -45,10 +45,19 @@ export interface Task {
     createdAt: string;
     updatedAt: string;
 }
+export interface Pagination {
+    currentPage: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+    limit: number;
+    totalCount: number;
+    totalPages: number;
+}
 
 export interface TaskResponse {
     data: {
         tasks: Task[];
+        pagination: Pagination;
     };
     meta: {
         total: number;

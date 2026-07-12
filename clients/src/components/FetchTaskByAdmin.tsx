@@ -58,7 +58,7 @@ export function AllTasks() {
         status: activeFilter !== "all" ? activeFilter : undefined,
         search: debounchSearch || undefined,
         page: page, // ⚡ NEW: Forward dynamic current page value down to hook query limits
-        limit: 2,
+        limit: 6,
     });
 
     const tasks = response?.data?.tasks || [];
@@ -70,7 +70,7 @@ export function AllTasks() {
         hasPrevPage: false,
         limit: 10,
         totalCount: 0,
-        totalPage: 1,
+        totalPages: 1,
     };
 
     useEffect(() => {
@@ -285,7 +285,7 @@ export function AllTasks() {
                                 </span>{" "}
                                 of{" "}
                                 <span className="text-gray-800 font-bold">
-                                    {pagination.totalPage || 1}
+                                    {pagination.totalPages || 1}
                                 </span>
                                 <span className="text-gray-400 mx-1.5">•</span>{" "}
                                 Total Records: {pagination.totalCount}
