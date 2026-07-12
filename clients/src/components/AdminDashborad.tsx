@@ -22,8 +22,7 @@ export function AdminDashboard() {
     const { totalCount } = useDeptCount();
     const filter = {}
     const { data: res } = useUserNormal(filter);
-   const usersCounts = res?.data?.totalUsers;   
-   const usersData = res?.data?.users;
+    const usersCounts = res?.data?.totalUsers;
 
     const stats = [
         {
@@ -151,7 +150,7 @@ export function AdminDashboard() {
                     </div>
 
                     {/*tearm overview*/}
-                    <TeamOverview users={usersData!} />
+                    <TeamOverview />
                 </div>
             </main>
         </div>
