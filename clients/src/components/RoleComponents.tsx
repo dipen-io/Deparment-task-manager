@@ -1,19 +1,15 @@
-import React, { useRef, useEffect, useState, type ChangeEvent } from "react";
+import { useEffect, useState } from "react";
 import { getPermission, removePermission } from "../api/permissionApi";
 import toast from "react-hot-toast";
 import { PencilIcon, Plus, X } from "lucide-react";
-import {
-    createRole,
-    getRole,
-    updateRoles,
-    deleteRoles,
-    type UpdateRolePaylaod,
-} from "../api/roleApi";
+import { useRolesMutations } from "../hooks/useRoleMutation";
+
 import { AssignUserRole } from "./AssingUserRole";
 import type { Permission, Role, RoleForm } from "./types/rolesType";
 import axios from "axios";
 import { CreatePermission } from "./CreatePermission";
 import { CreateRoles } from "./CreateRoles";
+import { UseGetRole } from "../hooks/useRole";
 
 export function RoleComponents() {
     const [permission, setPermission] = useState<Permission[]>([]);
@@ -25,7 +21,7 @@ export function RoleComponents() {
     const [correntRole, setCurrentRole] = useState<string[]>([]);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [roleEditingId, setRoleEditingId] = useState<string | null>(null);
-    const [roles, setRoles] = useState<Role[]>([]);
+    // const [roles, setRoles] = useState<Role[]>([]);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isModalRoleOpen, setIsModalRoleOpen] = useState(false);
@@ -34,10 +30,7 @@ export function RoleComponents() {
         roleName: "",
         permissionId: [],
     });
-    const [isSubmitting, setIsSubmitting] = useState(false);
-
-    const nameInputRef = useRef<HTMLInputElement | null>(null);
-    const roleInputRef = useRef<HTMLInputElement | null>(null);
+    // const [isSubmitting, setIsSubmitting] = useState(false);
 
     const fetchPerm = async () => {
         try {
@@ -52,33 +45,15 @@ export function RoleComponents() {
         }
     };
 
-    const fetchRole = async () => {
-        try {
-            setLoading(true);
-            const data = await getRole();
-            // Fallback to empty array if nested data structure evaluates to undefined
-            setRoles(data?.data || []);
-        } catch (err: unknown) {
-            if (axios.isAxiosError(err)) {
-                console.error(err.response?.data);
-            } else {
-                console.error("Unkown Error");
-            }
-        } finally {
-            setLoading(false);
-        }
-    };
+    const { data: fetchRole } = UseGetRole();
+    const { deleteRoles } = useRolesMutations();
+    const roles = fetchRole?.data || []
+
 
     useEffect(() => {
         fetchPerm();
-        fetchRole();
+        // fetchRole();
     }, []);
-
-    useEffect(() => {
-        if (roleEditingId && roleInputRef.current) {
-            roleInputRef.current.focus();
-        }
-    }, [roleEditingId]);
 
     const handleRemove = async (id: string) => {
         try {
@@ -105,9 +80,7 @@ export function RoleComponents() {
         });
 
         // Timeout guarantees input rendering cycles complete before executing focus call
-        setTimeout(() => {
-            nameInputRef.current?.focus();
-        }, 10);
+
     };
 
     const startRoleEditMode = (role: Role) => {
@@ -121,14 +94,11 @@ export function RoleComponents() {
             // permissionId: [...ids],
             permissionId: ids.filter((id): id is string => id !== undefined),
         });
-        console.log("ROLE2", role);
     };
 
     const handleRemoveRole = async (id: string) => {
         try {
-            const { data } = await deleteRoles(id);
-            toast.success(data.message);
-            fetchRole();
+            await deleteRoles(id);
         } catch (err: unknown) {
             if (axios.isAxiosError(err)) {
                 console.error(err?.response?.data);
@@ -165,7 +135,7 @@ export function RoleComponents() {
                         }}
                         className="flex items-center gap-1.5 px-4 py-2 bg-[#14b8a6] hover:bg-[#14b8a6]/90 text-white rounded-lg text-sm font-medium transition-colors shadow-sm cursor-pointer whitespace-nowrap"
                     >
-                        <Plus size={16} /> Add Task
+                        <Plus size={16} /> Add Permission
                     </button>
                 </section>
 
@@ -179,7 +149,7 @@ export function RoleComponents() {
                         }}
                         className="flex items-center gap-1.5 px-4 py-2 bg-[#14b8a6] hover:bg-[#14b8a6]/90 text-white rounded-lg text-sm font-medium transition-colors shadow-sm cursor-pointer whitespace-nowrap"
                     >
-                        <Plus size={16} /> Add Permission
+                        <Plus size={16} /> Add Roles
                     </button>
                 </section>
                 {/*  MODAL RENDER */}
@@ -255,12 +225,11 @@ export function RoleComponents() {
                                                         onClick={() =>
                                                             startEditMode(perm)
                                                         }
-                                                        className={`p-1.5 rounded transition-colors ${
-                                                            editingId ===
+                                                        className={`p-1.5 rounded transition-colors ${editingId ===
                                                             perm._id
-                                                                ? "text-amber-600 bg-amber-50"
-                                                                : "text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
-                                                        }`}
+                                                            ? "text-amber-600 bg-amber-50"
+                                                            : "text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
+                                                            }`}
                                                         title="Edit Permission"
                                                     >
                                                         <PencilIcon className="w-4 h-4" />
@@ -274,7 +243,7 @@ export function RoleComponents() {
                             <div>
                                 <h2>Avalialable Roles </h2>
                                 <ul className="divide-y divide-slate-100 max-h-[70vh] overflow-y-auto">
-                                    {roles?.map((perm) => (
+                                    {roles.length > 0 && roles?.map((perm) => (
                                         <li
                                             key={perm._id}
                                             className="p-5 hover:bg-slate-50/70 transition-colors flex items-start gap-4"
@@ -318,12 +287,11 @@ export function RoleComponents() {
                                                                     perm,
                                                                 )
                                                             }
-                                                            className={`p-1.5 rounded transition-colors ${
-                                                                roleEditingId ===
+                                                            className={`p-1.5 rounded transition-colors ${roleEditingId ===
                                                                 perm._id
-                                                                    ? "text-amber-600 bg-amber-50"
-                                                                    : "text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
-                                                            }`}
+                                                                ? "text-amber-600 bg-amber-50"
+                                                                : "text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
+                                                                }`}
                                                             title="Edit Permission"
                                                         >
                                                             <PencilIcon className="w-4 h-4" />
