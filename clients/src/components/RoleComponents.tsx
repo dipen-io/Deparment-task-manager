@@ -15,11 +15,11 @@ import { UseGetRole } from "../hooks/useRole";
 export function RoleComponents() {
     // const [permission, setPermission] = useState<Permission[]>([]);
     // const [loading, setLoading] = useState(true);
-    const [permissionForm, setPermissionForm] = useState<Permission>({
+    const [, setPermissionForm] = useState<Permission>({
         name: "",
         desc: "",
     });
-    const [correntRole, setCurrentRole] = useState<string[]>([]);
+    const [, setCurrentRole] = useState<string[]>([]);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [roleEditingId, setRoleEditingId] = useState<string | null>(null);
     // const [roles, setRoles] = useState<Role[]>([]);
@@ -27,7 +27,7 @@ export function RoleComponents() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isModalRoleOpen, setIsModalRoleOpen] = useState(false);
 
-    const [role, setRole] = useState<RoleForm>({
+    const [, setRole] = useState<RoleForm>({
         roleName: "",
         permissionId: [],
     });
@@ -107,32 +107,30 @@ export function RoleComponents() {
             {/* Main Workspace Grid */}
             <main className="max-w-7xl mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-5  ">
                 {/* Left Column: Create Management Action Panel */}
-
-                <section>
+                <section className="flex items-center justify-center min-h-[100px] w-full">
                     <button
                         onClick={() => {
                             setIsModalOpen(true);
                         }}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-[#14b8a6] hover:bg-[#14b8a6]/90 text-white rounded-lg text-sm font-medium transition-colors shadow-sm cursor-pointer whitespace-nowrap"
+                        className="flex w-[85%] hover:w-full justify-center text-center items-center gap-1.5 px-10 py-4 bg-[#14b8a6] hover:bg-[#14b8a6]/90 text-white rounded-lg text-xl font-medium transition-all duration-300 ease-in-out shadow-sm cursor-pointer whitespace-nowrap hover:font-semibold"
                     >
-                        <Plus size={16} /> Add Permission
+                        <Plus size={25} /> Add Permission
+                    </button>
+                </section>
+                <section className="flex items-center justify-center min-h[100px]">
+                    <button
+                        onClick={() => {
+                            setIsModalRoleOpen(true);
+                        }}
+                        className="flex w-[85%] hover:w-full justify-center text-center items-center gap-1.5 px-10 py-4 bg-[#14b8a6] hover:bg-[#14b8a6]/90 text-white rounded-lg text-xl font-medium transition-all duration-300 ease-in-out shadow-sm cursor-pointer whitespace-nowrap hover:font-semibold"
+                    >
+                        <Plus size={25} /> Add Roles
                     </button>
                 </section>
 
                 {isModalRoleOpen && (
                     <CreateRoles onClose={() => setIsModalRoleOpen(false)} />
                 )}
-                <section>
-                    <button
-                        onClick={() => {
-                            setIsModalRoleOpen(true);
-                        }}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-[#14b8a6] hover:bg-[#14b8a6]/90 text-white rounded-lg text-sm font-medium transition-colors shadow-sm cursor-pointer whitespace-nowrap"
-                    >
-                        <Plus size={16} /> Add Roles
-                    </button>
-                </section>
-                {/*  MODAL RENDER */}
 
                 {/* Right Column: Database Dynamic Permission Target Feed */}
                 <section className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
@@ -221,7 +219,8 @@ export function RoleComponents() {
                                 ))}
                             </ul>
                             <div>
-                                <h2>Avalialable Roles </h2>
+                                <h2 className="p-4 text-lg font-semibold text-slate-900">
+                                    Avalialable Roles </h2>
                                 <ul className="divide-y divide-slate-100 max-h-[70vh] overflow-y-auto">
                                     {roles.length > 0 && roles?.map((perm) => (
                                         <li
@@ -288,6 +287,6 @@ export function RoleComponents() {
                     <AssignUserRole />
                 </section>
             </main>
-        </div>
+        </div >
     );
 }

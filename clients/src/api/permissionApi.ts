@@ -1,8 +1,8 @@
 import type { Permission } from "../components/types/rolesType";
 import api from "./axios";
 
-export const getPermission = () => {
-  const response = api.get("/permission");
+export const getPermission = async () => {
+  const response = await api.get("/permission");
   return response;
 };
 
