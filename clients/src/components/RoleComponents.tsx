@@ -1,21 +1,23 @@
 import React, { useRef, useEffect, useState, type ChangeEvent } from "react";
-import {
-    getPermission,
-    createPermission,
-    removePermission,
-    editPermission,
-} from "../api/permissionApi";
+import { getPermission, removePermission } from "../api/permissionApi";
 import toast from "react-hot-toast";
-import { PencilIcon, X } from "lucide-react";
-import { createRole, getRole, updateRoles, deleteRoles, type UpdateRolePaylaod } from "../api/roleApi";
+import { PencilIcon, Plus, X } from "lucide-react";
+import {
+    createRole,
+    getRole,
+    updateRoles,
+    deleteRoles,
+    type UpdateRolePaylaod,
+} from "../api/roleApi";
 import { AssignUserRole } from "./AssingUserRole";
 import type { Permission, Role, RoleForm } from "./types/rolesType";
 import axios from "axios";
+import { CreatePermission } from "./CreatePermission";
+import { CreateRoles } from "./CreateRoles";
 
 export function RoleComponents() {
     const [permission, setPermission] = useState<Permission[]>([]);
     const [loading, setLoading] = useState(true);
-    const [permLoading, setPermLoading] = useState(false);
     const [permissionForm, setPermissionForm] = useState<Permission>({
         name: "",
         desc: "",
@@ -25,27 +27,17 @@ export function RoleComponents() {
     const [roleEditingId, setRoleEditingId] = useState<string | null>(null);
     const [roles, setRoles] = useState<Role[]>([]);
 
-    const [role, setRole] = useState<RoleForm>({ roleName: "", permissionId: [] });
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalRoleOpen, setIsModalRoleOpen] = useState(false);
+
+    const [role, setRole] = useState<RoleForm>({
+        roleName: "",
+        permissionId: [],
+    });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const nameInputRef = useRef<HTMLInputElement | null>(null);
     const roleInputRef = useRef<HTMLInputElement | null>(null);
-
-    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setPermissionForm((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-    };
-
-    const handleChangeRole = (e: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setRole((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-    };
 
     const fetchPerm = async () => {
         try {
@@ -63,7 +55,7 @@ export function RoleComponents() {
     const fetchRole = async () => {
         try {
             setLoading(true);
-            const data  = await getRole();
+            const data = await getRole();
             // Fallback to empty array if nested data structure evaluates to undefined
             setRoles(data?.data || []);
         } catch (err: unknown) {
@@ -72,7 +64,6 @@ export function RoleComponents() {
             } else {
                 console.error("Unkown Error");
             }
-
         } finally {
             setLoading(false);
         }
@@ -89,63 +80,6 @@ export function RoleComponents() {
         }
     }, [roleEditingId]);
 
-    const handlePermissionToggle = (permissionId: string) => {
-        setRole((prev) => {
-            const current = [...prev.permissionId]; // 👈 CLONE
-
-            const isAlreadySelected = current.includes(permissionId);
-
-            const updated = isAlreadySelected
-                ? current.filter((id) => id !== permissionId)
-                : [...current, permissionId];
-
-            return {
-                ...prev,
-                permissionId: updated,
-            };
-        });
-    };
-
-    const permissionsList = permission;
-
-    const handleSubmitPermission = async (e: React.FormEvent) => {
-        if (!permissionForm.name) {
-            return;
-        }
-        e.preventDefault();
-        setPermLoading(true);
-
-        try {
-            if (editingId) {
-                const { data } = await editPermission(
-                    editingId,
-                    permissionForm,
-                );
-                toast.success(
-                    data?.message || "Permission updated successfully!",
-                );
-                setEditingId(null);
-            } else {
-                const { data } = await createPermission(permissionForm);
-                toast.success(data.message);
-            }
-            fetchPerm();
-        } catch (err: unknown) {
-            if (axios.isAxiosError(err)) {
-                const backendMessage =
-                    err.response?.data?.message ||
-                    "An unexpected system error occurred.";
-                console.error("Error:", backendMessage);
-            } else {
-                console.error("Unkown Error");
-            }
-
-        } finally {
-            setPermissionForm({ name: "", desc: "" });
-            setPermLoading(false);
-        }
-    };
-
     const handleRemove = async (id: string) => {
         try {
             const { data } = await removePermission(id);
@@ -157,7 +91,6 @@ export function RoleComponents() {
             } else {
                 console.error("Unkown Error");
             }
-
         }
     };
 
@@ -165,7 +98,6 @@ export function RoleComponents() {
     const startEditMode = (perm: Permission) => {
         if (perm._id) {
             setEditingId(perm._id);
-
         }
         setPermissionForm({
             name: perm.name,
@@ -190,57 +122,6 @@ export function RoleComponents() {
             permissionId: ids.filter((id): id is string => id !== undefined),
         });
         console.log("ROLE2", role);
-    };
-
-    const handleCancelEdit = () => {
-        setEditingId(null);
-        setPermissionForm({ name: "", desc: "" });
-    };
-
-    // const handleRoleCancelEdit = () => {
-    //     setRoleEditingId(null);
-    //     setRole({ roleName: "", permissionId: [] });
-    // };
-
-    const handleAddRole = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!role.roleName.trim() || role.permissionId === null) {
-            toast.error("All Fileds are required");
-            return;
-        }
-        setIsSubmitting(true);
-        try {
-            if (roleEditingId) {
-                const current: string[] = role.permissionId;
-                const original: string[] = correntRole;
-
-                const toAdd = current.filter((id) => !original.includes(id));
-                const toRemove = original.filter((id) => !current.includes(id));
-                const permData: UpdateRolePaylaod = { toAdd, toRemove };
-
-                const { data } = await updateRoles(roleEditingId, permData);
-                toast.success(data?.message);
-            } else {
-                const { data } = await createRole(role);
-                toast.success(data?.message);
-            }
-
-            fetchRole();
-            setRole({ roleName: "", permissionId: [] });
-            setRole((prev) => ({
-                ...prev,
-                permissionId: [],
-            }));
-        } catch (err: unknown) {
-            if (axios.isAxiosError(err)) {
-                console.error(err.response?.data);
-            } else {
-                console.error("Unknown Error");
-            }
-
-        } finally {
-            setIsSubmitting(false);
-        }
     };
 
     const handleRemoveRole = async (id: string) => {
@@ -269,158 +150,39 @@ export function RoleComponents() {
                 </p>
             </header>
 
+            {isModalOpen && (
+                <CreatePermission onClose={() => setIsModalOpen(false)} />
+            )}
+
             {/* Main Workspace Grid */}
-            <main className="max-w-7xl mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-5 bg-green-400 ">
+            <main className="max-w-7xl mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-5  ">
                 {/* Left Column: Create Management Action Panel */}
 
-                {/* PERMISSION CREATTION */}
-                <section className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm h-fit  bg-green-500">
-                    <h2 className="text-lg font-semibold text-slate-900 mb-1">
-                        Create New Permission
-                    </h2>
-                    <p className="text-xs text-slate-500 mb-4">
-                        Define a new system boundary access level group.
-                    </p>
-
-                    {/* Mock Input Form fields for nice UI context */}
-                    <div className="space-y-4 ">
-                        <div>
-                            <label className=" block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
-                                Permission Name
-                            </label>
-                            <input
-                                type="text"
-                                ref={nameInputRef}
-                                name="name"
-                                value={permissionForm.name}
-                                onChange={handleChange}
-                                required
-                                placeholder="e.g., CREATE_TASK"
-                                className="w-full mb-2 text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 outline-none focus:border-indigo-500 transition-colors"
-                            />
-                            <textarea
-                                name="desc" // No type="text" attribute needed for textareas
-                                value={permissionForm.desc}
-                                onChange={handleChange}
-                                placeholder="Enter desc.."
-                                rows={3} // Pro tip: specifies the initial visible height lines
-                                className="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 outline-none focus:border-indigo-500 transition-colors resize-none" // Added resize-none
-                            />
-                        </div>
-                        <button
-                            className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium text-sm py-2.5 px-4 rounded-lg shadow transition-colors duration-150"
-                            disabled={permLoading}
-                            onClick={handleSubmitPermission}
-                        >
-                            {/*{permLoading ? "creating..." : "Generate Role Permission"}*/}
-                            {permLoading
-                                ? editingId
-                                    ? "Saving..."
-                                    : "Creating..."
-                                : editingId
-                                    ? "Update Permission Config"
-                                    : "Generate Role Permission"}
-                        </button>
-                        {editingId && (
-                            <button
-                                type="button"
-                                onClick={handleCancelEdit}
-                                className="w-full bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-medium text-sm py-2 px-4 rounded-lg shadow-sm transition-colors"
-                            >
-                                Cancel Edit
-                            </button>
-                        )}
-                    </div>
+                <section>
+                    <button
+                        onClick={() => {
+                            setIsModalOpen(true);
+                        }}
+                        className="flex items-center gap-1.5 px-4 py-2 bg-[#14b8a6] hover:bg-[#14b8a6]/90 text-white rounded-lg text-sm font-medium transition-colors shadow-sm cursor-pointer whitespace-nowrap"
+                    >
+                        <Plus size={16} /> Add Task
+                    </button>
                 </section>
 
-                {/* ROLE CREATTION */}
-                <section className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm h-fit">
-                    <h2 className="text-lg font-semibold text-slate-900 mb-1">
-                        Create New Role
-                    </h2>
-                    <p className="text-xs text-slate-500 mb-4">
-                        Define a new system boundary access level group.
-                    </p>
-
-                    {/* Mock Input Form fields for nice UI context */}
-                    <div className="space-y-4 ">
-                        <div>
-                            <label className=" block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
-                                Role Name
-                            </label>
-                            <input
-                                type="text"
-                                ref={roleInputRef}
-                                name="roleName"
-                                value={role.roleName}
-                                required
-                                onChange={handleChangeRole}
-                                placeholder="e.g., Support Lead"
-                                className="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 outline-none focus:border-indigo-500 transition-colors"
-                            />
-                            {/* Render here list of permision as a dropdown*/}
-                            {/* 4. Multi-Select Checkbox Container */}
-                            <div>
-                                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 mt-2">
-                                    Assign System Permissions (
-                                    {role?.permissionId?.length} Selected)
-                                </label>
-
-                                <div className="space-y-2 max-h-48 overflow-y-auto border border-slate-100 rounded-lg p-3 bg-slate-50/50">
-                                    {permissionsList.map((perm) => {
-                                        const isChecked =
-                                            role.permissionId?.includes(
-                                                perm._id ?? "",
-                                            );
-
-                                        return (
-                                            <label
-                                                key={perm._id}
-                                                className={`flex items-start gap-3 p-2 rounded-lg border transition-all cursor-pointer text-sm select-none ${isChecked
-                                                    ? "bg-indigo-50/60 border-indigo-200 text-indigo-900"
-                                                    : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
-                                                    }`}
-                                            >
-                                                <input
-                                                    type="checkbox"
-                                                    checked={isChecked}
-                                                    onChange={() =>
-                                                        handlePermissionToggle(
-                                                            perm._id ?? "",
-                                                        )
-                                                    }
-                                                    className="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
-                                                />
-                                                <div className="-mt-0.5">
-                                                    <span className="font-mono text-xs font-bold block">
-                                                        {perm.name}
-                                                    </span>
-                                                    <span className="text-xs text-slate-400 font-normal">
-                                                        {perm.desc}
-                                                    </span>
-                                                </div>
-                                            </label>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        </div>
-                        <button
-                            className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium text-sm py-2.5 px-4 rounded-lg shadow transition-colors duration-150"
-                            onClick={handleAddRole}
-                            disabled={isSubmitting}
-                        >
-                            {/* TODO incase of update*/}
-                            {isSubmitting
-                                ? roleEditingId
-                                    ? "Updating Role"
-                                    : "Syncing Permission.."
-                                : roleEditingId
-                                    ? "Update Role"
-                                    : "Generate Role Group"}
-                        </button>
-                    </div>
+                {isModalRoleOpen && (
+                    <CreateRoles onClose={() => setIsModalRoleOpen(false)} />
+                )}
+                <section>
+                    <button
+                        onClick={() => {
+                            setIsModalRoleOpen(true);
+                        }}
+                        className="flex items-center gap-1.5 px-4 py-2 bg-[#14b8a6] hover:bg-[#14b8a6]/90 text-white rounded-lg text-sm font-medium transition-colors shadow-sm cursor-pointer whitespace-nowrap"
+                    >
+                        <Plus size={16} /> Add Permission
+                    </button>
                 </section>
+                {/*  MODAL RENDER */}
 
                 {/* Right Column: Database Dynamic Permission Target Feed */}
                 <section className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
@@ -480,7 +242,9 @@ export function RoleComponents() {
                                                 <div
                                                     className="text-red-900 hover:text-white hover:bg-red-500 h-8 p-1 hover:rounded"
                                                     onClick={() =>
-                                                        handleRemove(perm._id ?? "")
+                                                        handleRemove(
+                                                            perm._id ?? "",
+                                                        )
                                                     }
                                                 >
                                                     <p>{<X />} </p>
@@ -491,11 +255,12 @@ export function RoleComponents() {
                                                         onClick={() =>
                                                             startEditMode(perm)
                                                         }
-                                                        className={`p-1.5 rounded transition-colors ${editingId ===
+                                                        className={`p-1.5 rounded transition-colors ${
+                                                            editingId ===
                                                             perm._id
-                                                            ? "text-amber-600 bg-amber-50"
-                                                            : "text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
-                                                            }`}
+                                                                ? "text-amber-600 bg-amber-50"
+                                                                : "text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
+                                                        }`}
                                                         title="Edit Permission"
                                                     >
                                                         <PencilIcon className="w-4 h-4" />
@@ -553,11 +318,12 @@ export function RoleComponents() {
                                                                     perm,
                                                                 )
                                                             }
-                                                            className={`p-1.5 rounded transition-colors ${roleEditingId ===
+                                                            className={`p-1.5 rounded transition-colors ${
+                                                                roleEditingId ===
                                                                 perm._id
-                                                                ? "text-amber-600 bg-amber-50"
-                                                                : "text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
-                                                                }`}
+                                                                    ? "text-amber-600 bg-amber-50"
+                                                                    : "text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
+                                                            }`}
                                                             title="Edit Permission"
                                                         >
                                                             <PencilIcon className="w-4 h-4" />
