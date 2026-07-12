@@ -2,30 +2,36 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { type Task } from "../api/taskApi";
-import { Clock, PlayCircle, CheckCircle, Search, Plus } from "lucide-react";
+import {
+    Clock,
+    PlayCircle,
+    CheckCircle,
+    Search,
+    Plus,
+    ChevronLeft,
+    ChevronRight,
+} from "lucide-react";
 import toast from "react-hot-toast";
 import { CreateTaskModal } from "./CreateTaskModal";
 import { useTask } from "../hooks/useTask";
 import { useTaskMutations } from "../hooks/useTaskMutation";
 
-type FilterType = "all" | "pending" | "in-progress" | "completed";
+type FilterType = "all" | "pending" | "in-process" | "completed";
 
 export function AllTasks() {
     const [deleting, setisDeleting] = useState(false);
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-    // Store the meta data so we can use it for pagination later!
-    // const [_meta, setMeta] = useState<TaskResponse["meta"] | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const location = useLocation();
-
     const segment = location.pathname.split("/").filter(Boolean)[0];
 
-    // Filters
+    // Filters & Pagination States
     const [activeFilter, setActiveFilter] = useState<FilterType>("all");
-    const [searchQuery, setSearchQuery] = useState(""); // Let's use your backend search too!
+    const [searchQuery, setSearchQuery] = useState("");
     const [debounchSearch, setDebounceSearch] = useState("");
+    const [page, setPage] = useState(1); // ⚡ NEW: Track pagination active page numbers
 
     const { deleteTask } = useTaskMutations();
 
@@ -34,8 +40,6 @@ export function AllTasks() {
         setDeletingId(id);
         try {
             await deleteTask(id);
-            // setTasks((prev) => prev.filter((task) => task._id !== id));
-            // toast.success(res.message);
         } catch (error) {
             console.log(error.message);
             toast.error("error deleting task");
@@ -45,29 +49,47 @@ export function AllTasks() {
         }
     };
 
+    // 🎣 Hook Mapping: Binds current state configurations to your server fetch hook
     const {
         data: response,
         isLoading,
         error,
     } = useTask({
-        status: activeFilter != "all" ? activeFilter : undefined,
+        status: activeFilter !== "all" ? activeFilter : undefined,
         search: debounchSearch || undefined,
+        page: page, // ⚡ NEW: Forward dynamic current page value down to hook query limits
+        limit: 2,
     });
-    const tasks = response?.data?.tasks || [];
-    // const meta = response?.meta || null;
 
-    // 1. Notice activeFilter and searchQuery are now in the dependency array!
+    const tasks = response?.data?.tasks || [];
+
+    // ⚡ NEW: Destructure schema metadata fields securely; absolute object fallback prevents maps from breaking
+    const pagination = response?.data?.pagination || {
+        currentPage: 1,
+        hasNextPage: false,
+        hasPrevPage: false,
+        limit: 10,
+        totalCount: 0,
+        totalPage: 1,
+    };
+
     useEffect(() => {
-        // Add a small delay (debounce) for search so we don't spam the API on every keystroke
         const delayDebounceFn = setTimeout(() => {
             setDebounceSearch(searchQuery);
         }, 300);
 
         return () => clearTimeout(delayDebounceFn);
-    }, [activeFilter, searchQuery]); // Re-run when these change!
+    }, [searchQuery]);
+
+    const handleNextPage = () => {
+        if (pagination.hasNextPage) setPage((prev) => prev + 1);
+    };
+
+    const handlePrevPage = () => {
+        if (pagination.hasPrevPage) setPage((prev) => Math.max(prev - 1, 1));
+    };
 
     const renderStatusBadge = (status: Task["status"]) => {
-        // ... (Keep your exact same renderStatusBadge switch statement here)
         switch (status) {
             case "completed":
                 return (
@@ -100,13 +122,16 @@ export function AllTasks() {
                         [
                             "all",
                             "pending",
-                            "in-progress",
+                            "in-process",
                             "completed",
                         ] as FilterType[]
                     ).map((filter) => (
                         <button
                             key={filter}
-                            onClick={() => setActiveFilter(filter)}
+                            onClick={() => {
+                                setActiveFilter(filter);
+                                setPage(1);
+                            }}
                             className={`flex-1 md:flex-none px-4 py-2 rounded-md text-sm font-medium capitalize transition-colors ${
                                 activeFilter === filter
                                     ? "bg-[#14b8a6] text-white shadow-sm"
@@ -118,8 +143,7 @@ export function AllTasks() {
                     ))}
                 </div>
 
-                {/* Since your backend has a search feature, let's add a search bar! */}
-                {/* Search Bar & New Add Task Option Row */}
+                {/* Search Bar & Add Button */}
                 <div className="flex items-center gap-3 w-full md:w-auto">
                     <div className="relative flex-1 md:w-64">
                         <Search
@@ -135,10 +159,9 @@ export function AllTasks() {
                         />
                     </div>
 
-                    {/* ✅ THE NEW ADD TASK OPTION BUTTON */}
                     <button
                         onClick={() => {
-                            setSelectedTask(null); // Clear selected to tell modal it's a NEW task
+                            setSelectedTask(null);
                             setIsModalOpen(true);
                         }}
                         className="flex items-center gap-1.5 px-4 py-2 bg-[#14b8a6] hover:bg-[#14b8a6]/90 text-white rounded-lg text-sm font-medium transition-colors shadow-sm cursor-pointer whitespace-nowrap"
@@ -150,30 +173,21 @@ export function AllTasks() {
 
             {/* --- State Handling --- */}
             {isLoading && (
-                <div className="relative mt-43 mr-70 justify-start">
+                <div className="flex justify-center py-10">
                     <LoadingSpinner />
                 </div>
             )}
-            {/*
-          // {error && <div className="text-red-500 text-center py-10">{error}</div>}
-      */}
+
             {error && (
                 <div className="italic text-gray-700 text-center py-10">
-                    please check internet
+                    please check internet connection
                 </div>
             )}
 
-            {/* modal for editing task  */}
-            {/*      {selectedTask && (
-        <CreateTaskModal
-          task={selectedTask}
-          onClose={() => setSelectedTask(null)}
-          onSuccess={handleTaskUpdated}
-        />
-      )} */}
+            {/* Modal for editing task */}
             {isModalOpen && (
                 <CreateTaskModal
-                    task={selectedTask || undefined} // Passes existing task data for Edit mode, or undefined for Create mode
+                    task={selectedTask || undefined}
                     onClose={() => {
                         setIsModalOpen(false);
                         setSelectedTask(null);
@@ -187,71 +201,114 @@ export function AllTasks() {
                     No tasks found.
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {!isLoading &&
-                        tasks.map((task) => (
-                            <div
-                                key={task._id}
-                                className="hover:bg-slate-200 bg-white border border-gray-200 rounded-xl p-5 flex flex-col shadow-sm"
-                            >
-                                {/* ✅ Link only wraps the content, not the buttons */}
-                                <Link to={`/${segment}/task/${task._id}`}>
-                                    <div className="flex justify-between items-start mb-3">
-                                        <h3 className="font-semibold text-lg text-gray-800 line-clamp-1">
-                                            {task.title}
-                                        </h3>
+                <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {!isLoading &&
+                            tasks.map((task: any) => (
+                                <div
+                                    key={task._id}
+                                    className="hover:bg-slate-50 transition-colors bg-white border border-gray-200 rounded-xl p-5 flex flex-col justify-between shadow-sm"
+                                >
+                                    <Link
+                                        to={`/${segment}/task/${task._id}`}
+                                        className="block flex-1"
+                                    >
+                                        <div className="flex justify-between items-start mb-3 gap-2">
+                                            <h3 className="font-semibold text-lg text-gray-800 line-clamp-1">
+                                                {task.title}
+                                            </h3>
 
-                                        <div className="flex gap-2">
-                                            <span className="italic text-xs bg-gray-100 text-gray-700 font-medium rounded-xl px-3 py-1">
-                                                {task.priority}
-                                            </span>
-                                            {renderStatusBadge(task.status)}
+                                            <div className="flex gap-2 shrink-0">
+                                                <span className="italic text-xs bg-gray-100 text-gray-700 font-medium rounded-xl px-3 py-1">
+                                                    {task.priority}
+                                                </span>
+                                                {renderStatusBadge(task.status)}
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <p className="text-gray-600 text-sm mb-4 line-clamp-2 flex-grow">
-                                        {task.description}
-                                    </p>
-                                    <div className="pt-2 text-sm">
-                                        <span className="text-gray-600 font-medium">
-                                            {task.assignedTo
-                                                ? `Assigned to: ${task.assignedTo.name}`
-                                                : "Unassigned"}
-                                        </span>
-                                    </div>
+                                        <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                                            {task.description}
+                                        </p>
 
-                                    <div className="pt-2 text-sm">
-                                        <span className="text-gray-600 font-medium">
-                                            {task.department
-                                                ? `Department: ${task.department.name}`
-                                                : "N/A"}
-                                        </span>
-                                    </div>
-                                </Link>
+                                        <div className="space-y-1 text-xs text-gray-500 border-t border-gray-50 pt-3 mt-auto">
+                                            <div>
+                                                <span className="font-semibold text-gray-600">
+                                                    Assigned:
+                                                </span>{" "}
+                                                {task.assignedTo
+                                                    ? task.assignedTo.name
+                                                    : "Unassigned"}
+                                            </div>
+                                            <div>
+                                                <span className="font-semibold text-gray-600">
+                                                    Sector:
+                                                </span>{" "}
+                                                {task.department
+                                                    ? task.department.name
+                                                    : "N/A"}
+                                            </div>
+                                        </div>
+                                    </Link>
 
-                                {/* ✅ Buttons outside Link — no navigation on click */}
-                                <div className="pt-4 border-t border-gray-100 flex justify-end items-center gap-3 mt-2">
-                                    <span
-                                        className="bg-red-400 hover:bg-red-500 text-white text-sm font-medium p-1.5 rounded cursor-pointer"
-                                        onClick={() => removeTaskkk(task._id)}
-                                    >
-                                        {deleting && deletingId === task._id
-                                            ? "Deleting..."
-                                            : "Remove"}
-                                    </span>
-                                    <span
-                                        className="bg-green-400 hover:bg-green-500 text-white text-sm font-medium p-1.5 rounded cursor-pointer"
-                                        onClick={() => {
-                                            setSelectedTask(task);
-                                            setIsModalOpen(true);
-                                        }}
-                                    >
-                                        Edit
-                                    </span>
+                                    <div className="pt-4 border-t border-gray-100 flex justify-end items-center gap-3 mt-4">
+                                        <button
+                                            onClick={() =>
+                                                removeTaskkk(task._id)
+                                            }
+                                            className="bg-red-50 hover:bg-red-100 border border-red-100 text-red-600 text-xs font-semibold px-3 py-1.5 rounded-lg cursor-pointer transition-colors"
+                                        >
+                                            {deleting && deletingId === task._id
+                                                ? "Deleting..."
+                                                : "Remove"}
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setSelectedTask(task);
+                                                setIsModalOpen(true);
+                                            }}
+                                            className="bg-slate-50 hover:bg-slate-100 border border-gray-200 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-lg cursor-pointer transition-colors"
+                                        >
+                                            Edit
+                                        </button>
+                                    </div>
                                 </div>
+                            ))}
+                    </div>
+
+                    {/* ⚡ NEW: PAGINATION FOOTER CONTROL PANEL */}
+                    {!isLoading && tasks.length > 0 && (
+                        <div className="mt-8 border-t border-gray-200 pt-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <p className="text-sm text-gray-500 font-medium">
+                                Showing page{" "}
+                                <span className="text-gray-800 font-bold">
+                                    {pagination.currentPage}
+                                </span>{" "}
+                                of{" "}
+                                <span className="text-gray-800 font-bold">
+                                    {pagination.totalPage || 1}
+                                </span>
+                                <span className="text-gray-400 mx-1.5">•</span>{" "}
+                                Total Records: {pagination.totalCount}
+                            </p>
+                            <div className="flex gap-2 w-full sm:w-auto">
+                                <button
+                                    onClick={handlePrevPage}
+                                    disabled={!pagination.hasPrevPage}
+                                    className="flex-1 sm:flex-none flex items-center justify-center gap-1 px-3 py-2 border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer"
+                                >
+                                    <ChevronLeft size={16} /> Previous
+                                </button>
+                                <button
+                                    onClick={handleNextPage}
+                                    disabled={!pagination.hasNextPage}
+                                    className="flex-1 sm:flex-none flex items-center justify-center gap-1 px-3 py-2 border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer"
+                                >
+                                    Next <ChevronRight size={16} />
+                                </button>
                             </div>
-                        ))}
-                </div>
+                        </div>
+                    )}
+                </>
             )}
         </div>
     );

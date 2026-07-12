@@ -63,12 +63,6 @@ export function CreateTaskModal({ onClose, task }: CreateTaskModalProps) {
                 // Replace with your actual API call
                 const { data } = await getEmployees();
                 setEmployees(data?.users);
-
-                // Mock data for testing:
-                // setEmployees([
-                //   { id: '1', name: 'Alice Johnson' },
-                //   { id: '2', name: 'Bob Smith' }
-                // ]);
             } catch (error) {
                 console.error("Failed to fetch employees", error);
             } finally {
