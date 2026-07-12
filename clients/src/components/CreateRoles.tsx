@@ -3,12 +3,12 @@ import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import type { RoleForm } from "./types/rolesType";
 import toast from "react-hot-toast";
 import {
-    createRole,
     updateRoles,
     type UpdateRolePaylaod,
 } from "../api/roleApi";
 import axios from "axios";
-import { UseGetRole } from "../hooks/useRole";
+import { UseGetPermission } from "../hooks/usePermission";
+import { useRolesMutations } from "../hooks/useRoleMutation";
 
 export function CreateRoles({ onClose }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -21,6 +21,8 @@ export function CreateRoles({ onClose }) {
     const [roleEditingId, setRoleEditingId] = useState<string | null>(null);
     // const [roles, setRoles] = useState<Role[]>([]);
     const roleInputRef = useRef(null);
+
+    const { createRoles } = useRolesMutations();
 
     const handleChangeRole = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -67,8 +69,7 @@ export function CreateRoles({ onClose }) {
                 const { data } = await updateRoles(roleEditingId, permData);
                 toast.success(data?.message);
             } else {
-                const { data } = await createRole(role);
-                toast.success(data?.message);
+                await createRoles(role);
             }
 
             setRole({ roleName: "", permissionId: [] });
@@ -88,8 +89,8 @@ export function CreateRoles({ onClose }) {
     };
 
     // ROLE
-    const { data: response } = UseGetRole();
-    const permissionsList = response.data || [];
+    const { data: response } = UseGetPermission();
+    const permissionsList = response?.data?.data?.data || [];
 
     useEffect(() => {
         if (roleEditingId && roleInputRef.current) {
@@ -148,11 +149,10 @@ export function CreateRoles({ onClose }) {
                                     return (
                                         <label
                                             key={perm._id}
-                                            className={`flex items-start gap-3 p-2 rounded-lg border transition-all cursor-pointer text-sm select-none ${
-                                                isChecked
-                                                    ? "bg-indigo-50/60 border-indigo-200 text-indigo-900"
-                                                    : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
-                                            }`}
+                                            className={`flex items-start gap-3 p-2 rounded-lg border transition-all cursor-pointer text-sm select-none ${isChecked
+                                                ? "bg-indigo-50/60 border-indigo-200 text-indigo-900"
+                                                : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                                                }`}
                                         >
                                             <input
                                                 type="checkbox"
@@ -189,8 +189,8 @@ export function CreateRoles({ onClose }) {
                                 ? "Updating Role"
                                 : "Syncing Permission.."
                             : roleEditingId
-                              ? "Update Role"
-                              : "Generate Role Group"}
+                                ? "Update Role"
+                                : "Generate Role Group"}
                     </button>
                 </div>
             </div>
