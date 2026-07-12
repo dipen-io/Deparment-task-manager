@@ -1,28 +1,25 @@
 import { X } from "lucide-react";
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
-import type { Permission, RoleForm } from "./types/rolesType";
+import type { RoleForm } from "./types/rolesType";
 import toast from "react-hot-toast";
 import {
     createRole,
-    getRole,
     updateRoles,
     type UpdateRolePaylaod,
 } from "../api/roleApi";
 import axios from "axios";
-import { getPermission } from "../api/permissionApi";
+import { UseGetRole } from "../hooks/useRole";
 
 export function CreateRoles({ onClose }) {
-    const [permission, setPermission] = useState<Permission[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const [correntRole, setCurrentRole] = useState<string[]>([]);
+    const [currentRole, setCurrentRole] = useState<string[]>([]);
     const [role, setRole] = useState<RoleForm>({
         roleName: "",
         permissionId: [],
     });
     const [roleEditingId, setRoleEditingId] = useState<string | null>(null);
-    const [roles, setRoles] = useState<Role[]>([]);
-    const [loading, setLoading] = useState(true);
+    // const [roles, setRoles] = useState<Role[]>([]);
     const roleInputRef = useRef(null);
 
     const handleChangeRole = (e: ChangeEvent<HTMLInputElement>) => {
@@ -50,10 +47,6 @@ export function CreateRoles({ onClose }) {
         });
     };
 
-    const permissionsList = permission;
-    console.log("permissionList", permissionsList);
-    console.log("permission", permission);
-
     const handleAddRole = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!role.roleName.trim() || role.permissionId === null) {
@@ -62,14 +55,15 @@ export function CreateRoles({ onClose }) {
         }
         setIsSubmitting(true);
         try {
+            // curentrly not edit option avaiable
+            setRoleEditingId(null);
+            setCurrentRole(null);
             if (roleEditingId) {
                 const current: string[] = role.permissionId;
-                const original: string[] = correntRole;
-
+                const original: string[] = currentRole;
                 const toAdd = current.filter((id) => !original.includes(id));
                 const toRemove = original.filter((id) => !current.includes(id));
                 const permData: UpdateRolePaylaod = { toAdd, toRemove };
-
                 const { data } = await updateRoles(roleEditingId, permData);
                 toast.success(data?.message);
             } else {
@@ -77,7 +71,6 @@ export function CreateRoles({ onClose }) {
                 toast.success(data?.message);
             }
 
-            fetchRole();
             setRole({ roleName: "", permissionId: [] });
             setRole((prev) => ({
                 ...prev,
@@ -94,40 +87,9 @@ export function CreateRoles({ onClose }) {
         }
     };
 
-    const fetchPerm = async () => {
-        try {
-            setLoading(true);
-            const { data } = await getPermission();
-            // Fallback to empty array if nested data structure evaluates to undefined
-            setPermission(data?.data?.data || []);
-        } catch (error) {
-            console.error("Failed to fetch permissions:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const fetchRole = async () => {
-        try {
-            setLoading(true);
-            const data = await getRole();
-            // Fallback to empty array if nested data structure evaluates to undefined
-            setRoles(data?.data || []);
-        } catch (err: unknown) {
-            if (axios.isAxiosError(err)) {
-                console.error(err.response?.data);
-            } else {
-                console.error("Unkown Error");
-            }
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchPerm();
-        fetchRole();
-    }, []);
+    // ROLE
+    const { data: response } = UseGetRole();
+    const permissionsList = response.data || [];
 
     useEffect(() => {
         if (roleEditingId && roleInputRef.current) {

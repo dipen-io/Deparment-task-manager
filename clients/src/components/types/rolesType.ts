@@ -1,4 +1,3 @@
-
 export interface Permission {
     _id?: string;
     name: string;
@@ -8,6 +7,7 @@ export interface Permission {
 export interface Role {
     _id: string;
     name: string;
+    desc: string;
     permission: Permission[];
 }
 
