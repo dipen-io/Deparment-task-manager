@@ -46,7 +46,6 @@ export function DeptHeadDashboard() {
     getUser();
   }, []);
 
-  console.log("user from DeptHeadDashboard page: ", user);
 
   return (
     <div className="min-h-screen bg-gray-50 flex">

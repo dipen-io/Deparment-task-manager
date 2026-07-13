@@ -2,7 +2,6 @@ import api from "./axios";
 
 // create new task
 export const addTask = async (task: any) => {
-    console.log("TASK BODY: ", task);
     const res = await api.post("/task/create", task);
     return res.data;
 };
@@ -87,11 +86,9 @@ export const removeTask = async (id: string) => {
 
 export const getTaskByEmp = async () => {
     const res = await api.get("/task/my-tasks");
-    console.log("task/my-tasks: ", res);
     return res.data;
 };
 export const updateTaskStatusByEmp = async (id: string, status: string) => {
-    console.log(status, id);
     const res = await api.patch(`/task/${id}`, { status: status });
     return res.data;
 };

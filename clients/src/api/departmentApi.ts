@@ -71,7 +71,6 @@ export const getDeptCount = async () => {
 
 export const assignDept = async (deptId: string, userId: string, role: string, oldMangerId: string) => {
     const response = await api.post(`/dept/${deptId}/${userId}`, { role, oldMangerId });
-    console.log("rep: ", response);
     return response.data;
 }
 

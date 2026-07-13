@@ -18,12 +18,7 @@ export function DepartmentDetails({ onClose, data }: DeptDetailsProps) {
     const [userSearchTerm, setUserSearchTerm] = useState("");
     const { unAssign, deleteDept, updateHead, isUpdatingHead, isUpdatingRoster } = useDeptMutations();
 
-    // const filter = {};
-    // const { data: response } = useUser(filter);
-    // console.log("data: ", response);
-
     const { data: usr_mem_head, isLoading } = user_member_head(data._id, data.code)
-    // console.log("use_memeber_head", usr_mem_head?.data?.headInDept.name);
 
     if (isLoading) {
         return (
@@ -99,8 +94,6 @@ export function DepartmentDetails({ onClose, data }: DeptDetailsProps) {
         user.name?.toLowerCase().includes(userSearchTerm.toLowerCase()) ||
         user.email?.toLowerCase().includes(userSearchTerm.toLowerCase())
     );
-    console.log(data);
-    console.log(allAvailableUsers)
 
     // Delete an department
     const handleDelDept = () => {

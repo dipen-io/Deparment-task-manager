@@ -64,7 +64,6 @@ export function RoleComponents() {
     };
 
     const startRoleEditMode = (role: Role) => {
-        console.log("ROLE", role);
         const ids = role.permission.map((p) => p._id);
         // setCurrentRole([...ids]);
         setCurrentRole(ids.filter(Boolean) as string[]);

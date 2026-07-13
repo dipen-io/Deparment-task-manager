@@ -132,11 +132,10 @@ export function AllTasks() {
                                 setActiveFilter(filter);
                                 setPage(1);
                             }}
-                            className={`flex-1 md:flex-none px-4 py-2 rounded-md text-sm font-medium capitalize transition-colors ${
-                                activeFilter === filter
+                            className={`flex-1 md:flex-none px-4 py-2 rounded-md text-sm font-medium capitalize transition-colors ${activeFilter === filter
                                     ? "bg-[#14b8a6] text-white shadow-sm"
                                     : "text-gray-600 hover:bg-gray-100"
-                            }`}
+                                }`}
                         >
                             {filter.replace("-", " ")}
                         </button>
@@ -235,7 +234,7 @@ export function AllTasks() {
                                                 <span className="font-semibold text-gray-600">
                                                     Assigned:
                                                 </span>{" "}
-                                                {task.assignedTo
+                                                {task.assignedTo?.name
                                                     ? task.assignedTo.name
                                                     : "Unassigned"}
                                             </div>

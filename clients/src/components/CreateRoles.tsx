@@ -66,7 +66,6 @@ export function CreateRoles({ onClose }) {
                 const { data } = await updateRoles(roleEditingId, permData);
                 toast.success(data?.message);
             } else {
-                console.log("role", role)
                 await createRoles(role);
             }
 
