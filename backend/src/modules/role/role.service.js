@@ -124,4 +124,24 @@ const getUpdatedUser = async (userId, roleId) => {
     return validUser
 }
 
-module.exports = { createRoles, getRoles, updateRoles, deleteRoles, getUpdatedUser };
+const getRolesUsingId = async(userId) => {
+    const validUserId = await User.findById(userId).populate('roles')
+    .populate({
+        path: "roles",
+        populate: {
+            path: "permission",
+            model: "Permission"
+        }
+    })
+    console.log(validUserId);
+
+    if (validUserId == null) {
+        // two case he may be admin or usel
+    }
+    if (!validUserId) {
+        throw new AppError("Invalid userId or role not found", 404)
+    }
+    return validUserId
+}
+
+module.exports = { createRoles, getRoles, updateRoles, deleteRoles, getUpdatedUser, getRolesUsingId };

@@ -77,11 +77,11 @@ const getSingleTask = asyncHandler(async (req, res) => {
 
 const updateTask = asyncHandler(async (req, res) => {
   // Task update by admin only
-  // task status update by employee
+  // task status update by employee nned only assignedTo (userId)
   const taskId = req.params.id;
-  const updatePayload = req.body;
-  const assignedTo = req.body.assignedTo;
-  const user = req.user;
+    const updatePayload = req.body;
+    const assignedTo = req.body.assignedTo;
+      const user = req.user;
 
   // Pass everything to our smart service
   const updatedTask = await updateOne(taskId, updatePayload, user, assignedTo);

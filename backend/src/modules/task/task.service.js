@@ -129,16 +129,17 @@ const getOne = async (taskId, user) => {
 };
 
 const getTaskByEmployee = async (id) => {
-    const tasks = await Task.find({ assignedTo: id })
-        .populate("createdBy", "name email")
+    const tasks = await TaskAssignment.find({ assignedTo: id })
+        .populate("task", "title description priority")
+        .populate("assignedBy", "name email")
         .sort({ createdAt: -1 });
     return tasks;
 };
 
 const updateOne = async (taskId, updateData, user, assignedTo) => {
-    console.log("assignedTo", assignedTo);
+
     // 1. Fetch the core Task to see what department it belongs to
-    const task = await Task.findById(taskId);
+    const task = await Task.findById(taskId.toString());
     if (!task) {
         throw new AppError("Task not found", 404);
     }
