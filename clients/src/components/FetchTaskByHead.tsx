@@ -49,7 +49,6 @@ export function TaskByHead() {
         }
     };
 
-    // 🎣 Hook Mapping: Binds current state configurations to your server fetch hook
     const {
         data: response,
         isLoading,
@@ -57,13 +56,11 @@ export function TaskByHead() {
     } = useTaskByHead({
         status: activeFilter !== "all" ? activeFilter : undefined,
         search: debounchSearch || undefined,
-        page: page, // ⚡ NEW: Forward dynamic current page value down to hook query limits
+        page: page,
         limit: 6,
     });
-    console.log("data", response);
     const tasks = response?.data || [];
 
-    // ⚡ NEW: Destructure schema metadata fields securely; absolute object fallback prevents maps from breaking
     const pagination = response?.data?.pagination || {
         currentPage: 1,
         hasNextPage: false,

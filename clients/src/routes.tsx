@@ -74,17 +74,11 @@ export const router = createBrowserRouter([
       { index: true, element: <Navigate to="dashboard" replace /> },
       { path: "dashboard", element: <DeptHeadDashboard /> },
       { path: "tasks", element: <TaskByHead /> },
+      { path: "task/:id", element: <SingleTask /> },
+
     ],
   },
 
-  {
-    path: "/dept-head/task/:id",
-    element: (
-      <ProtectedRoute>
-        <SingleTask />
-      </ProtectedRoute>
-    ),
-  },
   // --- MEMBER ROUTES ---
   {
     path: "/member",
