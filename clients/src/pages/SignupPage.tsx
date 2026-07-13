@@ -1,13 +1,10 @@
-import React, { useEffect, useState, } from "react";
-import { Link, useNavigate, Navigate } from "react-router"; // Fixed: Standard is 'react-router-dom' but kept your import
+import React, { useState } from "react";
+import { Link, useNavigate, Navigate } from "react-router";
 import { useAuth } from "../context/AuthContext";
 import { Mail, Lock, User } from "lucide-react";
 import { signupUser } from "../api/authApi";
-import { getDeptEnum } from "../api/taskApi";
 import toast from "react-hot-toast";
 import axios from "axios";
-
-
 
 // Helper for consistent styling without repeating config objects
 const notifyError = (msg: string) =>
@@ -24,39 +21,29 @@ const notifyError = (msg: string) =>
 export function SignupPage() {
   const { user, saveData } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [departmentList, setDepartmentList] = useState<string[]>([]);
-  const [roleList] = useState(["org_admin", "dept_head", "member"]); // Match seed data
-
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
-    role: "member",
-    department: "",
   });
-
-  useEffect(() => {
-    getDeptEnum().then((data) => setDepartmentList(data));
-  }, []);
 
   if (loading) return <div>Loading...</div>;
   if (user) return <Navigate to="/" replace />;
 
   const handleSubmit = async (e: React.FormEvent) => {
-
     e.preventDefault();
 
     // 1. Validation Logic
     if (!formData.name) return notifyError("Please enter your Full Name");
     if (!formData.email) return notifyError("Please enter your Email");
     if (!formData.password) return notifyError("Please enter a Password");
-    if (!formData.role) return notifyError("Please select a Role");
-    if (!formData.department) return notifyError("Please select a Department");
 
     setLoading(true);
 
     try {
+      // Sends just name, email, password. Role & Dept will be set by admin later.
       const response = await signupUser(formData);
       toast.success(response.message || "Account created!");
       saveData(response.data.user, response.data.accessToken);
@@ -66,7 +53,7 @@ export function SignupPage() {
         notifyError(err.response?.data?.message || err.message);
       } else {
         notifyError("Signup failed");
-      };
+      }
     } finally {
       setLoading(false);
     }
@@ -89,8 +76,6 @@ export function SignupPage() {
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-            {" "}
-            {/* Added noValidate to allow custom toasts */}
             {/* Name */}
             <div>
               <label className="block mb-1.5 text-sm font-medium text-gray-700">
@@ -112,6 +97,7 @@ export function SignupPage() {
                 />
               </div>
             </div>
+
             {/* Email */}
             <div>
               <label className="block mb-1.5 text-sm font-medium text-gray-700">
@@ -133,6 +119,7 @@ export function SignupPage() {
                 />
               </div>
             </div>
+
             {/* Password */}
             <div>
               <label className="block mb-1.5 text-sm font-medium text-gray-700">
@@ -154,48 +141,7 @@ export function SignupPage() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Department */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-gray-700">
-                  Department
-                </label>
-                <select
-                  value={formData.department}
-                  onChange={(e) =>
-                    setFormData({ ...formData, department: e.target.value })
-                  }
-                  className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#14b8a6]/20 outline-none cursor-pointer text-sm"
-                >
-                  <option value="">Select Dept</option>
-                  {departmentList.map((d) => (
-                    <option key={d} value={d}>
-                      {d.toUpperCase()}
-                    </option>
-                  ))}
-                </select>
-              </div>
 
-              {/* Role */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-gray-700">
-                  Role
-                </label>
-                <select
-                  value={formData.role}
-                  onChange={(e) =>
-                    setFormData({ ...formData, role: e.target.value })
-                  }
-                  className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#14b8a6]/20 outline-none cursor-pointer text-sm"
-                >
-                  {roleList.map((r) => (
-                    <option key={r} value={r}>
-                      {r.replace("_", " ").toUpperCase()}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
             <button
               disabled={loading}
               type="submit"
