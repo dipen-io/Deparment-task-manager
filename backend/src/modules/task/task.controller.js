@@ -118,7 +118,6 @@ const getTaskByEmp = asyncHandler(async (req, res) => {
 // get head dept only task
 const getDeptSelft = asyncHandler(async (req, res) => {
   const id = req.user._id;
-    console.log(req.user)
   // if admin then return all tasks
   if (req.user.userType === ROLES.ADMIN) {
     const tasks = await getAll(req.query);

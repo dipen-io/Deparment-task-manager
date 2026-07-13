@@ -252,7 +252,7 @@ const getDeptWiseTask = async (id) => {
     const tasks = await Task.find({ createdBy: id }).populate(
         "createdBy",
         "name email",
-    );
+    ).populate("department", "name code")
 
     if (!tasks || tasks.length === 0) {
         // You could return an empty array or handle as needed
