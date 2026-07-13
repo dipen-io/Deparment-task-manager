@@ -6,7 +6,7 @@ export function SingleTask() {
   const { id } = useParams();
 
 
-  const {data: taskDetails, isLoading, isError} = useSingleTask(id!);
+  const { data: taskDetails, isLoading, isError } = useSingleTask(id!);
 
   const renderStatus = (status: string) => {
     switch (status) {
@@ -32,7 +32,7 @@ export function SingleTask() {
   };
 
 
-// ⏳ Handle Loading and Error views cleanly
+  // ⏳ Handle Loading and Error views cleanly
   if (isLoading) return <div className="text-center py-20">Loading task details...</div>;
   if (isError || !taskDetails?.data) return <div className="text-center py-20 text-red-500">Failed to load task details.</div>;
 
@@ -45,30 +45,18 @@ export function SingleTask() {
     accessedByRole: serverPayload?.accessedByRole || "",
   };
 
-  // useEffect(() => {
-  //   const fetchTask = async () => {
-  //     try {
-  //       const { data } = await getSingleTask(id!);
-  //       setTask(data.taskData.task);
-  //       console.log("SINGLE TASK: ", data);
-  //       setAssignedTo(data.taskData.assignedDetails)
-  //       setMeta({
-  //         accessedByName: data.accessedByName,
-  //         accessedByRole: data.accessedByRole,
-  //       });
-  //     } catch (err) {
-  //       console.error("Failed to fetch task");
-  //     }
-  //   };
-  //
-  //   fetchTask();
-  // }, [id]);
   return (
     <div className="max-w-3xl mx-40 mt-10 bg-white border border-gray-200 rounded-xl shadow-md p-6 space-y-6">
       {/* Header */}
       <div className="flex justify-between items-start">
         <h1 className="text-2xl font-bold text-gray-800">{task?.title}</h1>
-        {task && renderStatus(task?.status)}
+        <span className="flex gap-5">
+          {task && renderStatus(task?.status)}
+          <span className="flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">
+            {task && (task?.department?.name)}
+          </span>
+        </span>
+
       </div>
 
       {/* Description */}
