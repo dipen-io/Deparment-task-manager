@@ -28,7 +28,6 @@ export function CreateTaskModal({ onClose, task }: CreateTaskModalProps) {
         singleDepartment = user?.department || [];
     }
 
-    console.log("singleDepartment", singleDepartment);
     // Form State
     const [title, setTitle] = useState(task?.title || "");
     const [description, setDescription] = useState(task?.description || "");
@@ -117,10 +116,11 @@ export function CreateTaskModal({ onClose, task }: CreateTaskModalProps) {
                     title,
                     description,
                     priority,
-                    assigneeId,
                     createdBy,
-                    department: selectedDeptId,
+                    ...(assigneeId && { assigneeId }),
+                    ...(selectedDeptId && { department: selectedDeptId })
                 };
+                // while creating task dont sent "" empty string
                 await createTask(newTask);
             }
         } catch (error) {
