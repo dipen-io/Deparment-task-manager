@@ -4,15 +4,15 @@ import api from "./axios";
 import type { Role } from "../components/types/rolesType";
 
 export interface RoleResponse {
-  success: boolean;
-  statusCode: number;
-  message: string;
-  data: Role[];
-  meta: {
-    timestamps: string;
-    unix: number;
-    meta: Record<string, unknown>;
-  };
+    success: boolean;
+    statusCode: number;
+    message: string;
+    data: Role[];
+    meta: {
+        timestamps: string;
+        unix: number;
+        meta: Record<string, unknown>;
+    };
 }
 
 export interface UpdateRolePaylaod {
@@ -25,7 +25,7 @@ export const createRole = (data: RoleForm) => {
     return response;
 };
 
-export const getRole =  async(): Promise<RoleResponse> => {
+export const getRole = async (): Promise<RoleResponse> => {
     const response = await api.get("/role");
     return response.data;
 };
@@ -46,3 +46,8 @@ export const assingUserRole = (roleId: string, userId: string) => {
     });
     return response;
 };
+
+export const getUserRolesWithId = async (roleId: string) => {
+    const res = await api.get(`/role/${roleId}`);
+    return res.data;
+}
