@@ -19,10 +19,16 @@ interface CreateTaskModalProps {
 export function CreateTaskModal({ onClose, task }: CreateTaskModalProps) {
     const { user } = useAuth();
     const filter = { limit: 100 };
-    const { createDepartment, updateTask } = useTaskMutations();
+    const { createTask, updateTask } = useTaskMutations();
     const { data: res, isLoading: isDeptLoading } = useDept(filter);
 
     const departments = res?.data?.data;
+    let singleDepartment
+    if (user.userType === "head") {
+        singleDepartment = user?.department || [];
+    }
+
+    console.log("singleDepartment", singleDepartment);
     // Form State
     const [title, setTitle] = useState(task?.title || "");
     const [description, setDescription] = useState(task?.description || "");
@@ -115,7 +121,7 @@ export function CreateTaskModal({ onClose, task }: CreateTaskModalProps) {
                     createdBy,
                     department: selectedDeptId,
                 };
-                await createDepartment(newTask);
+                await createTask(newTask);
             }
         } catch (error) {
             console.error("Failed to add task: ", error);
@@ -266,31 +272,34 @@ export function CreateTaskModal({ onClose, task }: CreateTaskModalProps) {
                         {isOpen && (
                             <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-xl p-2 space-y-2 max-w-[calc(100vw-2rem)] md:max-w-md animate-fade-in">
                                 {/* 🔍 SEARCH OPTION BOX: Visible ONLY when panel overlay opens */}
-                                <div className="relative">
-                                    <Search
-                                        className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"
-                                        size={14}
-                                    />
-                                    <input
-                                        type="text"
-                                        placeholder="Search department list..."
-                                        value={search}
-                                        autoFocus // Focuses input keyboard layer instantly on mounting
-                                        onChange={(e) =>
-                                            setSearch(e.target.value)
-                                        }
-                                        className="w-full pl-8 pr-7 py-1.5 text-xs border border-gray-200 bg-slate-50 rounded-lg outline-none focus:bg-white focus:ring-2 focus:ring-[#14b8a6]/20"
-                                    />
-                                    {search && (
-                                        <button
-                                            type="button"
-                                            onClick={() => setSearch("")}
-                                            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                                        >
-                                            <X size={12} />
-                                        </button>
-                                    )}
-                                </div>
+                                {user?.userType !== "head" && (
+                                    <div className="relative">
+                                        <Search
+                                            className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"
+                                            size={14}
+                                        />
+                                        <input
+                                            type="text"
+                                            placeholder="Search department list..."
+                                            value={search}
+                                            autoFocus // Focuses input keyboard layer instantly on mounting
+                                            onChange={(e) =>
+                                                setSearch(e.target.value)
+                                            }
+                                            className="w-full pl-8 pr-7 py-1.5 text-xs border border-gray-200 bg-slate-50 rounded-lg outline-none focus:bg-white focus:ring-2 focus:ring-[#14b8a6]/20"
+                                        />
+                                        {search && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setSearch("")}
+                                                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                            >
+                                                <X size={12} />
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+
 
                                 {/* 📋 SCROLLABLE LIST OF DEPARTMENTS */}
                                 <div className="max-h-48 overflow-y-auto divide-y divide-gray-50 text-xs">
@@ -307,7 +316,22 @@ export function CreateTaskModal({ onClose, task }: CreateTaskModalProps) {
                                     </button>
 
                                     {/* Filtered Data Cards Mapping Elements */}
-                                    {filteredDepartments.length > 0 ? (
+                                    {user?.userType === "head" ? (
+                                        <button
+                                            key={singleDepartment._id}
+                                            type="button"
+                                            onClick={() => {
+                                                setSelectedDeptId(singleDepartment._id); // Binds schema matching Object ID string references
+                                                setIsOpen(false); // Closes menu panel cleanly
+                                            }}
+                                            className={`w-full text-left px-2.5 py-2 rounded-md transition-colors truncate block ${selectedDeptId === singleDepartment._id ? "bg-teal-50 text-[#14b8a6] font-bold" : "text-gray-600 hover:bg-slate-50"}`}
+                                        >
+                                            {singleDepartment.name}{" "}
+                                            {singleDepartment.code
+                                                ? `[${singleDepartment.code}]`
+                                                : ""}
+                                        </button>
+                                    ) : (filteredDepartments.length > 0 ? (
                                         filteredDepartments.map((dept) => (
                                             <button
                                                 key={dept._id}
@@ -329,7 +353,8 @@ export function CreateTaskModal({ onClose, task }: CreateTaskModalProps) {
                                             No departments match your search
                                             phrase.
                                         </div>
-                                    )}
+                                    ))}
+
                                 </div>
                             </div>
                         )}
@@ -353,8 +378,8 @@ export function CreateTaskModal({ onClose, task }: CreateTaskModalProps) {
                                     ? "Updating..."
                                     : "Adding Task..."
                                 : task
-                                  ? "Update Task"
-                                  : "Save Task"}
+                                    ? "Update Task"
+                                    : "Save Task"}
                         </button>
                     </div>
                 </form>
