@@ -4,7 +4,7 @@ import { NotFound } from "./pages/NotFoundPage";
 import { SignupPage } from "./pages/SignupPage";
 import { LoginPage } from "./pages/LoginPage";
 import { Home } from "./pages/Home";
-import {Department} from "./pages/DepartmentPage";
+import { Department } from "./pages/DepartmentPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import { AllTasks } from "./components/FetchTaskByAdmin";
@@ -39,7 +39,7 @@ export const router = createBrowserRouter([
       { index: true, element: <Navigate to="dashboard" replace /> },
       { path: "dashboard", element: <AdminDashboard /> },
       { path: "tasks", element: <AllTasks /> },
-      { path: "task/:id", element: <SingleTask /> }, 
+      { path: "task/:id", element: <SingleTask /> },
       { path: "role", element: <RoleComponents /> },
       { path: "department", element: <Department /> },
     ],
@@ -109,7 +109,11 @@ export const router = createBrowserRouter([
 
   {
     path: "/profile",
-    element: <ProfilePage />,
+    element: (
+      <ProtectedRoute >
+        <ProfilePage />,
+      </ProtectedRoute >)
+
   },
   {
     path: "/landing",
