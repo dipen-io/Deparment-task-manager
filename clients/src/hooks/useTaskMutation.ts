@@ -51,7 +51,7 @@ export function useTaskMutations() {
     });
 
     return {
-        createDepartment: createTaskMutation.mutateAsync, // .mutateAsync allows component await chaining
+        createTask: createTaskMutation.mutateAsync, // .mutateAsync allows component await chaining
         // updateTask: updateTaskMutation.mutateAsync,
         deleteTask: deleteTaskMutation.mutateAsync,
         isCreating: createTaskMutation.isPending,

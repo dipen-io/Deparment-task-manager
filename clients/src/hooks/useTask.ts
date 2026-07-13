@@ -1,7 +1,7 @@
 // get request and caching
 
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { getTasks, getSingleTask } from "../api/taskApi";
+import { getTasks, getSingleTask, getTaskByHead } from "../api/taskApi";
 
 // Query keys Centralized startegy
 export const taskKeys = {
@@ -19,6 +19,19 @@ export function useTask(filters: {
     return useQuery({
         queryKey: taskKeys.lists(filters),
         queryFn: () => getTasks(filters),
+        placeholderData: keepPreviousData,
+    });
+}
+
+export function useTaskByHead(filters: {
+    status?: string;
+    search?: string;
+    limit: number;
+    page: number;
+}) {
+    return useQuery({
+        queryKey: taskKeys.lists(filters),
+        queryFn: () => getTaskByHead(),
         placeholderData: keepPreviousData,
     });
 }
