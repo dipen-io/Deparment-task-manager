@@ -118,14 +118,14 @@ const getTaskByEmp = asyncHandler(async (req, res) => {
 // get head dept only task
 const getDeptSelft = asyncHandler(async (req, res) => {
   const id = req.user._id;
+    console.log(req.user)
   // if admin then return all tasks
-  if (req.user.role === ROLES.ADMIN) {
+  if (req.user.userType === ROLES.ADMIN) {
     const tasks = await getAll(req.query);
     res.status(200).json(new ApiResponse(200, "oh you are admin ", tasks));
   }
-  return;
   const tasks = await getDeptWiseTask(id);
-  res.status(200).json(new ApiResponse(200, "My All Task", tasks));
+  res.status(200).json(new ApiResponse(200, "fetch task by head", tasks));
 });
 
 // get task count by all
