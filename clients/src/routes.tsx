@@ -16,6 +16,7 @@ import { EmployeeTask } from "./components/EmployeeTasks";
 import { ProfilePage } from "./pages/ProfilePage";
 import { DeptHeadDashboard } from "./components/DeptHeadDashboard";
 import { RoleComponents } from "./components/RoleComponents";
+import { TaskByHead } from "./components/FetchTaskByHead";
 
 export const router = createBrowserRouter([
   {
@@ -72,7 +73,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Navigate to="dashboard" replace /> },
       { path: "dashboard", element: <DeptHeadDashboard /> },
-      { path: "tasks", element: <AllTasks /> },
+      { path: "tasks", element: <TaskByHead /> },
     ],
   },
 
