@@ -34,7 +34,7 @@ export function AllTasks() {
     const [page, setPage] = useState(1); // ⚡ NEW: Track pagination active page numbers
 
     const { deleteTask } = useTaskMutations();
-
+    console.log("is it ");
     const removeTaskkk = async (id: string) => {
         setisDeleting(true);
         setDeletingId(id);
@@ -133,8 +133,8 @@ export function AllTasks() {
                                 setPage(1);
                             }}
                             className={`flex-1 md:flex-none px-4 py-2 rounded-md text-sm font-medium capitalize transition-colors ${activeFilter === filter
-                                    ? "bg-[#14b8a6] text-white shadow-sm"
-                                    : "text-gray-600 hover:bg-gray-100"
+                                ? "bg-[#14b8a6] text-white shadow-sm"
+                                : "text-gray-600 hover:bg-gray-100"
                                 }`}
                         >
                             {filter.replace("-", " ")}

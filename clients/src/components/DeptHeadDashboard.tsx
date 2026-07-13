@@ -49,7 +49,7 @@ export function DeptHeadDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar role="Head" />
+      {/* <Sidebar role="Head" /> */}
 
       <main className="flex-1 pt-16 lg:pt-0">
         {/* Header */}
