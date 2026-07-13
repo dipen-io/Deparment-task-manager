@@ -1,18 +1,21 @@
-import { Sidebar } from "./Sidebar";
+import toast from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router";
 
 export function EmployeeDashbaord() {
     const navigate = useNavigate();
     const { user } = useAuth();
-    if (user?.userType !== "head") {
+    if (user?.userType !== "member") {
         console.log("route not found");
         navigate(-1);
     }
 
+    if (user.userType === "member") {
+        toast.success(`welcome back ${user.name}`)
+    }
+
     return (
         <div className="min-h-screen bg-gray-50 flex">
-            <Sidebar role="Member" />
             <h1 className="text-gray-900 mb-1">Member Dashboard</h1>
 
             <main className="flex-1 pt-16 lg:pt-0">
