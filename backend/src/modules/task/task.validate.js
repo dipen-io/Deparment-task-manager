@@ -12,16 +12,15 @@ const createTaskValidator = [
   body("description").trim().notEmpty().withMessage("Description is required"),
   body("priority").notEmpty().withMessage("priority is required").isIn(["low", "high", "medium"]),
   body("createdBy").isMongoId(),
-  body("department").isMongoId().optional(),
+  body("department").isMongoId().optional({checkFalsy: true}).withMessage("Invalid department ID"),
   // body("status")
   //   .optional()
   //   .trim()
   //   .isIn(["pending", "in-progress", "completed"])
   //   .withMessage("Status must be pending, in-progress, or completed"),
 
-  body("assignedTo")
+  body("assigneeId")
     .optional({ checkFalsy: true })
-    .trim()
     .isMongoId()
     .optional()
     .withMessage("Invalid User ID format"),

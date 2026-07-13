@@ -5,7 +5,28 @@ const User = require("../user/user.model");
 const { ROLES } = require("../../constant/roles");
 
 const create = async (taskData) => {
+
+    if (taskData.department === "") {
+        taskData.department = null;
+    };
+    if (taskData.assigneeId === "") {
+        taskData.assigneeId = null;
+    };
+    // if there is assignedTo i need to assing that userId to 
     const task = await Task.create(taskData);
+
+    if (taskData.assigneeId) {
+        const userId = taskData.assigneeId;  
+        const taskId =  task._id.toString();
+        await assingTask({
+            userId,
+            taskId,
+        });
+        return;
+    }
+
+    console.log("success!")
+
     return task;
 };
 
