@@ -4,7 +4,7 @@ const { getAllEmployees, getUsersService, usersByAdmin } = require("./user.servi
 
 const listEmployees = asyncHandler(async (req, res) => {
   const department = req.user.department;
-  const role = req.user.role;
+  const role = req.user.userType;
   const employees = await getAllEmployees(role, department, req.query);
     const data = {
         users: employees,
