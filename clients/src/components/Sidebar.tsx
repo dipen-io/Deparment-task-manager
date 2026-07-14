@@ -16,21 +16,17 @@ interface SidebarProps {
     role: "Member" | "Admin" | "User" | "Head";
 }
 
-// interface SidebarProps { 
-//     allowedProps: Array<"admin" | "head" | "member">;
-// }
-
 export function Sidebar({ role }: SidebarProps) {
     const { logout } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
 
-    // const basePath = role === "Admin" ? "/admin" : "/member";
     const rolePaths = {
         Admin: "/admin",
         Member: "/member",
-        Head: "/dept-head", // Matches your SidebarProps interface
+        User: "/member",
+        Head: "/dept-head",
     };
 
     const basePath = rolePaths[role] || "/member";
