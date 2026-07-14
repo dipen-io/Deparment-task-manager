@@ -92,7 +92,7 @@ export const getTaskByHead = async () => {
     const res = await api.get("/task/myself-task");
     return res.data;
 };
-
+//id : taskAssignment id 
 export const updateTaskStatusByEmp = async (id: string, status: string) => {
     const res = await api.patch(`/task/${id}`, { status: status });
     return res.data;

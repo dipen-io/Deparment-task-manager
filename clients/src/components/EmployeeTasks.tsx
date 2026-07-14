@@ -4,6 +4,7 @@ import { CheckSquare, Clock, AlertCircle, ChevronDown, User, Calendar, ListTodo 
 import toast from 'react-hot-toast';
 
 interface Task {
+    task: any;
     _id: string;
     title: string;
     description: string;
@@ -40,7 +41,6 @@ export function EmployeeTask() {
             const response = await getTaskByEmp();
             // Securely unpack backend envelopes (handles res.data.data, res.data, or plain raw arrays)
             const rawTasks = response?.data?.tasks || response?.data?.data || response?.data || response || [];
-            console.log("rawtask: ", rawTasks);
             setTasks(Array.isArray(rawTasks) ? rawTasks : []);
         } catch (err: any) {
             setError(err?.message || 'Failed to sync your tasks list.');

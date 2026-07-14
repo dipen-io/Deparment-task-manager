@@ -34,7 +34,6 @@ export function AllTasks() {
     const [page, setPage] = useState(1); // ⚡ NEW: Track pagination active page numbers
 
     const { deleteTask } = useTaskMutations();
-    console.log("is it ");
     const removeTaskkk = async (id: string) => {
         setisDeleting(true);
         setDeletingId(id);
@@ -111,6 +110,7 @@ export function AllTasks() {
                 );
         }
     };
+
 
     return (
         <div>
