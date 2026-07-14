@@ -19,7 +19,7 @@ const notifyError = (msg: string) =>
   });
 
 export function SignupPage() {
-  const { user, saveData } = useAuth();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -46,8 +46,8 @@ export function SignupPage() {
       // Sends just name, email, password. Role & Dept will be set by admin later.
       const response = await signupUser(formData);
       toast.success(response.message || "Account created!");
-      saveData(response.data.user, response.data.accessToken);
-      navigate("/", { replace: true });
+      // saveData(response.data.user, response.data.accessToken);
+      navigate("/login", { replace: true });
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         notifyError(err.response?.data?.message || err.message);
