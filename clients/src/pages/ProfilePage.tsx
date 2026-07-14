@@ -2,10 +2,12 @@ import { useAuth } from "../context/AuthContext";
 import { User, Mail, ShieldCheck, Briefcase, ShieldAlert, Award } from "lucide-react";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { GetMyRole } from "../hooks/useRole";
+import { useNavigate } from "react-router";
 
 export function ProfilePage() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const userId = user?._id;
+  const navigate = useNavigate();
 
   // Fetch permissions dynamic hook
   const { data: res, isLoading } = GetMyRole(userId!);
@@ -13,7 +15,6 @@ export function ProfilePage() {
 
   // Set up the permission array from server payload or fallback gracefully
   const permissionsList = res?.data?.roles?.permission || [];
-
 
   if (!user) {
     return (
@@ -24,6 +25,11 @@ export function ProfilePage() {
         </p>
       </div>
     );
+  }
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login", { replace: true });
   }
 
   return (
@@ -65,6 +71,11 @@ export function ProfilePage() {
             <span className="px-3 py-1 bg-teal-50/60 border border-teal-100/50 text-[#0d9488] text-[10px] font-extrabold uppercase tracking-widest rounded-lg">
               {user.userType || "Staff"} Account
             </span>
+            {user.userType === "user" && (
+              <span className="px-3 py-1 bg-teal-50/60 border border-teal-100/50 text-[#0d9488] text-[10px] font-extrabold uppercase tracking-widest rounded-lg hover:bg-slate-700" onClick={handleLogout}>
+                Logout
+              </span>
+            )}
           </div>
         </div>
 
