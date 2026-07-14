@@ -1,7 +1,8 @@
 const app = require("./src/app");
 const http = require("node:http");
 const connectDb = require("./src/config/db");
-const makeAdmin = require("./src/middleware/makeAdmin");
+// const makeAdmin = require("./src/middleware/makeAdmin");
+// const seedDepartmentData = require("./src/modules/department/seedDept")
 
 const PORT = process.env.PORT || 8081;
 
@@ -11,6 +12,7 @@ const startServer = async () => {
   try {
     await connectDb();
     // await makeAdmin();
+    // seedDepartmentData()
     server.listen(PORT, () => {
       console.log(`✅ Server is running on http://localhost:${PORT}`);
     });

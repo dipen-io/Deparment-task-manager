@@ -23,14 +23,13 @@ const protect = asyncHandler(async (req, res, next) => {
   if (!user) throw new AppError("User no longer exists", 401);
 
   req.user = user;
-  console.log("req.user => ", req.user);
   next();
 });
 
 const authorize = (...allowedRoles) => {
-
+  console.log("ROLES VERFIED!")
   return (req, res, next) => {
-  console.log("req.user from authorize => ", req.user);
+  // console.log("req.user from authorize => ", req.user);
     if (!req.user || !allowedRoles.includes(req.user.userType)) {
       return res.status(403).json({
         error:
