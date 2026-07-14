@@ -84,7 +84,7 @@ export const router = createBrowserRouter([
     path: "/member",
     element: (
       <ProtectedRoute>
-        <DashboardLayout allowedProps={["member"]} />
+        <DashboardLayout allowedProps={["member", "user"]} />
       </ProtectedRoute>
     ),
     children: [
