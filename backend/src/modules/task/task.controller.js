@@ -12,7 +12,7 @@ const {
   getOne,
   updateOne,
   assignOne,
-  getDeptWiseTask,
+  getTaskWiseTask,
   assingTask,
   unAssignTask,
 } = require("./task.service");
@@ -116,14 +116,17 @@ const getTaskByEmp = asyncHandler(async (req, res) => {
 });
 
 // get head dept only task
-const getDeptSelft = asyncHandler(async (req, res) => {
+const getTaskSelft = asyncHandler(async (req, res) => {
   const id = req.user._id;
   // if admin then return all tasks
   if (req.user.userType === ROLES.ADMIN) {
     const tasks = await getAll(req.query);
     res.status(200).json(new ApiResponse(200, "oh you are admin ", tasks));
   }
-  const tasks = await getDeptWiseTask(id);
+
+  const tasks = await getTaskWiseTask(id);
+    console.log("tasks: ", tasks);
+  // need to return here who is assinged to that 
   res.status(200).json(new ApiResponse(200, "fetch task by head", tasks));
 });
 
@@ -211,6 +214,6 @@ module.exports = {
   updateTask,
   assignTask,
   getTaskByEmp,
-  getDeptSelft,
+  getTaskSelft,
   getTaskCount,
 };

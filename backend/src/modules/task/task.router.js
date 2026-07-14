@@ -15,7 +15,7 @@ const {
   deleteTask,
   getAllTasks,
   getSingleTask,
-  getDeptSelft,
+  getTaskSelft,
   getTaskCount,
   assignAnUserToTask,
   unAssinAnUserToTask,
@@ -68,7 +68,7 @@ router.get(
   "/myself-task",
   protect,
   authorize(ROLES.ADMIN, ROLES.DEPT_HEAD),
-  getDeptSelft,
+  getTaskSelft,
 );
 
 router.delete("/unassign", unAssinAnUserToTask);
