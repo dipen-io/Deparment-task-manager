@@ -109,7 +109,7 @@ export function TaskByHead() {
         }
     };
 
-    console.log("selectedTask: ", selectedTask);
+    console.log("selectedTask: ", tasks);
 
     return (
         <div>
@@ -220,7 +220,7 @@ export function TaskByHead() {
                                                 <span className="italic text-xs bg-gray-100 text-gray-700 font-medium rounded-xl px-3 py-1">
                                                     {task.priority}
                                                 </span>
-                                                {renderStatusBadge(task.status)}
+                                                {renderStatusBadge(task.assignedTo?.status)}
                                             </div>
                                         </div>
 
