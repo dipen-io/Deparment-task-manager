@@ -10,6 +10,7 @@ import {
     X,
     LogOut,
     Landmark,
+    Info
 } from "lucide-react";
 
 interface SidebarProps {
@@ -73,6 +74,7 @@ export function Sidebar({ role }: SidebarProps) {
         { icon: User, label: "Profile", path: `/profile` },
         // { icon: Settings, label: "Settings", path: `${basePath}/settings` },
         { icon: LogOut, label: "Logout", action: handleLogout },
+        { icon: Info, label: "Project Details", path: '/info' },
     ];
 
     const handleNavigation = (path: string) => {

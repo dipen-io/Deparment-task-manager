@@ -17,6 +17,7 @@ import { ProfilePage } from "./pages/ProfilePage";
 import { DeptHeadDashboard } from "./components/DeptHeadDashboard";
 import { RoleComponents } from "./components/RoleComponents";
 import { TaskByHead } from "./components/FetchTaskByHead";
+import { ProjectDetails } from "./pages/ProjectInfo";
 
 export const router = createBrowserRouter([
   {
@@ -120,8 +121,11 @@ export const router = createBrowserRouter([
   },
   {
     path: "/login",
-
     element: <LoginPage />,
+  },
+  {
+    path: "/info",
+    element: < ProjectDetails />
   },
   {
     path: "*",
