@@ -59,9 +59,12 @@ export function TaskByHead() {
         page: page,
         limit: 6,
     });
-    const tasks = response?.data || [];
 
-    const pagination = response?.data?.pagination || {
+    const tasks = Array.isArray(response?.data)
+        ? response.data
+        : (Array.isArray(response?.data?.data) ? response.data.data : []);
+
+    const pagination = response?.data?.pagination || response?.pagination || {
         currentPage: 1,
         hasNextPage: false,
         hasPrevPage: false,
@@ -108,8 +111,6 @@ export function TaskByHead() {
                 );
         }
     };
-
-    console.log("selectedTask: ", tasks);
 
     return (
         <div>

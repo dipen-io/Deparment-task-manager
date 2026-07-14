@@ -1,6 +1,21 @@
 
 ## 🛣️ API Endpoints
 
+
+### Demmy Credentials
+*   admin:  
+    > email: admin@gmail.com
+    > password: 123456
+
+*   head:  
+    > email: head1@gmail.com
+    > password: 123456
+
+*   member:
+    > email: member@gmail.com
+    > password: 123456
+
+
 ### Auth
 *   `POST /auth/register` - Create a new account.
 *   `POST /auth/login` - Authenticate and receive tokens.
