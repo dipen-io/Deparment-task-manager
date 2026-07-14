@@ -26,8 +26,6 @@ const create = async (taskData) => {
         return;
     }
 
-    console.log("success!")
-
     return task;
 };
 
@@ -180,6 +178,7 @@ const updateOne = async (taskId, updateData, user, assignedTo) => {
         }
     }
 
+
     // 5. Handle updates based on who is asking
     let updatedTask = task;
 
@@ -250,32 +249,58 @@ const assignOne = async (taskId, newAssigneeId) => {
     return updatedTask;
 };
 
-const getTaskWiseTask = async (id) => {
+// deparment head
+// return the task he created | same deartment task | not department assinged task
+const getDeptWiseTask = async (id, user) => {
+    
+// Safely extract the department ID if the user object has it bound
+    const userDepartmentId = user?.department?._id || user?.department;
 
     return await Task.aggregate([
         {
-            // 1️⃣ Filter by creator ID
+            // 1️⃣ Multi-condition Matching Layer ($or)
             $match: {
-                createdBy: new mongoose.Types.ObjectId(id),
+                $or: [
+                    // Condition A: Tasks created by this specific user
+                    { createdBy: new mongoose.Types.ObjectId(id) },
+
+                    //  The task MUST match the Head's current active department...
+                    //  mean if deparmten is chaned then head can't see it 
+                    //  need to remove C condition and A 
+                    // ...(userDepartmentId 
+                    //     ? [{ department: new mongoose.Types.ObjectId(userDepartmentId) }] 
+                    //     : []
+                    // ),
+                    
+                    // Condition B: Global tasks with no department assigned
+                    { department: { $exists: false } },
+                    { department: null },
+                    
+                    // Condition C: Tasks matching the user's active department location
+                    ...(userDepartmentId 
+                        ? [{ department: new mongoose.Types.ObjectId(userDepartmentId) }] 
+                        : []
+                    )
+                ]
             },
         },
         {
-            // 2️⃣ Join with Department collection to grab name and code
+            // 2️⃣ Join with Department collection
             $lookup: {
-                from: "departments", // ⚠️ Check if your collection name is pluralized 'departments'
+                from: "departments", 
                 localField: "department",
                 foreignField: "_id",
-                as: "departmentDetails"
+                as: "departmentdetails"
             }
         },
         {
             $unwind: {
-                path: "$departmentDetails",
+                path: "$departmentdetails",
                 preserveNullAndEmptyArrays: true
             }
         },
         {
-            // 3️⃣ Join with TaskAssignments (Keep as array to support multiple assignees!)
+            // 3️⃣ Join with TaskAssignments
             $lookup: {
                 from: "taskassignments",
                 localField: "_id",
@@ -284,69 +309,64 @@ const getTaskWiseTask = async (id) => {
             }
         },
         {
-            // 4️⃣ Deep populate user info inside the assignments array
+            // 4️⃣ Deep populate assigned users
             $lookup: {
                 from: "users",
                 localField: "assignments.assignedTo",
                 foreignField: "_id",
-                as: "assignedUsers"
+                as: "assignedusers"
             }
         },
         {
-            // 🔍 New Join: Look up the profile details of the task creator
+            // 5️⃣ Join to populate Task Creator Profile Info
             $lookup: {
                 from: "users",
                 localField: "createdBy",
                 foreignField: "_id",
-                as: "creatorInfo"
+                as: "creatorinfo"
             }
         },
         {
             $unwind: {
-                path: "$creatorInfo",
+                path: "$creatorinfo",
                 preserveNullAndEmptyArrays: true
             }
         },
         {
-            // 5️⃣ Shape the payload cleanly for your React frontend roster list
+            // 6️⃣ Intermediate Projection Stage: Map array down cleanly
             $project: {
                 _id: 1,
                 title: 1,
                 description: 1,
                 priority: 1,
                 createdAt: 1,
-                // If the assignments array has items, it means it is assigned
                 isAssigned: { 
                     $gt: [{ $size: "$assignments" }, 0] 
                 },
-                // Returns clean department mapping nodes
                 department: {
-                    _id: "$departmentDetails._id",
-                    name: { $ifNull: ["$departmentDetails.name", "Unassigned"] },
-                    code: { $ifNull: ["$departmentDetails.code", "N/A"] }
+                    _id: "$departmentdetails._id",
+                    name: { $ifNull: ["$departmentdetails.name", "unassigned"] },
+                    code: { $ifNull: ["$departmentdetails.code", "n/a"] }
                 },
                 createdBy: {
-                    _id: "$creatorInfo._id",
-                    name: { $ifNull: ["$creatorInfo.name", "Unknown Admin"] }
+                    _id: "$creatorinfo._id",
+                    name: { $ifNull: ["$creatorinfo.name", "unknown admin"] }
                 },
-
-                // Maps out all assigned users into a clean array list block
-                // First projection helper stage:Convert array mapping into a single element extraction
-                // 1 user to 1 task
-                assignedUserRaw: {
+                // Flattening assignments to 1 user -> 1 task object securely using correct camelCasing
+                assigneduserraw: {
                     $arrayElemAt: [
                         {
                             $map: {
                                 input: "$assignments",
                                 as: "assign",
                                 in: {
-                                    assignmentId: "$$assign._id",
+                                    assignmentid: "$$assign._id",
                                     status: "$$assign.status",
                                     user: {
                                         $arrayElemAt: [
                                             {
                                                 $filter: {
-                                                    input: "$assignedUsers",
+                                                    input: "$assignedusers",
                                                     cond: { $eq: ["$$this._id", "$$assign.assignedTo"] }
                                                 }
                                             },
@@ -356,36 +376,13 @@ const getTaskWiseTask = async (id) => {
                                 }
                             }
                         },
-                        0 // Extract index 0 to collapse the multi-row array structure instantly
+                        0
                     ]
                 }
-
-                // 1 user to many task
-                // assignedToUsers: {
-                //     $map: {
-                //         input: "$assignments",
-                //         as: "assign",
-                //         in: {
-                //             assignmentId: "$$assign._id",
-                //             status: "$$assign.status",
-                //             user: {
-                //                 // Find matching user object fields from our deep lookup array
-                //                 $arrayElemAt: [
-                //                     {
-                //                         $filter: {
-                //                             input: "$assignedUsers",
-                //                             cond: { $eq: ["$$this._id", "$$assign.assignedTo"] }
-                //                         }
-                //                     },
-                //                     0
-                //                 ]
-                //             }
-                //         }
-                //     }
-                // }
             }
         },
         {
+            // 7️⃣ Final Project Stage: Flatten data structures for frontend tracking cards
             $project: {
                 _id: 1,
                 title: 1,
@@ -395,40 +392,24 @@ const getTaskWiseTask = async (id) => {
                 createdAt: 1,
                 isAssigned: 1,
                 department: 1,
-
-                // many task 1 user
-                // assignedToUsers: {
-                //     $map: {
-                //         input: "$assignedToUsers",
-                //         as: "item",
-                //         in: {
-                //             assignmentId: "$$item.assignmentId",
-                //             status: "$$item.status",
-                //             _id: "$$item.user._id",
-                //             name: "$$item.user.name",
-                //             email: "$$item.user.email"
-                //         }
-                //     }
-                // }
-            // ⚡ NEW: Flat, structured assignment object instead of an array wrapper shell
                 assignedTo: {
                     $cond: [
-                        { $ifNull: ["$assignedUserRaw.assignmentId", false] },
+                        { $ifNull: ["$assigneduserraw.assignmentid", false] },
                         {
-                            assignmentId: "$assignedUserRaw.assignmentId",
-                            status: "$assignedUserRaw.status",
-                            _id: "$assignedUserRaw.user._id",
-                            name: "$assignedUserRaw.user.name",
-                            email: "$assignedUserRaw.user.email"
+                            assignmentId: "$assigneduserraw.assignmentid",
+                            status: "$assigneduserraw.status",
+                            _id: "$assigneduserraw.user._id",
+                            name: "$assigneduserraw.user.name",
+                            email: "$assigneduserraw.user.email"
                         },
-                        null // Clean fallback to prevent undefined references on unassigned cards
+                        null
                     ]
                 }
             }
         }
     ]);
 
-    // return {tasks, userAssigned };
+    // return {tasks, userassigned };
 };
 
 const assingTask = async ({ userId, taskId }) => {
@@ -637,7 +618,7 @@ module.exports = {
     unAssignTask,
     fetchingTaskforUser,
     assingTask,
-    getTaskWiseTask,
+    getDeptWiseTask,
     create,
     remove,
     getAll,

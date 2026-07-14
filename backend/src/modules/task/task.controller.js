@@ -12,7 +12,7 @@ const {
   getOne,
   updateOne,
   assignOne,
-  getTaskWiseTask,
+  getDeptWiseTask,
   assingTask,
   unAssignTask,
 } = require("./task.service");
@@ -76,12 +76,13 @@ const getSingleTask = asyncHandler(async (req, res) => {
 });
 
 const updateTask = asyncHandler(async (req, res) => {
+    console.log(req.user.userType)
   // Task update by admin only
   // task status update by employee nned only assignedTo (userId)
   const taskId = req.params.id;
-    const updatePayload = req.body;
-    const assignedTo = req.body.assignedTo;
-      const user = req.user;
+  const updatePayload = req.body;
+  const assignedTo = req.body.assignedTo;
+  const user = req.user;
 
   // Pass everything to our smart service
   const updatedTask = await updateOne(taskId, updatePayload, user, assignedTo);
@@ -124,8 +125,7 @@ const getTaskSelft = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, "oh you are admin ", tasks));
   }
 
-  const tasks = await getTaskWiseTask(id);
-    console.log("tasks: ", tasks);
+  const tasks = await getDeptWiseTask(id, req.user);
   // need to return here who is assinged to that 
   res.status(200).json(new ApiResponse(200, "fetch task by head", tasks));
 });
