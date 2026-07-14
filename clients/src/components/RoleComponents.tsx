@@ -161,7 +161,7 @@ export function RoleComponents() {
                     ) : (
                         <div>
                             <ul className="divide-y divide-slate-100 max-h-[70vh] overflow-y-auto">
-                                {permission.map((perm) => (
+                                {permission.map((perm: Permission) => (
                                     <li
                                         key={perm._id}
                                         className="p-5 hover:bg-slate-50/70 transition-colors flex items-start gap-4"

@@ -40,8 +40,8 @@ export function TaskByHead() {
         setDeletingId(id);
         try {
             await deleteTask(id);
-        } catch (error) {
-            console.log(error.message);
+        } catch (err: any) {
+            console.error("error", err);
             toast.error("error deleting task");
         } finally {
             setisDeleting(false);

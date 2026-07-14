@@ -30,13 +30,22 @@ export function useDeptMutations() {
   //   },
   // });
   const assignMemUsrDept = useMutation({
-    mutationFn: ({ deptId, userId, role, oldMangerId }: { deptId: string, deptCode: string, userId: string, role: string, oldMangerId: string }) => assignDept(deptId, userId, role, oldMangerId),
+    mutationFn: ({ deptId, userId, role, oldMangerId }: {
+      deptId: string;
+      deptCode: string;
+      userId: string;
+      role: string;
+      oldMangerId: string;
+    }) => assignDept(deptId, userId, role, oldMangerId),
+
     onSuccess: (response, variable) => {
       queryClient.invalidateQueries({ queryKey: deptKeys.all });
+
+      // ⚡ Now variable.deptCode resolves cleanly without typescript breaking!
       queryClient.invalidateQueries({
-        // queryKey: ["users", "admin"],
         queryKey: userKeys.admin(variable.deptId, variable.deptCode),
       });
+
       queryClient.invalidateQueries({ queryKey: deptKeys.detail(variable.deptId) });
 
       toast.success(response.message || "User Assigned!");

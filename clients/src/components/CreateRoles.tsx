@@ -10,7 +10,16 @@ import axios from "axios";
 import { UseGetPermission } from "../hooks/usePermission";
 import { useRolesMutations } from "../hooks/useRoleMutation";
 
-export function CreateRoles({ onClose }) {
+interface CreateRolesProps {
+    onClose: (success?: boolean) => void;
+}
+interface PermissionItem {
+    _id: string;
+    name: string;
+    desc: string;
+}
+
+export function CreateRoles({ onClose }: CreateRolesProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [currentRole, setCurrentRole] = useState<string[]>([]);
@@ -20,7 +29,7 @@ export function CreateRoles({ onClose }) {
     });
     const [roleEditingId, setRoleEditingId] = useState<string | null>(null);
     // const [roles, setRoles] = useState<Role[]>([]);
-    const roleInputRef = useRef(null);
+    const roleInputRef = useRef<HTMLInputElement>(null);
 
     const { createRoles } = useRolesMutations();
 
@@ -110,7 +119,8 @@ export function CreateRoles({ onClose }) {
                         Create New Role
                     </h2>
                     <button
-                        onClick={onClose}
+                        // onClick={onClose}
+                        onClick={() => onClose()}
                         className="p-1 hover:bg-gray-100 rounded-lg text-gray-500"
                     >
                         <X size={20} />
@@ -144,7 +154,7 @@ export function CreateRoles({ onClose }) {
                             </label>
 
                             <div className="space-y-2 max-h-48 overflow-y-auto border border-slate-100 rounded-lg p-3 bg-slate-50/50">
-                                {permissionsList.length > 0 && permissionsList?.map((perm) => {
+                                {permissionsList.length > 0 && permissionsList?.map((perm: PermissionItem) => {
                                     const isChecked =
                                         role.permissionId?.includes(
                                             perm._id ?? "",

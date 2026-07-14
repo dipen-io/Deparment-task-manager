@@ -6,6 +6,7 @@ import {
     removePermission,
 } from "../api/permissionApi";
 import { permKeys } from "./usePermission";
+import type { Permission } from "../components/types/rolesType";
 
 export function usePermissionMutations() {
     const queryClient = useQueryClient();
@@ -16,7 +17,7 @@ export function usePermissionMutations() {
         onSuccess: (response) => {
             // Invalidate every list cache view to ensure fresh inject occurs
             queryClient.invalidateQueries({ queryKey: permKeys.all });
-            toast.success(response.message || "Permission created!");
+            toast.success(response.data.message || "Permission created!");
         },
     });
 
@@ -27,8 +28,8 @@ export function usePermissionMutations() {
             changedField,
         }: {
             id: string;
-            changedField: Record<string, any>;
-        }) => editPermission(changedField, id),
+            changedField: Permission;
+        }) => editPermission(id, changedField),
         onSuccess: (response, variables) => {
             // 1. Refresh global lookup lists
             queryClient.invalidateQueries({ queryKey: permKeys.all });
@@ -37,7 +38,7 @@ export function usePermissionMutations() {
                 queryKey: permKeys.detail(variables.id),
             });
 
-            toast.success(response.message || "Task updated!");
+            toast.success(response.data.message || "Task updated!");
         },
     });
 

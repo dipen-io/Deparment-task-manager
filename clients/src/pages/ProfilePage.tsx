@@ -8,7 +8,7 @@ export function ProfilePage() {
   const userId = user?._id;
 
   // Fetch permissions dynamic hook
-  const { data: res, isLoading } = GetMyRole(userId);
+  const { data: res, isLoading } = GetMyRole(userId!);
   const roleName = res?.data?.roles?.name || "No System Role Assigned";
 
   // Set up the permission array from server payload or fallback gracefully

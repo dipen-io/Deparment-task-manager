@@ -6,7 +6,11 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { usePermissionMutations } from "../hooks/usePermissionMutation";
 
-export function CreatePermission({ onClose }) {
+interface CreateRolesProps {
+    onClose: (success?: boolean) => void;
+}
+
+export function CreatePermission({ onClose }: CreateRolesProps) {
     const [permissionForm, setPermissionForm] = useState<Permission>({
         name: "",
         desc: "",
@@ -77,7 +81,7 @@ export function CreatePermission({ onClose }) {
                             Create New Permission
                         </h2>
                         <button
-                            onClick={onClose}
+                            onClick={() => onClose()}
                             className="p-1 hover:bg-gray-100 rounded-lg text-gray-500"
                         >
                             <X size={20} />

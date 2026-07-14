@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import { useDept } from "../hooks/useDepartment";
 import { useTaskMutations } from "../hooks/useTaskMutation";
 import { getEmployeeByHead } from "../hooks/useUser";
+import type { Department } from "./types/userType";
 
 // type TaskStatus = "pending" | "in-process" | "completed";
 type TaskPriority = "low" | "medium" | "high" | "urgent";
@@ -21,11 +22,13 @@ export function CreateTaskModal({ onClose, task }: CreateTaskModalProps) {
     const { createTask, updateTask } = useTaskMutations();
     const { data: res, isLoading: isDeptLoading } = useDept(filter);
 
+
     const departments = res?.data?.data;
-    let singleDepartment
-    if (user.userType === "head") {
-        singleDepartment = user?.department || [];
-    }
+    // let singleDepartment: Department
+    // if (user && user.userType === "head") {
+    //     singleDepartment = user?.department;
+    // }
+    const singleDepartment: Department | undefined = user?.userType === "head" ? user?.department : undefined;
 
     // Form State
     const [title, setTitle] = useState(task?.title || "");
@@ -298,7 +301,7 @@ export function CreateTaskModal({ onClose, task }: CreateTaskModalProps) {
                                     </button>
 
                                     {/* Filtered Data Cards Mapping Elements */}
-                                    {user?.userType === "head" ? (
+                                    {singleDepartment && user?.userType === "head" ? (
                                         <button
                                             key={singleDepartment._id}
                                             type="button"
@@ -308,10 +311,10 @@ export function CreateTaskModal({ onClose, task }: CreateTaskModalProps) {
                                             }}
                                             className={`w-full text-left px-2.5 py-2 rounded-md transition-colors truncate block ${selectedDeptId === singleDepartment._id ? "bg-teal-50 text-[#14b8a6] font-bold" : "text-gray-600 hover:bg-slate-50"}`}
                                         >
-                                            {singleDepartment.name}{" "}
-                                            {singleDepartment.code
-                                                ? `[${singleDepartment.code}]`
-                                                : ""}
+                                            {singleDepartment?.name}{" "}
+                                            {/* {singleDepartment?.code
+                                                ? `[${singleDepartment?.code}]`
+                                                : ""} */}
                                         </button>
                                     ) : (filteredDepartments.length > 0 ? (
                                         filteredDepartments.map((dept) => (

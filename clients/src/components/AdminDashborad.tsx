@@ -1,21 +1,18 @@
-// import { Sidebar } from "./Sidebar";
 import { Users, ClipboardCheck, PercentSquareIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { CreateTaskModal } from "./CreateTaskModal";
 import { getTaskCount } from "../api/taskApi";
 import { getUsers } from "../api/userApi";
 import { TeamOverview } from "./TeamOverview";
-import type { Employee } from "../api/userApi";
 import { useDeptCount } from "../hooks/useDepartment";
 
 import { useUserNormal } from "../hooks/useUser";
 
-// import { useAuth } from "../context/AuthContext";
 
 export function AdminDashboard() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [taskCount, setTaskCount] = useState(0);
-    const [user, setUser] = useState<Employee[]>([]);
+    // const [user, setUser] = useState<Employee[]>([]);
 
 
     // const { user } = useAuth();
@@ -52,28 +49,17 @@ export function AdminDashboard() {
 
         const fetchDashboardData = async () => {
             try {
-                const [countRes, userRole] = await Promise.all([
+                const [countRes, _] = await Promise.all([
                     getTaskCount(),
                     getUsers()
                 ]);
                 setTaskCount(countRes.data);
-                setUser(userRole?.data?.users);
+                // setUser(userRole?.data?.users);
             } catch (err) {
                 console.error("Dashboard metrics load failure:", err);
             }
         }
         fetchDashboardData();
-        // const getTaskCounts = async () => {
-        //     const count = await getTaskCount();
-        //     setTaskCount(count.data);
-        // };
-        // const getUser = async () => {
-        //     const res = await getUsers();
-        //     setUsersCount(res?.data?.totalUsers);
-        //     setUser(res?.data?.users);
-        // };
-        // getTaskCounts();
-        // getUser();
     }, []);
 
 

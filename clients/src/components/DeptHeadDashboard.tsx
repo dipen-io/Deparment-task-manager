@@ -1,6 +1,6 @@
 // import { Sidebar } from "./Sidebar";
 import { Users, ClipboardCheck } from "lucide-react";
-import { getUsers, type Employee } from "../api/userApi";
+import { getUsers } from "../api/userApi";
 import { getTaskCount } from "../api/taskApi";
 import { useEffect, useState } from "react";
 import { CreateTaskModal } from "./CreateTaskModal";
@@ -11,7 +11,7 @@ export function DeptHeadDashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [taskCount, setTaskCount] = useState(0);
   const [usersCount, setUsersCount] = useState(0);
-  const [user, setUser] = useState<Employee[]>([]);
+  // const [user, setUser] = useState<Employee[]>([]);
 
   const stats = [
     {
@@ -38,7 +38,7 @@ export function DeptHeadDashboard() {
     const getUser = async () => {
       const res = await getUsers();
       setUsersCount(res?.data?.totalUsers);
-      setUser(res?.data?.users);
+      // setUser(res?.data?.users);
 
       // setUser(user);
     };
@@ -105,7 +105,7 @@ export function DeptHeadDashboard() {
             ))}
           </div>
           {/*team overview details */}
-          <TeamOverview users={user} />
+          <TeamOverview />
         </div>
       </main>
     </div>

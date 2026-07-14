@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { roleKeys } from "./useRole";
 import { createRole, deleteRoles, updateRoles } from "../api/roleApi"
+import type { UpdateRolePaylaod } from "../api/roleApi"
 
 export function useRolesMutations() {
     const queryClient = useQueryClient();
@@ -23,8 +24,8 @@ export function useRolesMutations() {
             changedField,
         }: {
             id: string;
-            changedField: Record<string, any>;
-        }) => updateRoles(changedField, id),
+            changedField: UpdateRolePaylaod;
+        }) => updateRoles(id, changedField),
         onSuccess: (response, variables) => {
             // 1. Refresh global lookup lists
             queryClient.invalidateQueries({ queryKey: roleKeys.all });
@@ -33,7 +34,7 @@ export function useRolesMutations() {
                 queryKey: roleKeys.detail(variables.id),
             });
 
-            toast.success(response.message || "Task updated!");
+            toast.success(response.data.message || "Task updated!");
         },
     });
 

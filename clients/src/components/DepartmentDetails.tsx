@@ -51,7 +51,7 @@ export function DepartmentDetails({ onClose, data }: DeptDetailsProps) {
             await updateHead({
                 deptId: data._id,
                 deptCode: data.code,
-                userId: managerId === "vacant" ? null : managerId,
+                userId: managerId === "vacant" ? "" : managerId,
                 role: "head",
                 oldMangerId: data.manager._id
             });

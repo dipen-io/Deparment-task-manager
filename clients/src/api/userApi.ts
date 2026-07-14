@@ -57,7 +57,7 @@ export const getEmployees = async (): Promise<ApiResponse<EmployeesDataPayload>>
 };
 
 // get users by only admin or dept admin
-export const getUsersNormal = async (filters): Promise<UsersResponse> => {
+export const getUsersNormal = async (filters: {}): Promise<UsersResponse> => {
   const res = await api.get<UsersResponse>("/user/users", {
     params: filters
   });

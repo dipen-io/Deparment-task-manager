@@ -39,7 +39,7 @@ export function AllTasks() {
         setDeletingId(id);
         try {
             await deleteTask(id);
-        } catch (error) {
+        } catch (error: any) {
             console.log(error.message);
             toast.error("error deleting task");
         } finally {

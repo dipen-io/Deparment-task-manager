@@ -1,18 +1,17 @@
-import toast from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router";
 
 export function EmployeeDashbaord() {
     const navigate = useNavigate();
     const { user } = useAuth();
-    if (user?.userType !== "member") {
+    if (user && user?.userType !== "member") {
         console.log("route not found");
         navigate(-1);
     }
 
-    if (user.userType === "member") {
-        toast.success(`welcome back ${user.name}`)
-    }
+    // if (user.userType === "member") {
+    //     toast.success(`welcome back ${user.name}`)
+    // }
 
     return (
         <div className="min-h-screen bg-gray-50 flex">
