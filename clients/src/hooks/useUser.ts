@@ -1,7 +1,7 @@
 // get request and caching
 
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { getUsers, getUsersByAdmin, getUsersNormal } from "../api/userApi";
+import { getEmployees, getUsers, getUsersByAdmin, getUsersNormal } from "../api/userApi";
 
 // Query keys Centralized startegy
 export const userKeys = {
@@ -35,6 +35,14 @@ export function user_member_head(deptId: string, deptCode: string) {
         queryFn: () => getUsersByAdmin(deptId, deptCode),
         placeholderData: keepPreviousData,
         enabled: !!deptId && !!deptCode,
+    })
+}
+
+export function getEmployeeByHead() {
+    return useQuery({
+        queryKey: ['employees-list'],
+        queryFn: () => getEmployees(),
+        placeholderData: keepPreviousData,
     })
 }
 

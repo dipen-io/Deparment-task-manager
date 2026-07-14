@@ -1,12 +1,11 @@
 import { useState, useEffect, useRef } from "react";
-import { getEmployees } from "../api/userApi";
 import { type Task } from "../api/taskApi";
-import type { Employee } from "../api/userApi";
 import toast from "react-hot-toast";
 import { ChevronDown, Search, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useDept } from "../hooks/useDepartment";
 import { useTaskMutations } from "../hooks/useTaskMutation";
+import { getEmployeeByHead } from "../hooks/useUser";
 
 // type TaskStatus = "pending" | "in-process" | "completed";
 type TaskPriority = "low" | "medium" | "high" | "urgent";
@@ -31,7 +30,6 @@ export function CreateTaskModal({ onClose, task }: CreateTaskModalProps) {
     // Form State
     const [title, setTitle] = useState(task?.title || "");
     const [description, setDescription] = useState(task?.description || "");
-    // const [status, setStatus] = useState(task?.status || "pending");
     const [priority, setPriority] = useState<TaskPriority>(
         (task?.priority as TaskPriority) || "medium",
     );
@@ -39,7 +37,6 @@ export function CreateTaskModal({ onClose, task }: CreateTaskModalProps) {
     const [createdBy, setCreatedBy] = useState(
         task?.createdBy?._id || user?._id,
     );
-    // const [selectedDeptId, setSelectedDeptId] = useState("");
     const [selectedDeptId, setSelectedDeptId] = useState(
         task?.department?._id || task?.department || "",
     );
@@ -47,9 +44,6 @@ export function CreateTaskModal({ onClose, task }: CreateTaskModalProps) {
     const dropdownRef = useRef<HTMLDivElement>(null);
     const [isOpen, setIsOpen] = useState(false);
 
-    // API State
-    const [employees, setEmployees] = useState<Employee[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
     const [isTaskAding, setIsTaskAdding] = useState(false);
 
     // Fetch employees when the modal opens
@@ -62,21 +56,10 @@ export function CreateTaskModal({ onClose, task }: CreateTaskModalProps) {
             setCreatedBy(task.createdBy._id || "");
             setSelectedDeptId(task.department?._id || task.department || "");
         }
-        const fetchEmployees = async () => {
-            setIsLoading(true);
-            try {
-                // Replace with your actual API call
-                const { data } = await getEmployees();
-                setEmployees(data?.users);
-            } catch (error) {
-                console.error("Failed to fetch employees", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchEmployees();
     }, [task]);
+
+    const { data: fetchUsers, isLoading } = getEmployeeByHead();
+    const employees = fetchUsers?.data?.users;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -102,7 +85,6 @@ export function CreateTaskModal({ onClose, task }: CreateTaskModalProps) {
             return;
         }
 
-        // const newTask = { title, description, priority, assigneeId, createdBy };
 
         try {
             setIsTaskAdding(true);
