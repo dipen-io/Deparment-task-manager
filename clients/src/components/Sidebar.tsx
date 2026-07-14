@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 interface SidebarProps {
-    role: "Member" | "Admin" | "Head";
+    role: "Member" | "Admin" | "User" | "Head";
 }
 
 // interface SidebarProps { 

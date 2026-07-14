@@ -3,12 +3,12 @@ import { useAuth } from "../context/AuthContext";
 import { Sidebar } from "./Sidebar";
 
 interface DashboardLayoutProps {
-    allowedProps: Array<"admin" | "head" | "member">;
+  allowedProps: Array<"admin" | "head" | "user" | "member">;
 }
 
 export function DashboardLayout({ allowedProps }: DashboardLayoutProps) {
 
-    const { user, loading } = useAuth();
+  const { user, loading } = useAuth();
 
   // If no user is logged in, send them to login
   if (loading) return <div> loaidng.. </div>
@@ -16,14 +16,14 @@ export function DashboardLayout({ allowedProps }: DashboardLayoutProps) {
 
   const hasPermission = allowedProps?.includes(user.userType as any);
   if (!hasPermission) {
-      return <Navigate to="/login" replace />
+    return <Navigate to="/login" replace />
   }
 
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar gets the role to generate the correct links */}
       {/* <Sidebar role={user.role} /> */}
-    <Sidebar role={user.userType === "admin" ? "Admin" : user.userType === "head" ? "Head" : "Member"} />
+      <Sidebar role={user.userType === "admin" ? "Admin" : user.userType === "head" ? "Head" : user.userType == "member" ? "Member" : "User"} />
 
       {/* The main content area */}
       <main className="flex-1 overflow-y-auto pt-16 lg:pt-0">
