@@ -60,6 +60,7 @@ export function TaskByHead() {
         limit: 6,
     });
     const tasks = response?.data || [];
+    console.log("TASK from FetchTaskByHead: ", tasks);
 
     const pagination = response?.data?.pagination || {
         currentPage: 1,
@@ -108,6 +109,8 @@ export function TaskByHead() {
                 );
         }
     };
+
+    console.log("selectedTask: ", selectedTask);
 
     return (
         <div>
@@ -200,7 +203,7 @@ export function TaskByHead() {
                 <>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {!isLoading &&
-                            tasks.map((task: any) => (
+                            tasks?.map((task: any) => (
                                 <div
                                     key={task._id}
                                     className="hover:bg-slate-50 transition-colors bg-white border border-gray-200 rounded-xl p-5 flex flex-col justify-between shadow-sm"
@@ -228,6 +231,7 @@ export function TaskByHead() {
 
                                         <div className="space-y-1 text-xs text-gray-500 border-t border-gray-50 pt-3 mt-auto">
                                             <div>
+                                                {/* FUCKED */}
                                                 <span className="font-semibold text-gray-600">
                                                     Assigned:
                                                 </span>{" "}
@@ -258,7 +262,8 @@ export function TaskByHead() {
                                                 : "Remove"}
                                         </button>
                                         <button
-                                            onClick={() => {
+                                            onClick={(e) => {
+                                                e.stopPropagation();
                                                 setSelectedTask(task);
                                                 setIsModalOpen(true);
                                             }}
