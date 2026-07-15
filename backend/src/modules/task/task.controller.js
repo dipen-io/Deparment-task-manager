@@ -20,7 +20,6 @@ const { HTTP_STATUS } = require("../../constant/httpStatus");
 
 // creat task
 const createTask = asyncHandler(async (req, res) => {
-    console.log("req.body: ", req.body);
   const taskPayoad = {
     ...req.body,
     // createdBy: req.user._id,

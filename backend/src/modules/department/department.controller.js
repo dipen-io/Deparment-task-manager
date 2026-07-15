@@ -16,7 +16,6 @@ exports.createDepartment = asyncHandler(async (req, res) => {
 });
 
 exports.getDepartment = asyncHandler(async (req, res) => {
-    console.log("req.query : ", req.query);
     const departments = await getDept(req.query);
 
     res.status(200).json(
@@ -53,7 +52,6 @@ exports.assignDepartment = asyncHandler(async (req, res) => {
     const { role, oldMangerId } = req.body
 
     const user = await assignDept(userId, deptId, role, oldMangerId);
-    console.log("user:",user);
     res.status(200).json(
         new ApiResponse(200, "Department assigned successfully", user),
     );

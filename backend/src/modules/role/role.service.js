@@ -133,7 +133,6 @@ const getRolesUsingId = async(userId) => {
             model: "Permission"
         }
     })
-    console.log(validUserId);
 
     if (validUserId == null) {
         // two case he may be admin or usel

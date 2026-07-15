@@ -4,7 +4,6 @@ const { ROLES } = require("../../constant/roles");
 
 
 const getAllEmployees = async (role, department, query) => {
-    console.log(role, department, query);
   const filter = { userType: "member" };
 
   if (role === ROLES.DEPT_HEAD) {
@@ -16,7 +15,6 @@ const getAllEmployees = async (role, department, query) => {
       { email: { $regex: query.search, $options: "i" } },
     ];
   }
-    console.log("filter", filter)
 
   const employees = await User.find(filter)
         .populate({
@@ -42,7 +40,6 @@ const getAllEmployees = async (role, department, query) => {
     .select("-password -refreshToken")
     .sort({ createdAt: -1 });
 
-    console.log("employees: ",employees)
   return employees;
 };
 

@@ -27,7 +27,7 @@ const protect = asyncHandler(async (req, res, next) => {
 });
 
 const authorize = (...allowedRoles) => {
-  console.log("ROLES VERFIED!")
+  // console.log("ROLES VERFIED!")
   return (req, res, next) => {
   // console.log("req.user from authorize => ", req.user);
     if (!req.user || !allowedRoles.includes(req.user.userType)) {
