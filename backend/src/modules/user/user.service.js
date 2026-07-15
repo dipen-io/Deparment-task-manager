@@ -7,7 +7,11 @@ const getAllEmployees = async (role, department, query) => {
   const filter = { userType: "member" };
 
   if (role === ROLES.DEPT_HEAD) {
-    filter.department = department;
+      if (department) {
+          filter.department = department;
+      } else {
+          return [];
+      }
   }
   if (query.search) {
     filter.$or = [
@@ -28,15 +32,6 @@ const getAllEmployees = async (role, department, query) => {
             path: "department",
         })
 
-    // .populate({
-    //   path: "permissions",
-    //   select: "name desc createdBy",
-    //   populate: {
-    //     path: "createdBy",
-    //     model: "User",
-    //     select: "name email role"
-    //   }
-    // })
     .select("-password -refreshToken")
     .sort({ createdAt: -1 });
 
