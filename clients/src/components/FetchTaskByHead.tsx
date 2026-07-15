@@ -17,7 +17,7 @@ import { CreateTaskModal } from "./CreateTaskModal";
 import { useTaskByHead } from "../hooks/useTask";
 import { useTaskMutations } from "../hooks/useTaskMutation";
 
-type FilterType = "all" | "pending" | "in-process" | "completed";
+type FilterType = "all" | "pending" | "in-progress" | "completed";
 
 export function TaskByHead() {
     const [deleting, setisDeleting] = useState(false);
@@ -60,9 +60,25 @@ export function TaskByHead() {
         limit: 6,
     });
 
-    const tasks = Array.isArray(response?.data)
+    // const tasks = Array.isArray(response?.data)
+    //     ? response.data
+    //     : (Array.isArray(response?.data?.data) ? response.data.data : []);
+
+    // 1 Resolve the raw tasks array from the API response structure
+    const rawTasks = Array.isArray(response?.data)
         ? response.data
         : (Array.isArray(response?.data?.data) ? response.data.data : []);
+
+    // 2 Filter the tasks locally on the client side
+    const tasks = rawTasks.filter((task: any) => {
+        if (activeFilter === "all") return true;
+
+        // Resolve the active status of the task
+        // If there is no assignment object, default the status to "pending"
+        const taskStatus = task.assignedTo?.status || "pending";
+
+        return taskStatus === activeFilter;
+    });
 
     const pagination = response?.data?.pagination || response?.pagination || {
         currentPage: 1,
@@ -122,7 +138,7 @@ export function TaskByHead() {
                         [
                             "all",
                             "pending",
-                            "in-process",
+                            "in-progress",
                             "completed",
                         ] as FilterType[]
                     ).map((filter) => (

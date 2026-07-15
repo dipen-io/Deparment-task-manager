@@ -66,7 +66,8 @@ export function EmployeeTask() {
 
     const handleStatusUpdate = async (taskId: string, nextStatus: Task['status']) => {
         // ⚡ OPTIMISTIC UI UPDATE: Swap statuses instantaneously so layout doesn't lag out
-        setTasks(prev => prev.map(t => t.task._id === taskId ? { ...t, status: nextStatus } : t));
+        // setTasks(prev => prev.map(t => t.task._id === taskId ? { ...t, status: nextStatus } : t));
+        setTasks(prev => prev.map(t => t.task?._id === taskId ? { ...t, status: nextStatus } : t));
         setOpenDropdown(null);
 
         try {
@@ -103,7 +104,7 @@ export function EmployeeTask() {
             </div>
         );
     }
-
+    console.log("tasks", tasks);
     return (
         <div className="max-w-4xl mx-auto p-4 md:p-6 space-y-6 font-sans">
 
@@ -194,7 +195,7 @@ export function EmployeeTask() {
                                                         <button
                                                             key={key}
                                                             type="button"
-                                                            onClick={() => handleStatusUpdate(task.task._id, key as Task['status'])}
+                                                            onClick={() => handleStatusUpdate(task.task?._id, key as Task['status'])}
                                                             className={`w-full flex items-center gap-2 px-2.5 py-2 text-xs font-semibold rounded-lg transition-colors text-left ${isSelected
                                                                 ? 'bg-slate-50 text-slate-800 pointer-events-none'
                                                                 : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 cursor-pointer'
