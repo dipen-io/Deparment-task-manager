@@ -16,7 +16,7 @@ import { CreateTaskModal } from "./CreateTaskModal";
 import { useTask } from "../hooks/useTask";
 import { useTaskMutations } from "../hooks/useTaskMutation";
 
-type FilterType = "all" | "pending" | "in-process" | "completed";
+type FilterType = "all" | "pending" | "in-progress" | "completed";
 
 export function AllTasks() {
     const [deleting, setisDeleting] = useState(false);
@@ -122,7 +122,7 @@ export function AllTasks() {
                         [
                             "all",
                             "pending",
-                            "in-process",
+                            "in-progress",
                             "completed",
                         ] as FilterType[]
                     ).map((filter) => (
