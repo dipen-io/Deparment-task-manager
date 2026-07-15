@@ -45,6 +45,11 @@ const remove = async (taskId, user) => {
     }
 
     await Task.findByIdAndDelete(taskId);
+    // if ter removing the task i want to remove that task 
+    // from assignedTask too
+    await TaskAssignment.deleteMany({
+        task: taskId
+    });
 
     return;
 };
