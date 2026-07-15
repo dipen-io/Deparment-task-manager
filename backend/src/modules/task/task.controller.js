@@ -193,9 +193,9 @@ const getUserTask = asyncHandler (async (req, res) => {
 
 const getAdminTask = asyncHandler (async (req, res) => {
 
-    const { search, limit, page } = req.query;
+    const { search, limit, page, status } = req.query;
 
-    const task = await getTaskForAdminOnly( search, limit, page); 
+    const task = await getTaskForAdminOnly( search, limit, page, status); 
 
     res.status(200)
     .json(new ApiResponse(200, "Fetch Task by Admin", task))
