@@ -41,7 +41,7 @@ interface AuthResponse {
 // API functions
 export const loginUser = async (data: LoginPayload): Promise<AuthResponse> => {
   const res = await api.post<AuthResponse>("/auth/login", data);
-  console.log("RESLOGIN: ", res);
+  // console.log("RESLOGIN: ", res);
   return res.data;
 };
 
