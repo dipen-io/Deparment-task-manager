@@ -46,22 +46,6 @@ export const router = createBrowserRouter([
       { path: "department", element: <Department /> },
     ],
   },
-  // {
-  //   path: "/admin/task/:id",
-  //   element: (
-  //     <ProtectedRoute>
-  //       <SingleTask />
-  //     </ProtectedRoute>
-  //   ),
-  // },
-  // {
-  //   path: "/admin/role",
-  //   element: (
-  //     <ProtectedRoute>
-  //       <RoleComponents />
-  //     </ProtectedRoute>
-  //   ),
-  // },
 
   // --- DEPT_HEAD ROUTES ---
   {
@@ -76,7 +60,6 @@ export const router = createBrowserRouter([
       { path: "dashboard", element: <DeptHeadDashboard /> },
       { path: "tasks", element: <TaskByHead /> },
       { path: "task/:id", element: <SingleTask /> },
-
     ],
   },
 

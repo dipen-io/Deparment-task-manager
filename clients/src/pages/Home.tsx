@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 
 export function Home() {
     const { user, loading } = useAuth();
-    console.log("USER", user);
+    // console.log("USER", user);
 
     if (loading) {
         return <div>Loading...</div>;
