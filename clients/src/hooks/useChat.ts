@@ -12,8 +12,10 @@ export const chatKeys = {
 
 export function UseGetChat({ deptId }) {
     return useQuery({
-        queryKey: chatKeys.lists(),
+        // queryKey: chatKeys.lists(),
+        queryKey: ['chat', deptId],
         queryFn: () => getChatHistory(deptId),
+        enabled: !!deptId,
         placeholderData: keepPreviousData,
     });
 }

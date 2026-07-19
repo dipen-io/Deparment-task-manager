@@ -7,6 +7,8 @@ import {
 } from "react";
 import type { ReactNode } from "react";
 import type { User } from "../components/types/userType"
+import { useQueryClient } from "@tanstack/react-query";
+
 // interface User {
 //     _id: string; // ✅ match MongoDB field
 //     name: string; // ✅ add name too
@@ -41,11 +43,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [token, setToken] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
+    const queryClient = useQueryClient();
 
     // ✅ useCallback makes logout stable — safe to use inside useEffect
     const logout = useCallback(() => {
         setUser(null);
         setToken(null);
+        queryClient.clear();
         localStorage.removeItem("user");
         localStorage.removeItem("token");
     }, []);
