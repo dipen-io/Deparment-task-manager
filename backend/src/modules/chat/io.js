@@ -1,8 +1,9 @@
+// src/modules/chat/io.js
 const Message = require("./chat.model");
 
 const initializeChatSockets = async (io) => {
+    console.log("🚀 Socket.io Layer: Event listeners registered successfully!");
     io.on('connection', (socket) => {
-        console.log("hello", socket)
         console.log(`Socket Connected: ${socket.id}`);
 
         // 1 Entering a department Chat Room
@@ -15,6 +16,7 @@ const initializeChatSockets = async (io) => {
 
         //2. Handing new message
         socket.on('send_message', async (data) => {
+            console.log(`Message from ${socket.id}:`, data);
             const { departmentId,senderId, senderName, message} = data;
             if (!departmentId || !message.trim()) return;
 
@@ -28,7 +30,6 @@ const initializeChatSockets = async (io) => {
                     message,
                 })
 
-                // STEP: 2
                 // STEP: 2 Broadcast the message in a department
                 io.to(departmentId).emit('receive_message', newMsg);
             } catch (error) {

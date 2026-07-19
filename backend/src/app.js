@@ -27,12 +27,14 @@ routes(app);
 
 // healthcheck
 app.get('/health', (req, res) => {
+    const io = req.app.get('io');
+    console.log("IO: ", io);
     res.json({
         success: true,
         message: "API Is WORKING..",
         status: 'UP',
         timestamp: new Date(),
-        connections: req.io ? req.io.engine.clientsCount : 0,
+        connections: io ? io.engine.clientsCount : 0,
     });
 });
 

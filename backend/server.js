@@ -2,6 +2,7 @@ const app = require("./src/app");
 const http = require("node:http");
 const { Server } = require("socket.io");
 const initializeChatSockets = require('./src/modules/chat/io');
+const corsOptions = require("./src/config/cors");
 
 const connectDb = require("./src/config/db");
 // const makeAdmin = require("./src/middleware/makeAdmin");
@@ -11,11 +12,17 @@ const PORT = process.env.PORT || 8081;
 
 const server = http.createServer(app);
 
-const io = new Server(server);
+const io = new Server(server, {
+    // cors: corsOptions
+    cors: {
+        origin: "*", // Allows any client address during testing
+    }
+});
 
 app.set('io', io);
 
 initializeChatSockets(io) 
+
 const startServer = async () => {
   try {
     await connectDb();
