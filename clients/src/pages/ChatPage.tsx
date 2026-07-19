@@ -64,6 +64,7 @@ export default function ChatPage() {
         const messagePayload = {
             departmentId,
             senderId: user._id,
+            senderType: user.userType,
             senderName: user.name,
             message: text.trim(),
         };
@@ -160,7 +161,7 @@ export default function ChatPage() {
                                 {/* Render sender signature block name tag exclusively for team member records */}
                                 {!isMyMessage && (
                                     <p className="text-[11px] font-bold text-emerald-600 block mb-0.5">
-                                        {msg.senderName}
+                                        {msg.senderName} {msg.senderType ? `(${msg.senderType})` : null}
                                     </p>
                                 )}
 
