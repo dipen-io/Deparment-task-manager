@@ -12,18 +12,25 @@ export function DashboardLayout({ allowedProps }: DashboardLayoutProps) {
 
   // If no user is logged in, send them to login
   if (loading) return <div> loaidng.. </div>
-  if (!user) return <Navigate to="/login" replace />;
+  // if (!user) return <Navigate to="/login" replace />;
+  if (!user) return null;
 
   const hasPermission = allowedProps?.includes(user.userType as any);
   if (!hasPermission) {
-    return <Navigate to="/login" replace />
+   console.warn(`User type "${user.userType}" unauthorized for this layout. Re-routing.`);
+    // return <Navigate to="/login" replace />
+   return <Navigate to="/" replace />; // home will send them to correct route
   }
+
+  const sidebarRole = 
+      user.userType === "admin" ? "Admin" : 
+      user.userType === "head" ? "Head" :
+      user.userType === "member" ? "Member" : "User"
 
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar gets the role to generate the correct links */}
-      {/* <Sidebar role={user.role} /> */}
-      <Sidebar role={user.userType === "admin" ? "Admin" : user.userType === "head" ? "Head" : user.userType == "member" ? "Member" : "User"} />
+      <Sidebar role={sidebarRole} />
 
       {/* The main content area */}
       <main className="flex-1 overflow-y-auto pt-16 lg:pt-0">

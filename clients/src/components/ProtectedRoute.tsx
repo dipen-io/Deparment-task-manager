@@ -11,8 +11,10 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
   if (!user) {
-    console.log("No user found, kicking to landing");
-    return <Navigate to="/landing" replace />;
+    // console.log("No user found, kicking to landing");
+    console.log("Session expired or missing, redirecting to login");
+    // return <Navigate to="/landing" replace />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   return children;
