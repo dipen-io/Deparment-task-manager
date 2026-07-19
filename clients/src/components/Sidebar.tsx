@@ -47,6 +47,18 @@ export function Sidebar({ role }: SidebarProps) {
             path: `${basePath}/tasks`,
         },
 
+        // if role = head & member i want to show chat
+        ...(role === "Head" && "Member" ?
+            [
+                {
+                    label: "Chat",
+                    icon: Landmark, // Your admin icon component/asset
+                    path: `${basePath}/chat`,
+                }
+            ]
+            : []
+        ),
+
 
         ...(role === "Admin"
             ? [

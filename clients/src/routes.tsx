@@ -20,6 +20,7 @@ import { TaskByHead } from "./components/FetchTaskByHead";
 import { ProjectDetails } from "./pages/ProjectInfo";
 
 import { RouteErrorPage } from "./pages/RouteErrorPage";
+import ChatPage from "./pages/ChatPage";
 
 export const router = createBrowserRouter([
   {
@@ -66,6 +67,7 @@ export const router = createBrowserRouter([
       { path: "dashboard", element: <DeptHeadDashboard /> },
       { path: "tasks", element: <TaskByHead /> },
       { path: "task/:id", element: <SingleTask /> },
+      { path: "chat", element: <ChatPage /> }
     ],
   },
 
@@ -81,6 +83,8 @@ export const router = createBrowserRouter([
     children: [
       { path: "dashboard", element: <EmployeeDashbaord /> },
       { path: "tasks", element: <EmployeeTask /> },
+      { path: "chat", element: <ChatPage /> }
+
     ],
   },
 
