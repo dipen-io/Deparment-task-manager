@@ -19,6 +19,8 @@ import { RoleComponents } from "./components/RoleComponents";
 import { TaskByHead } from "./components/FetchTaskByHead";
 import { ProjectDetails } from "./pages/ProjectInfo";
 
+import { RouteErrorPage } from "./pages/RouteErrorPage";
+
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -28,6 +30,7 @@ export const router = createBrowserRouter([
         <Home />
       </ProtectedRoute>
     ),
+    errorElement: <RouteErrorPage />
   },
   // --- ADMIN ROUTES ---
   {
@@ -37,6 +40,8 @@ export const router = createBrowserRouter([
         <DashboardLayout allowedProps={["admin"]} />
       </ProtectedRoute>
     ),
+
+    errorElement: <RouteErrorPage />,
     children: [
       { index: true, element: <Navigate to="dashboard" replace /> },
       { path: "dashboard", element: <AdminDashboard /> },
@@ -55,6 +60,7 @@ export const router = createBrowserRouter([
         <DashboardLayout allowedProps={["head"]} />
       </ProtectedRoute>
     ),
+    errorElement: <RouteErrorPage />,
     children: [
       { index: true, element: <Navigate to="dashboard" replace /> },
       { path: "dashboard", element: <DeptHeadDashboard /> },
@@ -71,6 +77,7 @@ export const router = createBrowserRouter([
         <DashboardLayout allowedProps={["member", "user"]} />
       </ProtectedRoute>
     ),
+    errorElement: <RouteErrorPage />,
     children: [
       { path: "dashboard", element: <EmployeeDashbaord /> },
       { path: "tasks", element: <EmployeeTask /> },
@@ -84,6 +91,7 @@ export const router = createBrowserRouter([
         <SingleTask />
       </ProtectedRoute>
     ),
+    errorElement: <RouteErrorPage />,
   },
 
   {
@@ -92,7 +100,6 @@ export const router = createBrowserRouter([
       <ProtectedRoute >
         <ProfilePage />,
       </ProtectedRoute >)
-
   },
   {
     path: "/landing",
