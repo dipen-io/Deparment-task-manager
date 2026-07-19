@@ -1,8 +1,14 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { io } from "socket.io-client";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { io, Socket } from "socket.io-client";
 import { useAuth } from "./AuthContext";
 
-const SocketContext = createContext(null);
+
+interface SocketContextType {
+    socket: Socket | null;
+    isConnected: boolean;
+}
+
+export const SocketContext = createContext<SocketContextType | null>(null);
 
 export const useSocket = () => {
     const context = useContext(SocketContext);
@@ -11,8 +17,8 @@ export const useSocket = () => {
     return context;
 }
 
-export const SocketProvider = ({ children }) => {
-    const [socket, setSocket] = useState(null);
+export const SocketProvider = ({ children }: { children: ReactNode }) => {
+    const [socket, setSocket] = useState<Socket | null>(null);
     const [isConnected, setIsConnected] = useState(false);
     const { user, token } = useAuth();
 

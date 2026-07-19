@@ -10,7 +10,7 @@ export const chatKeys = {
     detail: (id: string) => [...chatKeys.all, "detail", id] as const,
 };
 
-export function UseGetChat({ deptId }) {
+export function UseGetChat({ deptId }: { deptId: string }) {
     return useQuery({
         // queryKey: chatKeys.lists(),
         queryKey: ['chat', deptId],

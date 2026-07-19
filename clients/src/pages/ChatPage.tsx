@@ -1,7 +1,8 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, type SetStateAction } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useSocket } from "../context/SocketContext";
 import { UseGetChat } from "../hooks/useChat";
+import type { Message } from "../components/types/messageType";
 
 export default function ChatPage() {
     const { user } = useAuth();
@@ -9,20 +10,19 @@ export default function ChatPage() {
     const [hasMore, setHasMore] = useState(true);
     const [isFetchingOlder, setIsFetchingOlder] = useState(false);
 
-    // ⚡ FIX 1: This ref must point directly to the inner scrollable viewport box!
-    const chatContainerRef = useRef(null);
+    const chatContainerRef = useRef<HTMLDivElement | null>(null);
 
-    const [messages, setMessages] = useState([]);
+    const [messages, setMessages] = useState<Message[]>([]);
     const [text, setText] = useState("");
 
-    const [typingUsers, setTypingUsers] = useState([]);
+    const [typingUsers, setTypingUsers] = useState<string[]>([]);
     const isTypingLocalRef = useRef(false);
-    const typingTimeoutRef = useRef(null);
+    const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const messagesEndRef = useRef(null);
+    const messagesEndRef = useRef<HTMLDivElement | null>(null);
     const departmentId = user?.department?._id;
 
-    const { data: response, isLoading } = UseGetChat({ deptId: departmentId });
+    const { data: response, isLoading } = UseGetChat({ deptId: departmentId! });
 
     useEffect(() => {
         const historicalData = response?.data?.chat || response?.data?.messages || response?.data;
@@ -55,7 +55,7 @@ export default function ChatPage() {
             setMessages((prev) => [...prev, newMessage]);
         });
 
-        socket.on('user_typing', ({ username, isTyping }) => {
+        socket.on('user_typing', ({ username, isTyping }: { username: string; isTyping: boolean }) => {
             setTypingUsers((prev) => {
                 if (isTyping) {
                     return prev.includes(username) ? prev : [...prev, username];
@@ -72,11 +72,13 @@ export default function ChatPage() {
         };
     }, [socket, isConnected, departmentId, user]);
 
-    const handleSendMsg = (e) => {
+    const handleSendMsg = (e: { preventDefault: () => void; }) => {
         e.preventDefault();
         if (!text.trim() || !socket) return;
 
-        clearTimeout(typingTimeoutRef.current);
+        if (typingTimeoutRef.current) {
+            clearTimeout(typingTimeoutRef.current);
+        }
         isTypingLocalRef.current = false;
         socket.emit('typing', { departmentId, username: user?.name, isTyping: false });
 
@@ -92,7 +94,7 @@ export default function ChatPage() {
         setText('');
     };
 
-    const handleInputChange = (e) => {
+    const handleInputChange = (e: { target: { value: SetStateAction<string>; }; }) => {
         setText(e.target.value);
 
         if (!socket || !isConnected || !departmentId) return;
@@ -102,7 +104,9 @@ export default function ChatPage() {
             socket.emit('typing', { departmentId, username: user?.name, isTyping: true });
         }
 
-        clearTimeout(typingTimeoutRef.current);
+        if (typingTimeoutRef.current) {
+            clearTimeout(typingTimeoutRef.current);
+        }
         typingTimeoutRef.current = setTimeout(() => {
             isTypingLocalRef.current = false;
             socket.emit('typing', { departmentId, username: user?.name, isTyping: false });
