@@ -48,11 +48,11 @@ export function Sidebar({ role }: SidebarProps) {
         },
 
         // if role = head & member i want to show chat
-        ...(role === "Head" && "Member" ?
-            [
+        ...((role === "Head" || role === "Member")
+            ? [
                 {
                     label: "Chat",
-                    icon: Landmark, // Your admin icon component/asset
+                    icon: Landmark, // Consider changing this to a MessageSquare icon later!
                     path: `${basePath}/chat`,
                 }
             ]
