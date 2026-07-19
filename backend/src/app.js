@@ -30,9 +30,11 @@ app.get('/health', (req, res) => {
     res.json({
         success: true,
         message: "API Is WORKING..",
+        status: 'UP',
+        timestamp: new Date(),
+        connections: req.io ? req.io.engine.clientsCount : 0,
     });
 });
-
 
 app.use((req, res, next) => {
     console.log(`HIT 404 CATCH-ALL for ${req.url}`);
