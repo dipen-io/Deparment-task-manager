@@ -11,6 +11,12 @@ exports.deleteDepartments = asyncHandler(async (req, res) => {
 
 exports.getChatHistory = asyncHandler(async (req, res) => {
     const { deptId } = req.params;
-    const chat = await getChatHistory(deptId);
-    res.status(200).json(new ApiResponse(200, "fetch chat history", chat));
+    const { before } = req.query;
+    const chat = await getChatHistory(deptId, before);
+    res.status(200).json(new ApiResponse(200, "fetch chat history", 
+        {
+            chat, count: chat.length,
+            hasMore : chat.length === 50,
+        }
+    ));
 })

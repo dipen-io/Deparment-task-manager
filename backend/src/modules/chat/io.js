@@ -17,7 +17,7 @@ const initializeChatSockets = async (io) => {
         //2. Handing new message
         socket.on('send_message', async (data) => {
             console.log(`Message from ${socket.id}:`, data);
-            const { departmentId,senderId, senderName, message} = data;
+            const { departmentId, senderId, senderName, message } = data;
             if (!departmentId || !message.trim()) return;
 
             try {
@@ -37,7 +37,7 @@ const initializeChatSockets = async (io) => {
             }
         });
 
-        socket.on('leave_dept', ({departmentId}) => {
+        socket.on('leave_dept', ({ departmentId }) => {
             if (!departmentId) return;
             socket.leave(departmentId);
             console.log(`🚪 Socket left room: ${departmentId}`);

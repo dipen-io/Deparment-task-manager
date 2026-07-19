@@ -1,13 +1,16 @@
 const Message = require('./chat.model');
 const Department = require('../department/department.model');
+const AppError = require('../../utils/AppError');
 
 const getChatHistory = async (deptId) => {
     try {
-        const message = await Message.find({ deptId })
-        .sort({createdAt: -1}) // Get newest first
-        .limit(50) // keep it light
+        const messages = await Message.find({ departmentId: deptId })
+            .sort({ createdAt: -1 }) // Get the 50 newest records from the database first
+            .limit(50) 
+            .lean(); 
 
-        return message.reverse();
+        return messages.reverse();
+
     } catch (error) {
         throw new AppError("Failed to retrieve chat history.", 500);
     }
