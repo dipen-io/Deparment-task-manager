@@ -38,6 +38,11 @@ const initializeChatSockets = async (io) => {
             }
         });
 
+        socket.on("typing", ({departmentId, username, isTyping}) => {
+            if (!departmentId) return;
+            socket.to(departmentId).emit('user_typing', { username, isTyping })
+        })
+
         socket.on('leave_dept', ({ departmentId }) => {
             if (!departmentId) return;
             socket.leave(departmentId);

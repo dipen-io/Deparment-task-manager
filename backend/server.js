@@ -13,10 +13,10 @@ const PORT = process.env.PORT || 8081;
 const server = http.createServer(app);
 
 const io = new Server(server, {
-    // cors: corsOptions
-    cors: {
-        origin: "*", // Allows any client address during testing
-    }
+    cors: corsOptions
+    // cors: {
+    //     origin: "*", // Allows any client address during testing
+    // }
 });
 
 app.set('io', io);

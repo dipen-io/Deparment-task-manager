@@ -8,7 +8,7 @@ const messageSchema = new mongoose.Schema({
         index: true,
     },
     senderType : {
-        type: String
+        type: String,
         enum: ["member" , "head", "user"],
         default: "user"
     },
