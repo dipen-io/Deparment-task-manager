@@ -8,19 +8,22 @@ export default function ChatPage() {
     const { socket, isConnected } = useSocket();
     const [hasMore, setHasMore] = useState(true);
     const [isFetchingOlder, setIsFetchingOlder] = useState(false);
+
+    // ⚡ FIX 1: This ref must point directly to the inner scrollable viewport box!
     const chatContainerRef = useRef(null);
 
-    // Named 'messages' (plural) since it holds the chat history array
     const [messages, setMessages] = useState([]);
     const [text, setText] = useState("");
+
+    const [typingUsers, setTypingUsers] = useState([]);
+    const isTypingLocalRef = useRef(false);
+    const typingTimeoutRef = useRef(null);
 
     const messagesEndRef = useRef(null);
     const departmentId = user?.department?._id;
 
-    // 1. Fetch initial chat history via HTTP REST hook
     const { data: response, isLoading } = UseGetChat({ deptId: departmentId });
 
-    // 2. Sync HTTP History to state securely (prevents infinite re-render loop)
     useEffect(() => {
         const historicalData = response?.data?.chat || response?.data?.messages || response?.data;
         if (historicalData && Array.isArray(historicalData)) {
@@ -28,59 +31,91 @@ export default function ChatPage() {
         }
     }, [response]);
 
-    // 3. Smooth scroll anchor logic to auto-snap to newest message updates
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
 
     useEffect(() => {
-        scrollToBottom();
+        // Only auto-scroll down if the user isn't actively reading older history chunks
+        const container = chatContainerRef.current;
+        if (container && container.scrollTop > container.scrollHeight - container.clientHeight - 200) {
+            scrollToBottom();
+        } else if (messages.length <= 50) {
+            scrollToBottom(); // Always snap down on initial load batch
+        }
     }, [messages]);
 
-    // 4. WebSocket Lifecycle: Handle room entry, listening, and cleanup routines
     useEffect(() => {
+        // ⚡ FIX 2: Added safe optional chaining protection guards
         if (!socket || !isConnected || !departmentId) return;
 
-        // Tell server we are entering this specific department chat room
         socket.emit('join_dept', { departmentId, user });
 
-        // Listen for live broadcast messages from other room members
         socket.on('receive_message', (newMessage) => {
             setMessages((prev) => [...prev, newMessage]);
         });
 
-        // Clean up listeners and leave room context on unmount
+        socket.on('user_typing', ({ username, isTyping }) => {
+            setTypingUsers((prev) => {
+                if (isTyping) {
+                    return prev.includes(username) ? prev : [...prev, username];
+                } else {
+                    return prev.filter((name) => name !== username);
+                }
+            });
+        });
+
         return () => {
             socket.emit('leave_dept', { departmentId });
             socket.off('receive_message');
+            socket.off('user_typing');
         };
     }, [socket, isConnected, departmentId, user]);
 
-    // 5. Fire outgoing messages down the real-time pipe
     const handleSendMsg = (e) => {
         e.preventDefault();
         if (!text.trim() || !socket) return;
 
+        clearTimeout(typingTimeoutRef.current);
+        isTypingLocalRef.current = false;
+        socket.emit('typing', { departmentId, username: user?.name, isTyping: false });
+
         const messagePayload = {
             departmentId,
-            senderId: user._id,
-            senderType: user.userType,
-            senderName: user.name,
+            senderId: user?._id,
+            senderType: user?.userType || user?.role,
+            senderName: user?.name,
             message: text.trim(),
         };
 
         socket.emit("send_message", messagePayload);
         setText('');
     };
+
+    const handleInputChange = (e) => {
+        setText(e.target.value);
+
+        if (!socket || !isConnected || !departmentId) return;
+
+        if (!isTypingLocalRef.current) {
+            isTypingLocalRef.current = true;
+            socket.emit('typing', { departmentId, username: user?.name, isTyping: true });
+        }
+
+        clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = setTimeout(() => {
+            isTypingLocalRef.current = false;
+            socket.emit('typing', { departmentId, username: user?.name, isTyping: false });
+        }, 2000);
+    };
+
     const handleScroll = async () => {
         const container = chatContainerRef.current;
         if (!container || isFetchingOlder || !hasMore) return;
 
-        // Detect if the user has scrolled to the absolute top of the chat box
         if (container.scrollTop === 0) {
             setIsFetchingOlder(true);
 
-            // Isolate the oldest message currently on screen
             const oldestMessage = messages[0];
             if (!oldestMessage) {
                 setIsFetchingOlder(false);
@@ -88,25 +123,22 @@ export default function ChatPage() {
             }
 
             try {
-                // Snapshot the height before the new elements are injected
                 const previousHeight = container.scrollHeight;
 
-                // Fetch the next slice from your API passing the oldest timestamp as the cursor
-                const url = `/api/v1/chat/${departmentId}?before=${encodeURIComponent(oldestMessage.createdAt)}`;
-                const res = await fetch(url); // Replace with your Axios/Hook fetching instance if needed
+                // ⚡ FIX 3: Target the absolute backend server URL path explicitly
+                const url = `http://localhost:8080/api/v1/chat/${departmentId}?before=${encodeURIComponent(oldestMessage.createdAt)}`;
+                const res = await fetch(url);
                 const data = await res.json();
 
                 if (data.messages && data.messages.length > 0) {
-                    // Prepend older history to the top, keeping live updates at the bottom
                     setMessages((prev) => [...data.messages, ...prev]);
                     setHasMore(data.hasMore);
 
-                    // Prevent screen jumping: Adjust scrollbar layout down by exactly how much the container grew
                     setTimeout(() => {
                         container.scrollTop = container.scrollHeight - previousHeight;
                     }, 0);
                 } else {
-                    setHasMore(false); // Reached the beginning of time in this chat room
+                    setHasMore(false);
                 }
             } catch (err) {
                 console.error("Failed to load older historical chunks:", err);
@@ -117,10 +149,7 @@ export default function ChatPage() {
     };
 
     return (
-        <div className="flex flex-col h-[850px] w-full max-w-full mx-auto border rounded-xl shadow-md bg-slate-50 overflow-hidden"
-            ref={chatContainerRef}
-            onScroll={handleScroll}
-        >
+        <div className="flex flex-col h-[850px] w-full max-w-full mx-auto border rounded-xl shadow-md bg-slate-50 overflow-hidden">
             {/* Department Header Badge Bar */}
             <div className="bg-slate-800 text-white px-4 py-3 flex items-center justify-between">
                 <div>
@@ -133,18 +162,25 @@ export default function ChatPage() {
                 </div>
             </div>
 
-            {/* Chat Viewport Screen (WhatsApp Style layout stacking logic) */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#efeae2]">
+            {/* ⚡ FIX 4: Ref and onScroll attached directly to the actual scrollable view panel! */}
+            <div
+                ref={chatContainerRef}
+                onScroll={handleScroll}
+                className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#efeae2]"
+            >
                 {isLoading && (
                     <div className="text-center text-xs text-slate-500 my-4">Loading secure history logs...</div>
+                )}
+
+                {isFetchingOlder && (
+                    <div className="text-center text-xs text-slate-500 my-2">Loading older context...</div>
                 )}
 
                 {!isLoading && messages.length === 0 && (
                     <div className="text-center text-xs text-slate-400 my-4">No historical records found. Start the conversation!</div>
                 )}
-                {isFetchingOlder && <div className="text-center text-xs text-slate-500">Loading older context...</div>}
+
                 {messages.map((msg, index) => {
-                    // Check if current message document object belongs to the logged-in user
                     const isMyMessage = msg.senderId === user?._id;
 
                     return (
@@ -152,38 +188,52 @@ export default function ChatPage() {
                             key={msg._id || index}
                             className={`flex w-full ${isMyMessage ? "justify-end" : "justify-start"}`}
                         >
-                            <div className={`max-w-[75%] rounded-lg px-3 py-1.5 shadow-sm text-sm relative
+                            <div className={`max-w-[75%] rounded-lg px-3 py-1.5 shadow-sm text-sm relative pb-5
                                 ${isMyMessage
                                     ? "bg-[#d9fdd3] text-slate-900 rounded-tr-none"
                                     : "bg-white text-slate-900 rounded-tl-none"
                                 }`}
                             >
-                                {/* Render sender signature block name tag exclusively for team member records */}
                                 {!isMyMessage && (
                                     <p className="text-[11px] font-bold text-emerald-600 block mb-0.5">
-                                        {msg.senderName} {msg.senderType ? `(${msg.senderType})` : null}
+                                        {msg.senderName}
+                                        {msg.senderType === 'head' && (
+                                            <span className="ml-1.5 bg-red-100 text-red-700 text-[9px] font-extrabold px-1 rounded uppercase tracking-wider">
+                                                Head
+                                            </span>
+                                        )}
                                     </p>
                                 )}
 
-                                <p className="leading-relaxed text-xl break-words pr-8">{msg.message}</p>
+                                <p className="leading-relaxed text-base break-words pr-4">{msg.message}</p>
 
-                                {/* Clean inline timestamp tag positioning rule */}
-                                <span className="absolutes bottom-2 right-4 text-[9px] text-slate-400 select-none">
+                                {/* ⚡ FIX 5: Repaired "absolutes" typo to let styles anchor layout */}
+                                <span className="absolute bottom-1 right-2 text-[9px] text-slate-400 select-none">
                                     {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ""}
                                 </span>
                             </div>
                         </div>
                     );
                 })}
-                {/* Scroll Target Element Anchor Node */}
                 <div ref={messagesEndRef} />
             </div>
 
-            {/* Sticky Lower WhatsApp Style Control Input Form Wrapper */}
+            {/* Real-time typing display bar remains right above entry line */}
+            {typingUsers.length > 0 && (
+                <div className="px-4 py-1.5 bg-[#efeae2] text-xs italic text-slate-500 font-medium flex items-center gap-1.5 transition-all border-t border-slate-200">
+                    <span className="flex space-x-0.5 items-center inline-block">
+                        <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                        <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                        <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                    </span>
+                    {typingUsers.join(", ")} {typingUsers.length === 1 ? "is" : "are"} typing...
+                </div>
+            )}
+
             <form onSubmit={handleSendMsg} className="p-3 bg-[#f0f2f5] border-t flex items-center gap-2">
                 <input
                     value={text}
-                    onChange={(e) => setText(e.target.value)}
+                    onChange={handleInputChange}
                     className="flex-1 border border-slate-200 rounded-full px-4 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder-slate-400"
                     placeholder="Type a message..."
                 />
@@ -196,7 +246,6 @@ export default function ChatPage() {
                             : "bg-slate-300 cursor-not-allowed"
                         }`}
                 >
-                    {/* SVG Paper Airplane Delivery Icon */}
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 transform rotate-45 -translate-x-0.5 translate-y-0.5">
                         <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
                     </svg>
