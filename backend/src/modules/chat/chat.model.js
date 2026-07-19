@@ -7,6 +7,11 @@ const messageSchema = new mongoose.Schema({
         required: true,
         index: true,
     },
+    senderType : {
+        type: String
+        enum: ["member" , "head", "user"],
+        default: "user"
+    },
     senderId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",

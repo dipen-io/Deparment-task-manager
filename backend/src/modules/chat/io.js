@@ -17,7 +17,7 @@ const initializeChatSockets = async (io) => {
         //2. Handing new message
         socket.on('send_message', async (data) => {
             console.log(`Message from ${socket.id}:`, data);
-            const { departmentId, senderId, senderName, message } = data;
+            const { departmentId, senderType, senderId, senderName, message } = data;
             if (!departmentId || !message.trim()) return;
 
             try {
@@ -25,6 +25,7 @@ const initializeChatSockets = async (io) => {
                 // save the message
                 const newMsg = await Message.create({
                     departmentId,
+                    senderType,
                     senderId,
                     senderName,
                     message,
