@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './styles/index.css'
 import { AuthProvider } from './context/AuthContext.tsx'
+import { SocketProvider } from './context/SocketContext.tsx'
 import App from './App.tsx'
 import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
@@ -16,7 +17,7 @@ const queryClient = new QueryClient({
         }
     }),
     mutationCache: new MutationCache({
-        onError: (error:any) => {
+        onError: (error: any) => {
             toast.error(`Action Faield: ${error.message} || "Failed to execute action"`)
         }
 
@@ -28,7 +29,7 @@ const queryClient = new QueryClient({
             retry: (failureCount, error: any) => {
                 // dont retry if its authtetication or authorization
                 if (error?.status === 401 || error?.status === 403) return false
-                    return failureCount < 2; // retry twice before breaking
+                return failureCount < 2; // retry twice before breaking
             },
             refetchOnWindowFocus: false,
         }
@@ -36,11 +37,13 @@ const queryClient = new QueryClient({
 })
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-      <QueryClientProvider client={queryClient} >
-          <AuthProvider>
-            <App />
-          </AuthProvider>
-     </QueryClientProvider >
-  </StrictMode>,
+    <StrictMode>
+        <QueryClientProvider client={queryClient} >
+            <AuthProvider>
+                <SocketProvider >
+                    <App />
+                </SocketProvider>
+            </AuthProvider>
+        </QueryClientProvider >
+    </StrictMode>,
 )
